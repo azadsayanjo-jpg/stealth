@@ -4,219 +4,325 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StealthCapital | Inferno v1.1</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    
     <style>
-        /* استایل‌های شما دقیقاً اینجا قرار دارند */
-        :root { --fire-bg: #050000; --fire-card: #120a0a; --fire-border: #3d1414; --fire-accent: #ff4d00; --fire-glow: #ff8800; --fire-text: #ffe0e0; --success: #00ff88; --danger: #ff0044; }
+        :root {
+            --fire-bg: #050000;
+            --fire-card: #120a0a;
+            --fire-border: #3d1414;
+            --fire-accent: #ff4d00;
+            --fire-glow: #ff8800;
+            --fire-text: #ffe0e0;
+            --success: #00ff88;
+            --danger: #ff0044;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--fire-bg); color: var(--fire-text); height: 100vh; display: flex; overflow: hidden; direction: ltr; }
+
         aside { width: 280px; background: #120a0a; border-right: 1px solid var(--fire-border); display: flex; flex-direction: column; padding: 25px; flex-shrink: 0; }
         .brand h1 { font-size: 1.4rem; color: var(--fire-accent); text-align: center; margin-bottom: 30px; text-shadow: 0 0 10px var(--fire-accent); font-weight: 900; }
+
         .nav-link { padding: 12px; border-radius: 8px; cursor: pointer; color: #855; transition: 0.3s; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
         .nav-link.active { background: rgba(255, 77, 0, 0.1); color: var(--fire-accent); border: 1px solid var(--fire-accent); }
+
         .inf-monitor { background: #1a0505; border: 1px solid var(--fire-border); border-radius: 12px; padding: 15px; margin-top: auto; }
         .m-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
         .m-total { border-top: 1px solid var(--fire-border); margin-top: 10px; padding-top: 10px; text-align: center; }
         .m-total b { color: var(--fire-glow); font-size: 1.1rem; }
         .share-tag { font-size: 0.7rem; color: #0f8; background: rgba(0, 255, 136, 0.1); padding: 2px 6px; border-radius: 4px; }
+
         main { flex-grow: 1; overflow-y: auto; padding: 30px; background: radial-gradient(circle at top, #1a0808 0%, #050000 100%); }
         .inf-card { background: var(--fire-card); border: 1px solid var(--fire-border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+
         label { display: block; color: #855; font-size: 0.7rem; margin-top: 10px; text-transform: uppercase; }
         input, select { width: 100%; background: #000; border: 1px solid var(--fire-border); padding: 10px; border-radius: 5px; color: #fff; margin-top: 5px; }
         .btn-fire { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; background: linear-gradient(45deg, #ff4d00, #ff8800); color: #000; margin-top: 15px; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { text-align: left; padding: 10px; color: #855; font-size: 0.75rem; border-bottom: 1px solid var(--fire-border); }
         td { padding: 12px 10px; border-bottom: 1px solid #1a0505; font-size: 0.85rem; }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         #toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 5px; display: none; z-index: 1000; font-weight: bold; }
+        
+        /* New Rate Display Style */
         .rate-box { background: rgba(0,0,0,0.3); border: 1px solid var(--fire-border); border-radius: 8px; padding: 8px; text-align: center; }
         .rate-val { font-weight: bold; font-size: 0.9rem; color: #fff; margin-top: 4px; }
     </style>
 </head>
 <body>
-    <div id="toast"></div>
-    <aside>
-        <div class="brand"><h1>StealthCapital</h1></div>
-        <nav>
-            <div class="nav-link active" onclick="tab(event, 'desk')"><i class="fas fa-bolt"></i> Terminal</div>
-            <div class="nav-link" onclick="tab(event, 'crm')"><i class="fas fa-users"></i> Clients</div>
-            <div class="nav-link" onclick="tab(event, 'logs')"><i class="fas fa-list"></i> History</div>
-            <div class="nav-link" onclick="tab(event, 'config')"><i class="fas fa-user-shield"></i> Vault</div>
-        </nav>
-        <div class="inf-monitor">
-            <div class="m-row"><span>Vault USDT:</span><b id="mon-usdt">0</b></div>
-            <div class="m-row"><span>Admin Share:</span><span id="mon-share" class="share-tag">0%</span></div>
-            <div class="m-row"><span>Vault IRT:</span><b id="mon-irt">0</b></div>
-            <div class="m-total"><small>TOTAL ECOSYSTEM VALUE</small><br><b id="mon-total">0 IRT</b></div>
+
+<div id="toast"></div>
+
+<aside>
+    <div class="brand"><h1>StealthCapital</h1></div>
+    <nav>
+        <div class="nav-link active" onclick="tab(event, 'desk')"><i class="fas fa-bolt"></i> Terminal</div>
+        <div class="nav-link" onclick="tab(event, 'crm')"><i class="fas fa-users"></i> Clients</div>
+        <div class="nav-link" onclick="tab(event, 'logs')"><i class="fas fa-list"></i> History</div>
+        <div class="nav-link" onclick="tab(event, 'config')"><i class="fas fa-user-shield"></i> Vault</div>
+    </nav>
+
+    <div class="inf-monitor">
+        <div class="m-row"><span>Vault USDT:</span><b id="mon-usdt">0</b></div>
+        <div class="m-row"><span>Admin Share:</span><span id="mon-share" class="share-tag">0%</span></div>
+        <div class="m-row"><span>Vault IRT:</span><b id="mon-irt">0</b></div>
+        <div class="m-total"><small>TOTAL ECOSYSTEM VALUE</small><br><b id="mon-total">0 IRT</b></div>
+    </div>
+</aside>
+
+<main>
+    <section id="desk" class="tab-content active">
+        <div class="grid">
+            <div class="inf-card">
+                <h4 style="color:var(--fire-accent)">Performance Chart</h4>
+                <div style="height: 300px;"><canvas id="profitChart"></canvas></div>
+            </div>
+            <div class="inf-card">
+                <h4>Order Execution</h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+                    <div class="rate-box"><small style="color: #855; font-size: 0.6rem;">BASE</small><div id="rate-base" class="rate-val">0</div></div>
+                    <div class="rate-box" style="border-color: var(--success);"><small style="color: var(--success); font-size: 0.6rem;">ASK (OUT)</small><div id="rate-ask" class="rate-val">0</div></div>
+                    <div class="rate-box" style="border-color: var(--danger);"><small style="color: var(--danger); font-size: 0.6rem;">BID (IN)</small><div id="rate-bid" class="rate-val">0</div></div>
+                </div>
+
+                <label>Client</label><select id="tx-user"></select>
+                <label>Side</label><select id="tx-side"><option value="buy">Client Buy (Vault Sells)</option><option value="sell">Client Sell (Vault Buys)</option></select>
+                <label>Amount (Toman)</label><input type="text" id="tx-amount" oninput="fmt(this)">
+                <div id="live-rate" style="margin-top:10px; font-size:0.7rem; color:var(--fire-glow);">Spread: 0 IRT</div>
+                <button class="btn-fire" onclick="engineExecute()">Process & Print Invoice</button>
+            </div>
         </div>
-    </aside>
-    <main>
-        <section id="desk" class="tab-content active">
-            <div class="grid">
-                <div class="inf-card"><h4 style="color:var(--fire-accent)">Performance Chart</h4><div style="height: 300px;"><canvas id="profitChart"></canvas></div></div>
-                <div class="inf-card">
-                    <h4>Order Execution</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-                        <div class="rate-box"><small style="color: #855; font-size: 0.6rem;">BASE</small><div id="rate-base" class="rate-val">0</div></div>
-                        <div class="rate-box" style="border-color: var(--success);"><small style="color: var(--success); font-size: 0.6rem;">ASK (OUT)</small><div id="rate-ask" class="rate-val">0</div></div>
-                        <div class="rate-box" style="border-color: var(--danger);"><small style="color: var(--danger); font-size: 0.6rem;">BID (IN)</small><div id="rate-bid" class="rate-val">0</div></div>
-                    </div>
-                    <label>Client</label><select id="tx-user"></select>
-                    <label>Side</label><select id="tx-side"><option value="buy">Client Buy (Vault Sells)</option><option value="sell">Client Sell (Vault Buys)</option></select>
-                    <label>Amount (Toman)</label><input type="text" id="tx-amount" oninput="fmt(this)">
-                    <div id="live-rate" style="margin-top:10px; font-size:0.7rem; color:var(--fire-glow);">Spread: 0 IRT</div>
-                    <button class="btn-fire" onclick="engineExecute()">Process & Print Invoice</button>
-                </div>
+    </section>
+
+    <section id="crm" class="tab-content">
+        <div class="grid">
+            <div class="inf-card">
+                <h4>Client Pool & Market Share</h4>
+                <div id="crm-ui" style="display:grid; grid-template-columns:1fr; gap:10px;"></div>
             </div>
-        </section>
-        <section id="crm" class="tab-content">
-            <div class="grid">
-                <div class="inf-card"><h4>Client Pool & Market Share</h4><div id="crm-ui" style="display:grid; grid-template-columns:1fr; gap:10px;"></div></div>
-                <div class="inf-card">
-                    <h4>Identity Registration</h4>
-                    <label>Name</label><input type="text" id="reg-name">
-                    <label>Phone</label><input type="text" id="reg-phone">
-                    <button class="btn-fire" onclick="engineAddUser()">Secure Register</button>
-                </div>
+            <div class="inf-card">
+                <h4>Identity Registration</h4>
+                <label>Name</label><input type="text" id="reg-name">
+                <label>Phone</label><input type="text" id="reg-phone">
+                <button class="btn-fire" onclick="engineAddUser()">Secure Register</button>
             </div>
-        </section>
-        <section id="logs" class="tab-content">
-            <div class="inf-card"><h4>History Ledger</h4><table id="logs-table"><thead><tr><th>Time</th><th>User</th><th>Side</th><th>Qty</th><th>IRT</th><th>Profit</th></tr></thead><tbody id="logs-ui"></tbody></table></div>
-        </section>
-        <section id="config" class="tab-content">
-            <div class="grid">
-                <div class="inf-card"><h4>Vault Synchronization</h4><label>Vault IRT (Cash)</label><input type="text" id="v-irt" oninput="fmt(this)"><label>Vault USDT (Digital)</label><input type="text" id="v-usdt"><button class="btn-fire" onclick="engineSync()">Update Reserves</button></div>
-                <div class="inf-card"><h4>Price Calibration</h4><label>Ceiling (High)</label><input type="text" id="cal-h" oninput="fmt(this)"><label>Floor (Low)</label><input type="text" id="cal-l" oninput="fmt(this)"><button class="btn-fire" onclick="engineCalibrate()">Apply 75% Rule</button></div>
+        </div>
+    </section>
+
+    <section id="logs" class="tab-content">
+        <div class="inf-card">
+            <h4>History Ledger</h4>
+            <table id="logs-table">
+                <thead><tr><th>Time</th><th>User</th><th>Side</th><th>Qty</th><th>IRT</th><th>Profit</th></tr></thead>
+                <tbody id="logs-ui"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="config" class="tab-content">
+        <div class="grid">
+            <div class="inf-card">
+                <h4>Vault Synchronization</h4>
+                <label>Vault IRT (Cash)</label><input type="text" id="v-irt" oninput="fmt(this)">
+                <label>Vault USDT (Digital)</label><input type="text" id="v-usdt">
+                <button class="btn-fire" onclick="engineSync()">Update Reserves</button>
             </div>
-        </section>
-    </main>
+            <div class="inf-card">
+                <h4>Price Calibration</h4>
+                <label>Ceiling (High)</label><input type="text" id="cal-h" oninput="fmt(this)">
+                <label>Floor (Low)</label><input type="text" id="cal-l" oninput="fmt(this)">
+                <button class="btn-fire" onclick="engineCalibrate()">Apply 75% Rule</button>
+            </div>
+        </div>
+    </section>
+</main>
 
-    <script>
-        // --- بخش اتصال به دیتابیس ابری (FIREBASE) ---
-        const DB_URL = "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/.json";
+<script>
+    // تنظیمات فایربیس (جایگزین شده با آدرس شما)
+    const DB_URL = "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/.json";
 
-        let db = { u: [], l: [], v: { irt: 0, usdt: 0 }, r: 0 };
-        let chart;
+    // ساختار اولیه دیتابیس
+    let db = { u: [], l: [], v: { irt: 0, usdt: 0 }, r: 0 };
 
-        const n = (v) => parseFloat(String(v).replace(/,/g, '')) || 0;
-        const fmt = (el) => { let v = el.value.replace(/\D/g, ""); el.value = v ? Number(v).toLocaleString() : ""; };
-        const loc = (v) => Math.floor(v || 0).toLocaleString();
+    let chart;
+    const n = (v) => parseFloat(String(v).replace(/,/g, '')) || 0;
+    const fmt = (el) => { let v = el.value.replace(/\D/g, ""); el.value = v ? Number(v).toLocaleString() : ""; };
+    const loc = (v) => Math.floor(v || 0).toLocaleString();
 
-        async function save() {
-            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(db) });
-            render();
-        }
+    function toast(m, err=false) {
+        const t = document.getElementById('toast');
+        t.innerText = m; t.style.background = err ? '#f04' : '#f40';
+        t.style.display = 'block'; setTimeout(()=>t.style.display='none', 3000);
+    }
 
-        async function load() {
-            try {
-                const res = await fetch(DB_URL);
-                const data = await res.json();
-                if (data) db = data;
-                render();
-            } catch (e) { console.error("Sync Error"); }
-        }
+    function tab(e, id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
+    }
 
-        function toast(m, err=false) {
-            const t = document.getElementById('toast');
-            t.innerText = m; t.style.background = err ? '#f04' : '#f40';
-            t.style.display = 'block'; setTimeout(()=>t.style.display='none', 3000);
-        }
+    // --- توابع جدید برای ارتباط با سرور (جایگزین localStorage) ---
 
-        function tab(e, id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
-        }
-
-        function engineCalibrate() {
-            const h = n(document.getElementById('cal-h').value);
-            const l = n(document.getElementById('cal-l').value);
-            if(h > l) { db.r = l + ((h - l) * 0.75); save(); toast("Rate Burned."); }
-        }
-
-        function engineAddUser() {
-            const name = document.getElementById('reg-name').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            if(!name || !phone) return toast("Fields Required", true);
-            if(db.u.find(u => u.name === name)) return toast("Duplicate Identity!", true);
-            db.u.push({ id: Date.now(), name, phone, usdt: 0 });
-            save(); toast("Client Registered.");
-        }
-
-        function engineExecute() {
-            const uid = document.getElementById('tx-user').value;
-            const side = document.getElementById('tx-side').value;
-            const amt = n(document.getElementById('tx-amount').value);
-            if(db.r === 0) return toast("Calibrate Rate First", true);
-            const uIdx = db.u.findIndex(u => u.id == uid);
-            if(uIdx === -1 || amt <= 0) return toast("Invalid Order", true);
-
-            const rate = side === 'buy' ? db.r * 1.0075 : db.r * 0.9925;
-            const qty = amt / rate;
-            const profit = Math.abs(amt - (qty * db.r));
-
-            if(side === 'buy') { 
-                if(db.v.usdt < qty) return toast("Vault Insufficient USDT!", true);
-                db.v.usdt -= qty; db.v.irt += amt; db.u[uIdx].usdt += qty;
-            } else { 
-                if(db.u[uIdx].usdt < qty) return toast("Client Insufficient USDT!", true);
-                db.u[uIdx].usdt -= qty; db.v.usdt += qty; db.v.irt -= amt;
-            }
-
+    // بارگذاری اطلاعات از اینترنت
+    async function loadData() {
+        try {
+            const res = await fetch(DB_URL);
+            const data = await res.json();
+            if (data) db = data;
+            // اگر آرایه ها خالی بودند، مقدار اولیه بده
+            if(!db.u) db.u = [];
             if(!db.l) db.l = [];
-            const tx = { id: 'TX-'+Date.now(), user: db.u[uIdx].name, side, qty, amt, profit, rate, time: new Date().toLocaleString() };
-            db.l.push(tx); save(); printInvoice(tx); toast("Trade Finalized.");
+            if(!db.v) db.v = { irt: 0, usdt: 0 };
+            render();
+        } catch (error) {
+            console.error("Connection Error", error);
+            // اگر اینترنت نبود، سعی کن رندر کنی شاید دیتای قدیمی مانده باشد
+        }
+    }
+
+    // ذخیره اطلاعات در اینترنت
+    async function save() {
+        // اول در حافظه موقت نمایش بده که سرعت بالا باشه
+        render(); 
+        // بعد بفرست به سرور
+        await fetch(DB_URL, {
+            method: 'PUT',
+            body: JSON.stringify(db)
+        });
+    }
+
+    function engineCalibrate() {
+        const h = n(document.getElementById('cal-h').value);
+        const l = n(document.getElementById('cal-l').value);
+        if(h > l) {
+            db.r = l + ((h - l) * 0.75);
+            save(); toast("Rate Burned.");
+        }
+    }
+
+    function engineAddUser() {
+        const name = document.getElementById('reg-name').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        if(!name || !phone) return toast("Fields Required", true);
+        if(db.u.find(u => u.name === name || u.phone === phone)) return toast("Duplicate Identity!", true);
+        db.u.push({ id: Date.now(), name, phone, usdt: 0 });
+        save(); toast("Client Registered.");
+    }
+
+    function engineExecute() {
+        const uid = document.getElementById('tx-user').value;
+        const side = document.getElementById('tx-side').value;
+        const amt = n(document.getElementById('tx-amount').value);
+        if(db.r === 0) return toast("Calibrate Rate First", true);
+        if(!uid || amt <= 0) return toast("Invalid Order", true);
+
+        const uIdx = db.u.findIndex(u => u.id == uid);
+        const rate = side === 'buy' ? db.r * 1.0075 : db.r * 0.9925;
+        const qty = amt / rate;
+        const profit = Math.abs(amt - (qty * db.r));
+
+        if(side === 'buy') { 
+            if(db.v.usdt < qty) return toast("Vault Insufficient USDT!", true);
+            db.v.usdt -= qty; db.v.irt += amt; db.u[uIdx].usdt += qty;
+        } else { 
+            if(db.u[uIdx].usdt < qty) return toast("Client Insufficient USDT!", true);
+            if(db.v.irt < amt) return toast("Vault Insufficient Toman!", true);
+            db.u[uIdx].usdt -= qty; db.v.usdt += qty; db.v.irt -= amt;
         }
 
-        function printInvoice(tx) {
-            const w = window.open('', '_blank');
-            w.document.write(`<html><head><title>Invoice ${tx.id}</title><style>body { background: #000; color: #ff4d00; font-family: Arial; padding: 50px; text-align: center; }.box { border: 2px solid #ff4d00; padding: 30px; display: inline-block; text-align: left; }h1 { color: #ff8800; border-bottom: 1px solid #3d1414; padding-bottom: 10px; }p { margin: 10px 0; font-size: 1.2rem; }.total { font-size: 2rem; color: #0f8; margin-top: 20px; }</style></head><body onload="window.print()"><div class="box"><h1>STEALTHCAPITAL RECEIPT</h1><p><b>ID:</b> ${tx.id}</p><p><b>Client:</b> ${tx.user}</p><p><b>Side:</b> ${tx.side.toUpperCase()}</p><p><b>Qty:</b> ${tx.qty.toFixed(2)} USDT</p><p><b>Rate:</b> ${loc(tx.rate)} IRT</p><p class="total">TOTAL: ${loc(tx.amt)} TOMAN</p></div></body></html>`);
-        }
+        const tx = { id: 'TX-'+Date.now(), user: db.u[uIdx].name, side, qty, amt, profit, rate, time: new Date().toLocaleString() };
+        db.l.push(tx); save(); printInvoice(tx); toast("Trade Finalized.");
+    }
 
-        function engineSync() {
-            db.v.irt = n(document.getElementById('v-irt').value);
-            db.v.usdt = n(document.getElementById('v-usdt').value);
-            save(); toast("Vault Updated.");
-        }
+    function printInvoice(tx) {
+        const w = window.open('', '_blank');
+        w.document.write(`<html><head><title>Invoice ${tx.id}</title><style>
+            body { background: #000; color: #ff4d00; font-family: Arial; padding: 50px; text-align: center; }
+            .box { border: 2px solid #ff4d00; padding: 30px; display: inline-block; text-align: left; }
+            h1 { color: #ff8800; border-bottom: 1px solid #3d1414; padding-bottom: 10px; }
+            p { margin: 10px 0; font-size: 1.2rem; }
+            .total { font-size: 2rem; color: #0f8; margin-top: 20px; }
+        </style></head><body onload="window.print()">
+            <div class="box">
+                <h1>STEALTHCAPITAL RECEIPT</h1>
+                <p><b>ID:</b> ${tx.id}</p><p><b>Client:</b> ${tx.user}</p>
+                <p><b>Side:</b> ${tx.side.toUpperCase()}</p><p><b>Qty:</b> ${tx.qty.toFixed(2)} USDT</p>
+                <p><b>Rate:</b> ${loc(tx.rate)} IRT</p>
+                <p class="total">TOTAL: ${loc(tx.amt)} TOMAN</p>
+            </div>
+        </body></html>`);
+    }
 
-        function render() {
-            const clientUsdtSum = db.u.reduce((a, b) => a + (b.usdt || 0), 0);
-            const totalEcosystemUsdt = (db.v.usdt || 0) + clientUsdtSum;
-            const totalWorth = (totalEcosystemUsdt * db.r) + (db.v.irt || 0);
-            const adminShare = totalEcosystemUsdt > 0 ? ((db.v.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 100;
+    function engineSync() {
+        db.v.irt = n(document.getElementById('v-irt').value);
+        db.v.usdt = n(document.getElementById('v-usdt').value);
+        save(); toast("Vault Updated.");
+    }
 
-            document.getElementById('mon-usdt').innerText = (db.v.usdt || 0).toFixed(2);
-            document.getElementById('mon-irt').innerText = loc(db.v.irt);
-            document.getElementById('mon-total').innerText = loc(totalWorth) + " IRT";
-            document.getElementById('mon-share').innerText = adminShare + "%";
+    function render() {
+        const clientUsdtSum = (db.u || []).reduce((a, b) => a + (b.usdt || 0), 0);
+        const totalEcosystemUsdt = (db.v.usdt || 0) + clientUsdtSum;
+        const totalWorth = (totalEcosystemUsdt * (db.r || 0)) + (db.v.irt || 0);
+        const adminShare = totalEcosystemUsdt > 0 ? ((db.v.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 100;
 
-            document.getElementById('rate-base').innerText = loc(db.r);
-            document.getElementById('rate-ask').innerText = loc(db.r * 1.0075);
-            document.getElementById('rate-bid').innerText = loc(db.r * 0.9925);
-            document.getElementById('live-rate').innerText = `Spread: ${loc((db.r * 1.0075) - (db.r * 0.9925))} IRT`;
+        // Update Global UI
+        document.getElementById('mon-usdt').innerText = (db.v.usdt || 0).toFixed(2);
+        document.getElementById('mon-irt').innerText = loc(db.v.irt);
+        document.getElementById('mon-total').innerText = loc(totalWorth) + " IRT";
+        document.getElementById('mon-share').innerText = adminShare + "%";
 
-            const uSel = document.getElementById('tx-user');
-            uSel.innerHTML = '<option value="">Select Identity</option>' + db.u.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
-            
-            document.getElementById('crm-ui').innerHTML = db.u.map(u => `
-                <div class="inf-card" style="margin:0; background:#000; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${u.name}</b><br><small>${u.phone}</small></div>
-                    <div style="text-align:right;"><b style="color:var(--fire-accent)">${(u.usdt || 0).toFixed(2)} USDT</b><br><small style="color:#0f8">${totalEcosystemUsdt > 0 ? ((u.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 0}% Share</small></div>
-                </div>`).join('');
+        // Update Rate Monitor
+        const sellRate = (db.r || 0) * 1.0075;
+        const buyRate = (db.r || 0) * 0.9925;
+        document.getElementById('rate-base').innerText = loc(db.r);
+        document.getElementById('rate-ask').innerText = loc(sellRate);
+        document.getElementById('rate-bid').innerText = loc(buyRate);
+        document.getElementById('live-rate').innerText = `Spread: ${loc(sellRate - buyRate)} IRT`;
 
-            document.getElementById('logs-ui').innerHTML = (db.l || []).slice().reverse().map(l => `
-                <tr><td>${l.time}</td><td>${l.user}</td><td style="color:${l.side==='buy'?'var(--success)':'var(--danger)'}">${l.side.toUpperCase()}</td><td>${l.qty.toFixed(2)}</td><td>${loc(l.amt)}</td><td>${loc(l.profit)}</td></tr>`).join('');
-            
-            if(chart) chart.destroy();
-            const ctx = document.getElementById('profitChart').getContext('2d');
-            chart = new Chart(ctx, { type: 'line', data: { labels: (db.l || []).map((_,i)=>i+1), datasets: [{ label: 'Profit History', data: (db.l || []).map(l=>l.profit), borderColor: '#ff4d00', tension: 0.3, fill: true, backgroundColor: 'rgba(255, 77, 0, 0.05)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false } } } });
-        }
+        const uSel = document.getElementById('tx-user');
+        // حفظ انتخاب فعلی اگر وجود دارد
+        const currentVal = uSel.value;
+        uSel.innerHTML = '<option value="">Select Identity</option>';
+        const cUI = document.getElementById('crm-ui'); cUI.innerHTML = '';
 
-        setInterval(load, 3000);
-        window.onload = load;
-    </script>
+        (db.u || []).forEach(u => {
+            const share = totalEcosystemUsdt > 0 ? ((u.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 0;
+            uSel.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+            cUI.innerHTML += `<div class="inf-card" style="margin:0; background:#000; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${u.name}</b><br><small>${u.phone}</small></div>
+                <div style="text-align:right;"><b style="color:var(--fire-accent)">${(u.usdt || 0).toFixed(2)} USDT</b><br><small style="color:#0f8">${share}% Share</small></div>
+            </div>`;
+        });
+        
+        if(currentVal) uSel.value = currentVal;
+
+        const lUI = document.getElementById('logs-ui'); lUI.innerHTML = '';
+        (db.l || []).slice().reverse().forEach(l => {
+            lUI.innerHTML += `<tr><td>${l.time}</td><td>${l.user}</td><td style="color:${l.side==='buy'?'var(--success)':'var(--danger)'}">${l.side.toUpperCase()}</td><td>${l.qty.toFixed(2)}</td><td>${loc(l.amt)}</td><td>${loc(l.profit)}</td></tr>`;
+        });
+        
+        if(chart) chart.destroy();
+        const ctx = document.getElementById('profitChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: (db.l || []).map((_,i)=>i+1), datasets: [{ label: 'Profit History', data: (db.l || []).map(l=>l.profit), borderColor: '#ff4d00', tension: 0.3, fill: true, backgroundColor: 'rgba(255, 77, 0, 0.05)' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false } } }
+        });
+    }
+
+    // شروع برنامه با لود کردن دیتا از سرور
+    window.onload = loadData;
+    // برای اطمینان هر 5 ثانیه یکبار چک میکند
+    setInterval(loadData, 5000);
+
+</script>
 </body>
 </html>
