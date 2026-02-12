@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital | Inferno v1.1</title>
+    <title>StealthCapital | Admin Panel</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
@@ -41,7 +41,8 @@
 
         label { display: block; color: #855; font-size: 0.7rem; margin-top: 10px; text-transform: uppercase; }
         input, select { width: 100%; background: #000; border: 1px solid var(--fire-border); padding: 10px; border-radius: 5px; color: #fff; margin-top: 5px; }
-        .btn-fire { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; background: linear-gradient(45deg, #ff4d00, #ff8800); color: #000; margin-top: 15px; }
+        .btn-fire { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; background: linear-gradient(45deg, #ff4d00, #ff8800); color: #000; margin-top: 15px; transition: 0.3s; }
+        .btn-fire:disabled { background: #333; color: #666; cursor: not-allowed; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { text-align: left; padding: 10px; color: #855; font-size: 0.75rem; border-bottom: 1px solid var(--fire-border); }
@@ -51,9 +52,11 @@
         .tab-content.active { display: block; }
         #toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 5px; display: none; z-index: 1000; font-weight: bold; }
         
-        /* New Rate Display Style */
         .rate-box { background: rgba(0,0,0,0.3); border: 1px solid var(--fire-border); border-radius: 8px; padding: 8px; text-align: center; }
         .rate-val { font-weight: bold; font-size: 0.9rem; color: #fff; margin-top: 4px; }
+        
+        #status-light { width:10px; height:10px; border-radius:50%; background:#f00; display:inline-block; margin-right:5px; box-shadow: 0 0 5px #f00; }
+        .status-on { background: #0f0 !important; box-shadow: 0 0 5px #0f0 !important; }
     </style>
 </head>
 <body>
@@ -62,6 +65,10 @@
 
 <aside>
     <div class="brand"><h1>StealthCapital</h1></div>
+    <div style="text-align:center; margin-bottom:20px; font-size:0.8rem; color:#888;">
+        <span id="status-light"></span> System Status
+    </div>
+
     <nav>
         <div class="nav-link active" onclick="tab(event, 'desk')"><i class="fas fa-bolt"></i> Terminal</div>
         <div class="nav-link" onclick="tab(event, 'crm')"><i class="fas fa-users"></i> Clients</div>
@@ -70,10 +77,10 @@
     </nav>
 
     <div class="inf-monitor">
-        <div class="m-row"><span>Vault USDT:</span><b id="mon-usdt">0</b></div>
-        <div class="m-row"><span>Admin Share:</span><span id="mon-share" class="share-tag">0%</span></div>
-        <div class="m-row"><span>Vault IRT:</span><b id="mon-irt">0</b></div>
-        <div class="m-total"><small>TOTAL ECOSYSTEM VALUE</small><br><b id="mon-total">0 IRT</b></div>
+        <div class="m-row"><span>Vault USDT:</span><b id="mon-usdt">...</b></div>
+        <div class="m-row"><span>Admin Share:</span><span id="mon-share" class="share-tag">...</span></div>
+        <div class="m-row"><span>Vault IRT:</span><b id="mon-irt">...</b></div>
+        <div class="m-total"><small>TOTAL ECOSYSTEM VALUE</small><br><b id="mon-total">...</b></div>
     </div>
 </aside>
 
@@ -86,7 +93,6 @@
             </div>
             <div class="inf-card">
                 <h4>Order Execution</h4>
-                
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;">
                     <div class="rate-box"><small style="color: #855; font-size: 0.6rem;">BASE</small><div id="rate-base" class="rate-val">0</div></div>
                     <div class="rate-box" style="border-color: var(--success);"><small style="color: var(--success); font-size: 0.6rem;">ASK (OUT)</small><div id="rate-ask" class="rate-val">0</div></div>
@@ -97,7 +103,7 @@
                 <label>Side</label><select id="tx-side"><option value="buy">Client Buy (Vault Sells)</option><option value="sell">Client Sell (Vault Buys)</option></select>
                 <label>Amount (Toman)</label><input type="text" id="tx-amount" oninput="fmt(this)">
                 <div id="live-rate" style="margin-top:10px; font-size:0.7rem; color:var(--fire-glow);">Spread: 0 IRT</div>
-                <button class="btn-fire" onclick="engineExecute()">Process & Print Invoice</button>
+                <button id="btn-exec" class="btn-fire" onclick="engineExecute()" disabled>Wait for Data...</button>
             </div>
         </div>
     </section>
@@ -112,7 +118,7 @@
                 <h4>Identity Registration</h4>
                 <label>Name</label><input type="text" id="reg-name">
                 <label>Phone</label><input type="text" id="reg-phone">
-                <button class="btn-fire" onclick="engineAddUser()">Secure Register</button>
+                <button id="btn-reg" class="btn-fire" onclick="engineAddUser()" disabled>Wait for Data...</button>
             </div>
         </div>
     </section>
@@ -133,26 +139,26 @@
                 <h4>Vault Synchronization</h4>
                 <label>Vault IRT (Cash)</label><input type="text" id="v-irt" oninput="fmt(this)">
                 <label>Vault USDT (Digital)</label><input type="text" id="v-usdt">
-                <button class="btn-fire" onclick="engineSync()">Update Reserves</button>
+                <button id="btn-sync" class="btn-fire" onclick="engineSync()" disabled>Update Reserves</button>
             </div>
             <div class="inf-card">
                 <h4>Price Calibration</h4>
                 <label>Ceiling (High)</label><input type="text" id="cal-h" oninput="fmt(this)">
                 <label>Floor (Low)</label><input type="text" id="cal-l" oninput="fmt(this)">
-                <button class="btn-fire" onclick="engineCalibrate()">Apply 75% Rule</button>
+                <button id="btn-cal" class="btn-fire" onclick="engineCalibrate()" disabled>Apply 75% Rule</button>
             </div>
         </div>
     </section>
 </main>
 
 <script>
-    // تنظیمات فایربیس (جایگزین شده با آدرس شما)
     const DB_URL = "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/.json";
 
-    // ساختار اولیه دیتابیس
+    // ساختار اولیه (برای جلوگیری از خطای رندر قبل از لود)
     let db = { u: [], l: [], v: { irt: 0, usdt: 0 }, r: 0 };
-
+    let isLoaded = false; // قفل ایمنی: تا وقتی این True نشود، هیچ چیز ذخیره نمیشود
     let chart;
+
     const n = (v) => parseFloat(String(v).replace(/,/g, '')) || 0;
     const fmt = (el) => { let v = el.value.replace(/\D/g, ""); el.value = v ? Number(v).toLocaleString() : ""; };
     const loc = (v) => Math.floor(v || 0).toLocaleString();
@@ -169,34 +175,70 @@
         document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
     }
 
-    // --- توابع جدید برای ارتباط با سرور (جایگزین localStorage) ---
-
-    // بارگذاری اطلاعات از اینترنت
-    async function loadData() {
+    // --- تابع لود کردن (با امنیت بالا) ---
+    async function initSystem() {
         try {
             const res = await fetch(DB_URL);
             const data = await res.json();
-            if (data) db = data;
-            // اگر آرایه ها خالی بودند، مقدار اولیه بده
+            
+            if (data) {
+                db = data; // دیتای سرور را جایگزین دیتای محلی کن
+            } else {
+                // اگر دیتابیس کلاً خالی بود (بار اول)
+                console.log("New Database Initialized");
+            }
+            
+            // اطمینان از وجود آرایه‌ها
             if(!db.u) db.u = [];
             if(!db.l) db.l = [];
             if(!db.v) db.v = { irt: 0, usdt: 0 };
+
+            isLoaded = true; // قفل باز شد!
+            updateStatus(true);
             render();
+            enableButtons();
+            
         } catch (error) {
-            console.error("Connection Error", error);
-            // اگر اینترنت نبود، سعی کن رندر کنی شاید دیتای قدیمی مانده باشد
+            console.error("Connection Failed:", error);
+            toast("Connection Error - Retrying...", true);
+            updateStatus(false);
+            setTimeout(initSystem, 3000); // تلاش مجدد
         }
     }
 
-    // ذخیره اطلاعات در اینترنت
-    async function save() {
-        // اول در حافظه موقت نمایش بده که سرعت بالا باشه
-        render(); 
-        // بعد بفرست به سرور
-        await fetch(DB_URL, {
-            method: 'PUT',
-            body: JSON.stringify(db)
+    function updateStatus(online) {
+        const led = document.getElementById('status-light');
+        if(online) led.classList.add('status-on');
+        else led.classList.remove('status-on');
+    }
+
+    function enableButtons() {
+        document.querySelectorAll('.btn-fire').forEach(b => {
+            b.disabled = false;
+            if(b.innerText === "Wait for Data...") b.innerText = "Execute / Update";
         });
+        document.getElementById('btn-exec').innerText = "Process & Print Invoice";
+        document.getElementById('btn-reg').innerText = "Secure Register";
+    }
+
+    // --- تابع ذخیره (فقط اگر لود شده باشد انجام می‌شود) ---
+    async function save() {
+        if(!isLoaded) {
+            toast("System Loading... Please Wait", true);
+            return; 
+        }
+        
+        // آپدیت سریع ظاهر
+        render();
+
+        try {
+            await fetch(DB_URL, {
+                method: 'PUT',
+                body: JSON.stringify(db)
+            });
+        } catch(e) {
+            toast("Save Failed! Check Internet", true);
+        }
     }
 
     function engineCalibrate() {
@@ -212,16 +254,27 @@
         const name = document.getElementById('reg-name').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
         if(!name || !phone) return toast("Fields Required", true);
-        if(db.u.find(u => u.name === name || u.phone === phone)) return toast("Duplicate Identity!", true);
+        
+        // جلوگیری از تکرار
+        if(db.u.some(u => u.name === name)) return toast("Duplicate Identity!", true);
+        
         db.u.push({ id: Date.now(), name, phone, usdt: 0 });
         save(); toast("Client Registered.");
     }
 
+    function engineSync() {
+        db.v.irt = n(document.getElementById('v-irt').value);
+        db.v.usdt = n(document.getElementById('v-usdt').value);
+        save(); toast("Vault Updated.");
+    }
+
     function engineExecute() {
+        if(!isLoaded) return;
         const uid = document.getElementById('tx-user').value;
         const side = document.getElementById('tx-side').value;
         const amt = n(document.getElementById('tx-amount').value);
-        if(db.r === 0) return toast("Calibrate Rate First", true);
+        
+        if(!db.r) return toast("Calibrate Rate First", true);
         if(!uid || amt <= 0) return toast("Invalid Order", true);
 
         const uIdx = db.u.findIndex(u => u.id == uid);
@@ -261,54 +314,58 @@
         </body></html>`);
     }
 
-    function engineSync() {
-        db.v.irt = n(document.getElementById('v-irt').value);
-        db.v.usdt = n(document.getElementById('v-usdt').value);
-        save(); toast("Vault Updated.");
-    }
-
     function render() {
+        // Safe Checks for null values
+        const vaultUsdt = db.v ? (db.v.usdt || 0) : 0;
+        const vaultIrt = db.v ? (db.v.irt || 0) : 0;
+        const currentRate = db.r || 0;
+        
         const clientUsdtSum = (db.u || []).reduce((a, b) => a + (b.usdt || 0), 0);
-        const totalEcosystemUsdt = (db.v.usdt || 0) + clientUsdtSum;
-        const totalWorth = (totalEcosystemUsdt * (db.r || 0)) + (db.v.irt || 0);
-        const adminShare = totalEcosystemUsdt > 0 ? ((db.v.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 100;
+        const totalEcosystemUsdt = vaultUsdt + clientUsdtSum;
+        const totalWorth = (totalEcosystemUsdt * currentRate) + vaultIrt;
+        const adminShare = totalEcosystemUsdt > 0 ? ((vaultUsdt / totalEcosystemUsdt) * 100).toFixed(1) : 100;
 
-        // Update Global UI
-        document.getElementById('mon-usdt').innerText = (db.v.usdt || 0).toFixed(2);
-        document.getElementById('mon-irt').innerText = loc(db.v.irt);
+        document.getElementById('mon-usdt').innerText = vaultUsdt.toFixed(2);
+        document.getElementById('mon-irt').innerText = loc(vaultIrt);
         document.getElementById('mon-total').innerText = loc(totalWorth) + " IRT";
         document.getElementById('mon-share').innerText = adminShare + "%";
 
-        // Update Rate Monitor
-        const sellRate = (db.r || 0) * 1.0075;
-        const buyRate = (db.r || 0) * 0.9925;
-        document.getElementById('rate-base').innerText = loc(db.r);
+        const sellRate = currentRate * 1.0075;
+        const buyRate = currentRate * 0.9925;
+        document.getElementById('rate-base').innerText = loc(currentRate);
         document.getElementById('rate-ask').innerText = loc(sellRate);
         document.getElementById('rate-bid').innerText = loc(buyRate);
         document.getElementById('live-rate').innerText = `Spread: ${loc(sellRate - buyRate)} IRT`;
 
+        // فقط لیست تراکنش‌ها و مشتریان را آپدیت کن، نه ورودی‌های کاربر را
         const uSel = document.getElementById('tx-user');
-        // حفظ انتخاب فعلی اگر وجود دارد
-        const currentVal = uSel.value;
-        uSel.innerHTML = '<option value="">Select Identity</option>';
-        const cUI = document.getElementById('crm-ui'); cUI.innerHTML = '';
+        const currentSel = uSel.value; // نگه داشتن انتخاب فعلی
+        
+        let userOptions = '<option value="">Select Identity</option>';
+        let crmHtml = '';
 
         (db.u || []).forEach(u => {
             const share = totalEcosystemUsdt > 0 ? ((u.usdt / totalEcosystemUsdt) * 100).toFixed(1) : 0;
-            uSel.innerHTML += `<option value="${u.id}">${u.name}</option>`;
-            cUI.innerHTML += `<div class="inf-card" style="margin:0; background:#000; display:flex; justify-content:space-between; align-items:center;">
+            userOptions += `<option value="${u.id}">${u.name}</option>`;
+            crmHtml += `<div class="inf-card" style="margin:0; background:#000; display:flex; justify-content:space-between; align-items:center;">
                 <div><b>${u.name}</b><br><small>${u.phone}</small></div>
                 <div style="text-align:right;"><b style="color:var(--fire-accent)">${(u.usdt || 0).toFixed(2)} USDT</b><br><small style="color:#0f8">${share}% Share</small></div>
             </div>`;
         });
-        
-        if(currentVal) uSel.value = currentVal;
 
-        const lUI = document.getElementById('logs-ui'); lUI.innerHTML = '';
+        // اگر لیست تغییر کرده، آپدیتش کن (برای جلوگیری از پرش انتخاب)
+        if(uSel.innerHTML !== userOptions) {
+            uSel.innerHTML = userOptions;
+            uSel.value = currentSel;
+        }
+        document.getElementById('crm-ui').innerHTML = crmHtml;
+
+        const lUI = document.getElementById('logs-ui'); 
+        lUI.innerHTML = '';
         (db.l || []).slice().reverse().forEach(l => {
             lUI.innerHTML += `<tr><td>${l.time}</td><td>${l.user}</td><td style="color:${l.side==='buy'?'var(--success)':'var(--danger)'}">${l.side.toUpperCase()}</td><td>${l.qty.toFixed(2)}</td><td>${loc(l.amt)}</td><td>${loc(l.profit)}</td></tr>`;
         });
-        
+
         if(chart) chart.destroy();
         const ctx = document.getElementById('profitChart').getContext('2d');
         chart = new Chart(ctx, {
@@ -318,10 +375,23 @@
         });
     }
 
-    // شروع برنامه با لود کردن دیتا از سرور
-    window.onload = loadData;
-    // برای اطمینان هر 5 ثانیه یکبار چک میکند
-    setInterval(loadData, 5000);
+    // شروع سیستم
+    window.onload = initSystem;
+    
+    // رفرش کردن دیتابیس هر 5 ثانیه (فقط در صورتی که کاربر در حال تایپ نباشد بهتر است، اما برای سینک بودن لازم است)
+    // برای امنیت، فقط تابع initSystem را صدا نزنید، بلکه یک تابع refresh ساده بسازید
+    setInterval(async () => {
+        if(!isLoaded) return; // اگر بار اول هنوز لود نشده، رفرش نکن
+        try {
+            const res = await fetch(DB_URL);
+            const data = await res.json();
+            if(data) {
+                // فقط اگر دیتا تغییر کرده آپدیت کن
+                db = data;
+                render();
+            }
+        } catch(e) { console.log("Background Sync Failed"); }
+    }, 5000);
 
 </script>
 </body>
