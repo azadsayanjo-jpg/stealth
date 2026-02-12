@@ -2,108 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>StealthCapital | Trading Terminal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StealthCapital | User Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
     <style>
-        :root { --bg: #050000; --card: #0f0f0f; --accent: #ff4d00; --success: #00ff88; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 20px; direction: ltr; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #222; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box;}
-        .btn { width: 100%; padding: 15px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        #login-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 100; }
+        /* استایل‌های شما دقیقاً اینجا قرار دارند */
+        :root { --fire-bg: #050000; --fire-card: #120a0a; --fire-border: #3d1414; --fire-accent: #ff4d00; --fire-glow: #ff8800; --fire-text: #ffe0e0; --success: #00ff88; --danger: #ff0044; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--fire-bg); color: var(--fire-text); height: 100vh; display: flex; overflow: hidden; direction: ltr; }
+        aside { width: 280px; background: #120a0a; border-right: 1px solid var(--fire-border); display: flex; flex-direction: column; padding: 25px; flex-shrink: 0; }
+        .brand h1 { font-size: 1.4rem; color: var(--fire-accent); text-align: center; margin-bottom: 30px; text-shadow: 0 0 10px var(--fire-accent); font-weight: 900; }
+        .nav-link { padding: 12px; border-radius: 8px; color: #855; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; cursor: default; }
+        .nav-link.active { background: rgba(255, 77, 0, 0.1); color: var(--fire-accent); border: 1px solid var(--fire-accent); }
+        .user-monitor { background: #1a0505; border: 1px solid var(--fire-border); border-radius: 12px; padding: 15px; margin-top: auto; }
+        .m-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+        .m-total { border-top: 1px solid var(--fire-border); margin-top: 10px; padding-top: 10px; text-align: center; }
+        .m-total b { color: var(--fire-glow); font-size: 1.1rem; }
+        main { flex-grow: 1; overflow-y: auto; padding: 30px; background: radial-gradient(circle at top, #1a0808 0%, #050000 100%); }
+        .inf-card { background: var(--fire-card); border: 1px solid var(--fire-border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .rate-box { background: rgba(0,0,0,0.5); border: 1px solid var(--fire-border); border-radius: 12px; padding: 20px; text-align: center; }
+        .rate-val { font-size: 1.8rem; font-weight: 900; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 10px; color: #855; font-size: 0.75rem; border-bottom: 1px solid var(--fire-border); }
+        td { padding: 12px 10px; border-bottom: 1px solid #1a0505; font-size: 0.85rem; }
     </style>
 </head>
 <body>
+    <aside>
+        <div class="brand"><h1>StealthCapital</h1></div>
+        <nav><div class="nav-link active"><i class="fas fa-chart-line"></i> Market Terminal</div></nav>
+        <div class="user-monitor">
+            <div class="m-row"><span>Your Identity:</span><select id="user-select" onchange="render()" style="background:#000; color:#fff; border:1px solid #333; font-size:0.7rem;"></select></div>
+            <div class="m-total"><small>YOUR BALANCE</small><br><b id="user-balance">0.00 USDT</b></div>
+        </div>
+    </aside>
+    <main>
+        <div class="rate-grid">
+            <div class="rate-box" style="border-color: var(--success);"><small style="color: var(--success);">WE BUY (From You)</small><div id="rate-bid" class="rate-val" style="color: #fff;">0</div><small style="color: #555;">IRT</small></div>
+            <div class="rate-box" style="border-color: var(--fire-accent);"><small style="color: var(--fire-accent);">WE SELL (To You)</small><div id="rate-ask" class="rate-val" style="color: #fff;">0</div><small style="color: #555;">IRT</small></div>
+        </div>
+        <div class="inf-card"><h4>Recent Transactions</h4><table><thead><tr><th>Time</th><th>Side</th><th>Quantity</th><th>Price (IRT)</th></tr></thead><tbody id="user-logs"></tbody></table></div>
+    </main>
 
-<div id="login-overlay">
-    <div style="text-align: center;">
-        <h2 style="color:var(--accent)">StealthCapital v1</h2>
-        <input type="text" id="login-name" placeholder="Enter Account Name">
-        <button class="btn" onclick="userApp.login()">Login</button>
-    </div>
-</div>
+    <script>
+        const DB_URL = "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/.json";
+        const loc = (v) => Math.floor(v || 0).toLocaleString();
 
-<div class="stat-grid">
-    <div class="card"><small>USDT BALANCE</small><h2 id="u-usdt">0.00</h2></div>
-    <div class="card"><small>IRT BALANCE</small><h2 id="u-irt">0</h2></div>
-</div>
+        let db = { u: [], l: [], r: 0 };
 
-<div class="card">
-    <h3>Quick Trade</h3>
-    <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="color:var(--success)">Buy: <b id="rate-ask">0</b></span>
-        <span style="color:#ff4444">Sell: <b id="rate-bid">0</b></span>
-    </div>
-    <select id="t-side">
-        <option value="buy">BUY USDT (Use IRT)</option>
-        <option value="sell">SELL USDT (Get IRT)</option>
-    </select>
-    <input type="number" id="t-qty" placeholder="Amount in USDT">
-    <button class="btn" onclick="userApp.trade()">Confirm Trade</button>
-</div>
+        async function load() {
+            try {
+                const res = await fetch(DB_URL);
+                const data = await res.json();
+                if (data) db = data;
+                render();
+            } catch (e) { console.log("Sync..."); }
+        }
 
-<script>
-    const DB_URL = "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/.json";
-
-    const userApp = {
-        user: null,
-        db: null,
-
-        async load() {
-            const res = await fetch(DB_URL);
-            this.db = await res.json();
-            if (this.user) this.render();
-        },
-
-        login() {
-            const name = document.getElementById('login-name').value;
-            const u = this.db.u.find(x => x.name === name);
-            if (u) {
-                this.user = u;
-                document.getElementById('login-overlay').style.display = 'none';
-                this.render();
-            } else { alert("User not found!"); }
-        },
-
-        async trade() {
-            const side = document.getElementById('t-side').value;
-            const qty = parseFloat(document.getElementById('t-qty').value);
-            const rate = side === 'buy' ? this.db.r * 1.0075 : this.db.r * 0.9925;
-            const totalIRT = qty * rate;
-
-            const uIdx = this.db.u.findIndex(x => x.id === this.user.id);
-            const user = this.db.u[uIdx];
-
-            if (side === 'buy') {
-                if (user.irt < totalIRT) return alert("Insufficient IRT");
-                this.db.u[uIdx].irt -= totalIRT;
-                this.db.u[uIdx].usdt += qty;
-            } else {
-                if (user.usdt < qty) return alert("Insufficient USDT");
-                this.db.u[uIdx].usdt -= qty;
-                this.db.u[uIdx].irt += totalIRT;
+        function render() {
+            if(db.r > 0) {
+                document.getElementById('rate-ask').innerText = loc(db.r * 1.0075);
+                document.getElementById('rate-bid').innerText = loc(db.r * 0.9925);
             }
 
-            if(!this.db.l) this.db.l = [];
-            this.db.l.push({ user: user.name, side, qty, amt: totalIRT, time: new Date().toLocaleString() });
-            
-            await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(this.db) });
-            alert("Trade Success!");
-            this.load();
-        },
+            const uSel = document.getElementById('user-select');
+            const currentCount = uSel.options.length;
+            if(currentCount !== db.u.length) {
+                uSel.innerHTML = db.u.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            }
 
-        render() {
-            const u = this.db.u.find(x => x.id === this.user.id);
-            document.getElementById('u-usdt').innerText = u.usdt.toFixed(2);
-            document.getElementById('u-irt').innerText = Math.floor(u.irt).toLocaleString();
-            document.getElementById('rate-ask').innerText = Math.floor(this.db.r * 1.0075).toLocaleString();
-            document.getElementById('rate-bid').innerText = Math.floor(this.db.r * 0.9925).toLocaleString();
+            const selectedId = uSel.value;
+            const currentUser = db.u.find(u => u.id == selectedId);
+
+            if(currentUser) {
+                document.getElementById('user-balance').innerText = (currentUser.usdt || 0).toFixed(2) + " USDT";
+                const uLogs = (db.l || []).filter(log => log.user === currentUser.name).slice().reverse();
+                document.getElementById('user-logs').innerHTML = uLogs.map(l => `
+                    <tr><td>${l.time}</td><td style="color:${l.side==='buy'?'var(--success)':'var(--danger)'}">${l.side.toUpperCase()}</td><td>${l.qty.toFixed(2)} USDT</td><td>${loc(l.amt)}</td></tr>
+                `).join('');
+            }
         }
-    };
 
-    setInterval(() => userApp.load(), 3000);
-    userApp.load();
-</script>
+        setInterval(load, 3000);
+        window.onload = load;
+    </script>
 </body>
 </html>
