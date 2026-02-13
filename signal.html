@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital v1.4 | Vision</title>
+    <title>StealthCapital v1 | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #eee; font-family: 'Vazirmatn'; overflow-y: auto; padding-bottom: 100px; }
-        .path-card { background: #09090b; border: 1px solid #1a1a1c; border-radius: 32px; padding: 24px; border-top: 4px solid var(--c); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
+        body { background: #000; color: #eee; font-family: 'Vazirmatn'; overflow-y: auto; padding-bottom: 80px; }
+        .path-card { background: #09090b; border: 1px solid #1a1a1c; border-radius: 28px; padding: 20px; border-top: 4px solid var(--c); margin-bottom: 20px; }
         .font-mono { font-family: monospace; font-weight: 900; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-2xl font-black italic italic">Stealth<span class="text-indigo-500">Vision</span></h1>
-            <div id="status" class="text-[10px] font-mono text-zinc-600">v1.4 LIVE</div>
+<body class="p-4">
+    <div class="max-w-md mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-black italic">Stealth<span class="text-indigo-500">Vision</span></h1>
+            <div class="text-[10px] font-mono text-zinc-600">v1.5 LIVE</div>
         </header>
-        <div id="matrix-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="matrix-container"></div>
     </div>
 
     <script>
@@ -31,44 +31,38 @@
         db.ref('stealth_matrix').on('value', snapshot => {
             const container = document.getElementById('matrix-container');
             const data = snapshot.val();
-            if(!data) { container.innerHTML = `<div class="col-span-full text-center opacity-20 py-20 italic text-4xl font-black">WAITING FOR COMMANDS...</div>`; return; }
+            if(!data) { container.innerHTML = `<div class="opacity-20 text-center py-20 italic">در انتظار دستور...</div>`; return; }
 
             container.innerHTML = Object.keys(data).map(key => {
                 const s = data[key];
-                const isBuying = s.mode === 'BUYING';
-                const color = isBuying ? '#10b981' : '#3b82f6';
-                
+                const color = s.mode === 'BUYING' ? '#10b981' : '#3b82f6';
                 return `
-                <div class="path-card shadow-2xl" style="--c: ${color}">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-[10px] font-black px-3 py-1 rounded-full bg-white/5 uppercase tracking-tighter" style="color:${color}">${s.path}</span>
-                        <button onclick="deletePath('${key}')" class="text-zinc-700 hover:text-red-500 text-[10px] font-black">REMOVE</button>
+                <div class="path-card" style="--c: ${color}">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-black px-2 py-1 rounded bg-white/5 uppercase" style="color:${color}">${s.path}</span>
+                        <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="text-zinc-700 text-[10px] font-black">حذف</button>
                     </div>
-
-                    <div class="text-center mb-8">
-                        <span class="text-[9px] text-zinc-500 font-black uppercase tracking-widest">میانگین نرخ تبدیل (VWAP)</span>
-                        <div class="text-4xl font-mono text-white mt-1">${s.vwap}</div>
+                    <div class="text-center mb-6">
+                        <span class="text-[9px] text-zinc-500 font-black uppercase tracking-widest">میانگین قیمت (VWAP)</span>
+                        <div class="text-3xl font-mono text-white">${s.vwap}</div>
                     </div>
-
-                    <div class="space-y-3 mb-8">
+                    <div class="space-y-2 mb-6">
                         ${s.tiers.map((t, i) => `
-                            <div class="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                                <div class="text-[9px] font-black text-zinc-600 uppercase">Step ${i+1}</div>
+                            <div class="flex justify-between items-center p-3 bg-white/[0.03] border border-white/5 rounded-xl">
+                                <span class="text-[9px] font-black text-zinc-600 uppercase">P${i+1}</span>
                                 <div class="text-right">
-                                    <div class="font-mono text-lg text-zinc-200">${t.p}</div>
-                                    <div class="text-[10px] font-bold text-indigo-400">${t.q} <span class="text-zinc-500">${s.tar}</span></div>
+                                    <div class="font-mono text-md text-zinc-200">${t.p}</div>
+                                    <div class="text-[11px] font-bold text-indigo-400">${t.q} <span class="text-zinc-500">${s.tar}</span></div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
-
-                    <div class="border-t border-zinc-800 pt-6">
-                        <span class="text-[9px] font-black text-zinc-600 uppercase italic mb-4 block text-center tracking-widest">تارگت‌های خروج (نقد کردن)</span>
+                    <div class="border-t border-zinc-800 pt-4">
                         <div class="grid grid-cols-2 gap-2">
                             ${s.targets.map((p, i) => `
-                                <div class="bg-black border border-zinc-800 p-3 rounded-2xl text-center">
-                                    <div class="text-[8px] text-zinc-600 font-bold mb-1 italic">TARGET ${i+1}</div>
-                                    <div class="text-[11px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
+                                <div class="bg-black border border-zinc-800 p-2 rounded-xl text-center">
+                                    <div class="text-[8px] text-zinc-600 font-bold">TARGET ${i+1}</div>
+                                    <div class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -76,8 +70,6 @@
                 </div>`;
             }).join('');
         });
-
-        function deletePath(key) { if(confirm('Close?')) db.ref(`stealth_matrix/${key}`).remove(); }
     </script>
 </body>
 </html>
