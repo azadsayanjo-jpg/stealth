@@ -3,108 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v1.7 | Terminal</title>
+    <title>StealthCapital v1.8 | Matrix Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Vazirmatn'; overflow-x: hidden; }
-        .showcase-container {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 15px;
+        body { background: #050505; color: #fff; font-family: 'Vazirmatn'; padding-bottom: 50px; }
+        /* چیدمان مرتب شبکه‌ای */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
             padding: 20px;
-            -webkit-overflow-scrolling: touch;
         }
-        .showcase-container::-webkit-scrollbar { display: none; }
+        @media (max-width: 380px) { .matrix-grid { grid-template-columns: 1fr; padding: 10px; } }
+
         .path-card {
-            flex: 0 0 88vw;
-            scroll-snap-align: center;
-            background: #0a0a0c;
-            border: 1px solid #1a1a1e;
-            border-radius: 32px;
+            background: #0f0f12;
+            border: 1px solid #1f1f23;
+            border-radius: 24px;
             padding: 20px;
-            border-top: 5px solid var(--c);
-            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5);
+            position: relative;
+            transition: transform 0.2s;
         }
-        @media (min-width: 768px) { .path-card { flex: 0 0 380px; } }
-        .font-mono { font-family: monospace; font-weight: 900; }
+        .path-card:active { transform: scale(0.98); }
+        .indicator { position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 4px; width: 60px; border-radius: 0 0 10px 10px; }
+        .font-mono { font-family: monospace; font-weight: 700; }
     </style>
 </head>
-<body class="py-6">
-    <div class="px-8 mb-6 flex justify-between items-center">
+<body>
+    <header class="p-6 border-b border-zinc-900 bg-black/50 sticky top-0 z-10 backdrop-blur-md flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black italic">Stealth<span class="text-indigo-500">Vision</span></h1>
-            <p class="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">Global Assets Matrix</p>
+            <h1 class="text-xl font-black tracking-tighter italic">STEALTH<span class="text-indigo-500">CAPITAL</span></h1>
+            <p class="text-[8px] text-zinc-500 font-bold uppercase">Version 1.8 Matrix Terminal</p>
         </div>
-        <div id="clock" class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-3 py-1 rounded-full">00:00:00</div>
-    </div>
+        <div id="clock" class="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-lg">00:00:00</div>
+    </header>
 
-    <div id="matrix-container" class="showcase-container">
+    <div id="matrix-container" class="matrix-grid">
         </div>
-
-    <div class="flex justify-center gap-2 mt-4 opacity-20">
-        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
-        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
-        <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
-    </div>
 
     <script>
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
+        // آپدیت ساعت
+        setInterval(() => { 
+            const now = new Date();
+            document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + 
+                                                        now.getMinutes().toString().padStart(2, '0') + ":" + 
+                                                        now.getSeconds().toString().padStart(2, '0');
+        }, 1000);
 
         db.ref('stealth_matrix').on('value', snapshot => {
             const container = document.getElementById('matrix-container');
             const data = snapshot.val();
-            if(!data) { container.innerHTML = `<div class="w-full text-center py-20 opacity-10 font-black text-2xl">NO ACTIVE PATHS</div>`; return; }
+            
+            if(!data) {
+                container.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-black text-2xl uppercase italic">Waiting for Signals...</div>`;
+                return;
+            }
 
             container.innerHTML = Object.keys(data).map(key => {
                 const s = data[key];
-                const color = s.mode === 'BUYING' ? '#10b981' : '#3b82f6';
+                const isBuy = s.mode === 'BUYING';
+                const themeColor = isBuy ? '#10b981' : '#3b82f6';
+                
                 return `
-                <div class="path-card" style="--c: ${color}">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-[9px] font-black px-3 py-1 rounded-lg bg-white/5 uppercase tracking-tighter" style="color:${color}">${s.path}</span>
-                        <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="text-zinc-800 text-xs hover:text-red-500">✕</button>
+                <div class="path-card shadow-2xl">
+                    <div class="indicator" style="background: ${themeColor}"></div>
+                    
+                    <div class="flex justify-between items-start mb-6 pt-2">
+                        <div>
+                            <span class="text-[10px] font-black px-2 py-1 rounded bg-zinc-800 text-zinc-300 uppercase">${s.path}</span>
+                            <p class="text-[9px] mt-1 font-bold" style="color: ${themeColor}">${isBuy ? 'خرید مرحله‌ای' : 'فروش مرحله‌ای'}</p>
+                        </div>
+                        <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="text-zinc-600 hover:text-red-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
                     </div>
 
-                    <div class="text-center mb-8 border-b border-zinc-900 pb-6">
-                        <p class="text-[8px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1">میانگین قیمت معامله</p>
-                        <div class="text-4xl font-mono text-white">${s.vwap}</div>
+                    <div class="bg-zinc-950/50 rounded-2xl p-4 text-center mb-6 border border-zinc-900">
+                        <span class="text-[8px] text-zinc-500 font-black uppercase tracking-[0.2em]">میانگین قیمت اجرای کل</span>
+                        <div class="text-3xl font-mono text-white mt-1">${s.vwap}</div>
                     </div>
 
-                    <div class="space-y-3 mb-8">
+                    <div class="space-y-2 mb-6">
                         ${s.tiers.map((t, i) => `
-                            <div class="p-4 bg-zinc-900/30 border border-zinc-900 rounded-2xl relative overflow-hidden">
-                                <span class="absolute top-0 right-0 bg-zinc-800 text-[6px] px-2 py-0.5 rounded-bl-lg font-black text-zinc-500 uppercase">Tier ${i+1}</span>
-                                <div class="flex justify-between items-end mt-1">
-                                    <div class="text-left">
-                                        <p class="text-[7px] text-zinc-600 font-bold uppercase mb-1 tracking-widest">Execution Price</p>
-                                        <div class="font-mono text-md text-zinc-300">${t.p}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-[9px] font-bold text-indigo-500/80 mb-0.5">${t.srcV} <span class="text-[7px] opacity-50">${s.src}</span></div>
-                                        <div class="text-[13px] font-black text-white">${t.tarV} <span class="text-[8px] text-zinc-600 uppercase">${s.tar}</span></div>
-                                    </div>
+                            <div class="flex justify-between items-center p-3 bg-white/[0.02] border border-zinc-900 rounded-xl">
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-black text-zinc-600 uppercase">STEP ${i+1}</span>
+                                    <span class="font-mono text-sm text-zinc-200">${t.p}</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[9px] font-bold text-indigo-400">${t.srcV} <span class="text-[7px] text-zinc-600 uppercase">${s.src}</span></div>
+                                    <div class="text-xs font-black text-white">${t.tarV} <span class="text-[8px] text-zinc-600 uppercase">${s.tar}</span></div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2 border-t border-zinc-900 pt-5">
                         ${s.targets.map((p, i) => `
-                            <div class="bg-black/40 border border-zinc-900 p-3 rounded-2xl text-center">
-                                <div class="text-[7px] text-zinc-600 font-black uppercase mb-1">Exit Goal ${i+1}</div>
-                                <div class="text-[11px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
+                            <div class="bg-black/40 border border-zinc-900 p-2 rounded-xl text-center">
+                                <div class="text-[7px] text-zinc-600 font-black uppercase mb-1 tracking-tighter">GOAL ${i+1}</div>
+                                <div class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
                             </div>
                         `).join('')}
                     </div>
-                    <p class="text-[6px] text-center text-zinc-800 mt-4 font-mono">${s.timestamp}</p>
+                    
+                    <div class="mt-4 text-center">
+                        <span class="text-[6px] font-mono text-zinc-800 uppercase tracking-widest">Calculated at ${s.timestamp || 'N/A'}</span>
+                    </div>
                 </div>`;
             }).join('');
         });
