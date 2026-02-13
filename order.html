@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v1.6 | Admin</title>
+    <title>StealthCapital v1.7 | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,28 +12,29 @@
         body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding-bottom: 50px; }
         .matrix-card { background: #0a0a0c; border: 1px solid #1a1a1e; border-radius: 20px; padding: 15px; }
         .asset-btn { border: 1px solid #27272a; opacity: 0.3; transition: 0.2s; cursor: pointer; text-align: center; font-size: 10px; font-weight: 900; }
-        .asset-btn.active { opacity: 1; border-color: var(--c); background: var(--b); color: var(--c); }
+        .asset-btn.active { opacity: 1; border-color: var(--c); background: var(--b); color: var(--c); box-shadow: 0 0 10px var(--b); }
         .input-box { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 10px; width: 100%; text-align: center; font-family: monospace; color: #fff; font-size: 16px; }
+        .input-box:focus { border-color: #6366f1; outline: none; }
     </style>
 </head>
 <body class="p-4">
     <div class="max-w-md mx-auto space-y-4">
         <header class="flex justify-between items-center bg-zinc-900/40 p-4 rounded-2xl border border-zinc-800">
-            <h1 class="text-md font-black italic uppercase">Stealth<span class="text-indigo-500">Capital</span> v1.6</h1>
+            <h1 class="text-md font-black italic uppercase">Stealth<span class="text-indigo-500">Capital</span> v1.7</h1>
             <div id="status" class="w-2 h-2 bg-red-500 rounded-full"></div>
         </header>
 
         <div class="matrix-card">
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1" id="src-group">
-                    <p class="text-[8px] text-zinc-600 font-black mb-1">SOURCE (مبدأ)</p>
+                    <p class="text-[8px] text-zinc-600 font-black mb-1 uppercase">Source (دارم)</p>
                     <button onclick="setSrc('IRT', '#fff')" id="s-IRT" class="asset-btn w-full p-2 rounded-lg active" style="--c:#fff; --b:rgba(255,255,255,0.1)">IRT</button>
                     <button onclick="setSrc('USDT', '#22c55e')" id="s-USDT" class="asset-btn w-full p-2 rounded-lg" style="--c:#22c55e; --b:rgba(34,197,94,0.1)">USDT</button>
                     <button onclick="setSrc('GOLD', '#eab308')" id="s-GOLD" class="asset-btn w-full p-2 rounded-lg" style="--c:#eab308; --b:rgba(234,179,8,0.1)">GOLD</button>
                     <button onclick="setSrc('BTC', '#f97316')" id="s-BTC" class="asset-btn w-full p-2 rounded-lg" style="--c:#f97316; --b:rgba(249,115,22,0.1)">BTC</button>
                 </div>
                 <div class="space-y-1" id="tar-group">
-                    <p class="text-[8px] text-zinc-600 font-black mb-1">TARGET (مقصد)</p>
+                    <p class="text-[8px] text-zinc-600 font-black mb-1 uppercase">Target (می‌خرم)</p>
                     <button onclick="setTar('IRT', '#fff')" id="t-IRT" class="asset-btn w-full p-2 rounded-lg" style="--c:#fff; --b:rgba(255,255,255,0.1)">IRT</button>
                     <button onclick="setTar('USDT', '#22c55e')" id="t-USDT" class="asset-btn w-full p-2 rounded-lg active" style="--c:#22c55e; --b:rgba(34,197,94,0.1)">USDT</button>
                     <button onclick="setTar('GOLD', '#eab308')" id="t-GOLD" class="asset-btn w-full p-2 rounded-lg" style="--c:#eab308; --b:rgba(234,179,8,0.1)">GOLD</button>
@@ -44,15 +45,15 @@
 
         <div class="matrix-card space-y-4">
             <div>
-                <label id="cap-label" class="text-[9px] font-black text-zinc-500 mb-2 block uppercase tracking-widest">مقدار موجودی مبدأ</label>
+                <label id="cap-label" class="text-[9px] font-black text-zinc-500 mb-2 block uppercase tracking-widest">مقدار کل سرمایه مبدأ</label>
                 <div class="relative">
                     <input type="number" id="cap" class="input-box" placeholder="0.00">
                     <button onclick="document.getElementById('cap').value=1100" class="absolute left-2 top-2.5 bg-indigo-600 text-[9px] px-2 py-1 rounded">1100</button>
                 </div>
             </div>
             <div>
-                <label class="text-[9px] font-black text-zinc-500 mb-2 block uppercase text-center tracking-widest">قیمت (نرخ تبدیل)</label>
-                <input type="number" id="ref" class="input-box" placeholder="مثلا 65000">
+                <label class="text-[9px] font-black text-zinc-500 mb-2 block uppercase text-center tracking-widest">نرخ تبدیل فعلی</label>
+                <input type="number" id="ref" class="input-box" placeholder="مثلا 98000">
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="text-center">
@@ -66,16 +67,19 @@
             </div>
         </div>
 
-        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs shadow-2xl active:scale-95 transition-all tracking-widest">BROADCAST SIGNAL</button>
+        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs shadow-2xl active:scale-95 transition-all tracking-widest">ارسال به ویترین مانیتور</button>
     </div>
 
     <script>
+        // آدرس دیتابیس شما
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
         let src = 'IRT', tar = 'USDT';
 
-        db.ref('.info/connected').on('value', s => { document.getElementById('status').className = s.val() ? 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse' : 'w-2 h-2 bg-red-500 rounded-full'; });
+        db.ref('.info/connected').on('value', s => { 
+            document.getElementById('status').className = s.val() ? 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse' : 'w-2 h-2 bg-red-500 rounded-full'; 
+        });
 
         function setSrc(a) { src = a; document.querySelectorAll('#src-group .asset-btn').forEach(b => b.classList.remove('active')); document.getElementById(`s-${a}`).classList.add('active'); document.getElementById('cap-label').innerText = `مقدار موجودی ${src}`; }
         function setTar(a) { tar = a; document.querySelectorAll('#tar-group .asset-btn').forEach(b => b.classList.remove('active')); document.getElementById(`t-${a}`).classList.add('active'); }
@@ -87,20 +91,16 @@
             const gap = parseFloat(document.getElementById('gap').value) / 100;
             const fee = parseFloat(document.getElementById('fee').value) / 100;
 
-            if(!cap || !ref || src === tar) return alert("Error in data");
-            btn.disabled = true; btn.innerText = "COMPUTING...";
+            if(!cap || !ref || src === tar) return alert("ورودی‌ها ناقص است");
+            btn.disabled = true; btn.innerText = "در حال محاسبه...";
 
             const order = ['IRT', 'USDT', 'GOLD', 'BTC'];
-            const isBuying = order.indexOf(tar) > order.indexOf(src); // اگر از پله پایین به بالا برویم یعنی خرید (مثلا تتر به طلا)
-            
+            const isBuying = order.indexOf(tar) > order.indexOf(src);
             const weights = [0.2, 0.3, 0.5];
             let tiers = [], totalSrcUsed = 0, totalTarGained = 0;
-
             let precision = (tar === 'BTC') ? 8 : (tar === 'GOLD' ? 5 : 2);
 
             weights.forEach((w, i) => {
-                // در خرید (Ladder Down): قیمت پله‌های بعدی کمتر است
-                // در فروش (Ladder Up): قیمت پله‌های بعدی بیشتر است
                 let p = isBuying ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
                 let srcVol = cap * w;
                 let tarVol = isBuying ? (srcVol / p) : (srcVol * p);
@@ -110,30 +110,27 @@
 
                 tiers.push({
                     p: p.toLocaleString(),
-                    v: srcVol.toLocaleString(),
-                    q: tarVol.toFixed(precision)
+                    srcV: srcVol.toLocaleString(),
+                    tarV: tarVol.toFixed(precision)
                 });
             });
 
-            // میانگین قیمت واقعی (VWAP)
             const vwap = isBuying ? (totalSrcUsed / totalTarGained) : (totalTarGained / totalSrcUsed);
-
-            // محاسبه تارگت‌ها بر اساس سود
             const targets = [0.02, 0.05, 0.08, 0.15].map(t => {
-                let targetPrice = isBuying ? vwap * (1 + t + fee) : vwap * (1 - t - fee);
-                return targetPrice.toFixed(tar === 'BTC' ? 2 : 0);
+                let tp = isBuying ? vwap * (1 + t + fee) : vwap * (1 - t - fee);
+                return tp.toFixed(tar === 'BTC' ? 2 : 0);
             });
 
             await db.ref(`stealth_matrix/${src}_TO_${tar}`).set({
-                path: `${src} ➔ ${tar}`,
-                src, tar,
+                path: `${src} ➔ ${tar}`, src, tar,
                 vwap: vwap.toLocaleString(),
                 tiers, targets,
-                timestamp: new Date().toLocaleTimeString('fa-IR'),
-                mode: isBuying ? 'BUYING' : 'SELLING'
+                mode: isBuying ? 'BUYING' : 'SELLING',
+                timestamp: new Date().toLocaleTimeString('fa-IR')
             });
 
-            btn.disabled = false; btn.innerText = "DONE!";
+            btn.disabled = false; btn.innerText = "سیگنال ارسال شد";
+            setTimeout(() => btn.innerText = "ارسال به ویترین مانیتور", 2000);
         }
     </script>
 </body>
