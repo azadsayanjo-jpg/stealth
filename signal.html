@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Quant Monitor | Cloud Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { background: #010409; color: #c9d1d9; font-family: 'Vazirmatn'; }
+        .glass { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; border-radius: 20px; }
+        .buy-gradient { border-top: 4px solid #238636; background: linear-gradient(180deg, rgba(35, 134, 54, 0.05) 0%, transparent 100%); }
+        .sell-gradient { border-top: 4px solid #1f6feb; background: linear-gradient(180deg, rgba(31, 111, 235, 0.05) 0%, transparent 100%); }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        <div class="flex justify-between items-center glass p-4 px-8 border-b border-blue-500/30">
+            <h1 class="text-xl font-black italic tracking-widest">QUANT <span class="text-blue-500">CLOUD</span></h1>
+            <div id="cloud-status" class="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-2">
+                <span id="pulse" class="w-2 h-2 bg-gray-500 rounded-full"></span> Connecting to Firebase...
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div id="buy-zone" class="glass p-6 buy-gradient space-y-6 transition-all duration-700 opacity-30">
+                <div class="flex justify-between items-end border-b border-green-900 pb-4">
+                    <h2 class="text-xl font-black text-white">BUY/ACCUMULATION</h2>
+                    <div class="text-left">
+                        <span class="text-[9px] text-gray-500 block">میانگین خرید (VWAP)</span>
+                        <span id="buy-vwap" class="text-3xl font-black text-green-400 font-mono">-</span>
+                    </div>
+                </div>
+                <div id="buy-ladder" class="space-y-3"></div>
+                <div id="buy-targets" class="grid grid-cols-4 gap-2"></div>
+            </div>
+
+            <div id="sell-zone" class="glass p-6 sell-gradient space-y-6 transition-all duration-700 opacity-30">
+                <div class="flex justify-between items-end border-b border-blue-900 pb-4">
+                    <h2 class="text-xl font-black text-white">SELL/DISTRIBUTION</h2>
+                    <div class="text-left">
+                        <span class="text-[9px] text-gray-500 block">میانگین فروش (VWAP)</span>
+                        <span id="sell-vwap" class="text-3xl font-black text-blue-400 font-mono">-</span>
+                    </div>
+                </div>
+                <div id="sell-ladder" class="space-y-3"></div>
+                <div id="sell-targets" class="grid grid-cols-4 gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnTDnLIOwORgu6LpYjj3jHbMDk8v-MVjg",
+            authDomain: "sellusd-ea252.firebaseapp.com",
+            databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com",
+            projectId: "sellusd-ea252"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // گوش دادن به تغییرات دیتابیس
+        database.ref('active_signal').on('value', (snapshot) => {
+            const sig = snapshot.val();
+            if(!sig) return;
+
+            const isBuy = sig.mode === 'BUY';
+            const zone = document.getElementById(isBuy ? 'buy-zone' : 'sell-zone');
+            
+            // افکت فعال‌سازی
+            zone.style.opacity = "1";
+            document.getElementById('pulse').classList.add('bg-green-500', 'animate-ping');
+            document.getElementById('cloud-status').innerText = `Live: Signal Recv @ ${sig.timestamp}`;
+
+            document.getElementById(isBuy ? 'buy-vwap' : 'sell-vwap').innerText = sig.vwap.toLocaleString();
+
+            const ladder = document.getElementById(isBuy ? 'buy-ladder' : 'sell-ladder');
+            ladder.innerHTML = sig.tiers.map((t, i) => `
+                <div class="p-4 rounded-xl bg-black/50 border border-white/5 flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-500">پله ${i+1}</span>
+                    <span class="text-xl font-black font-mono">${t.p.toLocaleString()}</span>
+                    <span class="text-[10px] text-blue-400 font-bold uppercase">${isBuy ? t.v.toLocaleString() + ' IRT' : t.q + ' USDT'}</span>
+                </div>
+            `).join('');
+
+            const targets = document.getElementById(isBuy ? 'buy-targets' : 'sell-targets');
+            targets.innerHTML = sig.targets.map((p, i) => `
+                <div class="bg-gray-800/50 p-2 rounded-lg text-center border border-white/5">
+                    <div class="text-[8px] text-gray-500 uppercase">${i+1} Goal</div>
+                    <div class="text-[10px] font-bold text-emerald-500 font-mono">${p.toLocaleString()}</div>
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>
