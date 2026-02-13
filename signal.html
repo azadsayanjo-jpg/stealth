@@ -3,130 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v2.0 | Showcase Terminal</title>
+    <title>StealthCapital v2.1 | A6 Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #08080a; color: #d4d4d8; font-family: 'Vazirmatn'; margin: 0; overflow-x: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         
-        /* استایل ویترین (Shelf) */
-        .shelf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-            padding: 16px;
+        /* === صفحه اول: منوی انتخاب === */
+        #selector-screen {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; padding: 20px; text-align: center;
         }
-
-        .product-card {
-            background: #121214;
-            border: 1px solid #1f1f23;
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s ease;
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+        .menu-btn {
+            background: #111; border: 1px solid #222; padding: 30px 10px;
+            border-radius: 20px; cursor: pointer; transition: 0.2s;
         }
+        .menu-btn:hover { background: #222; border-color: #4f46e5; }
+        .menu-btn h3 { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+        .menu-btn p { font-size: 10px; color: #666; }
 
-        .product-card:hover { border-color: #3f3f46; background: #161618; }
-
-        .badge { font-[900] text-[9px] px-2 py-0.5 rounded-md uppercase tracking-tighter; }
+        /* === صفحه دوم: نمایش کارت‌ها === */
+        #monitor-screen { display: none; padding: 20px; }
         
-        /* استایل اعداد (بدون بزرگنمایی کاذب) */
-        .price-val { font-family: 'Courier New', monospace; font-weight: 700; color: #fff; }
+        /* استایل A6 برای کارت */
+        .a6-container {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
+        }
         
-        .tier-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #1f1f23;
+        .a6-card {
+            width: 320px; /* عرض ثابت مشابه A6 در اسکرین */
+            background: #08080a;
+            border: 1px solid #222;
+            border-radius: 10px; /* گوشه‌های کمی تیزتر برای حس کاغذ */
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .tier-row:last-child { border-bottom: none; }
-
-        .target-box {
-            background: #000;
-            border-radius: 8px;
-            padding: 6px;
-            text-align: center;
-            border: 1px solid #18181b;
+        
+        /* هدر کارت */
+        .card-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 15px;
         }
+        
+        /* جداول داخلی */
+        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #222; }
+        .data-row:last-child { border-bottom: none; }
+        
+        .font-mono { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: -0.5px; }
+        .back-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 30px; border-radius: 50px; font-size: 12px; z-index: 100; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
-    <header class="p-4 border-b border-zinc-900 bg-black/40 backdrop-blur-md flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <h1 class="text-[12px] font-black tracking-widest uppercase">Stealth<span class="text-indigo-500">Capital</span></h1>
-        </div>
-        <div id="clock" class="text-[10px] font-mono text-zinc-500">00:00:00</div>
-    </header>
 
-    <div id="matrix-container" class="shelf-grid">
+    <div id="selector-screen">
+        <h1 class="text-xl font-black italic mb-8 uppercase">Stealth<span class="text-indigo-600">Terminal</span></h1>
+        <p class="text-xs text-zinc-500 mb-6">SELECT MARKET TO MONITOR</p>
+        
+        <div class="menu-grid">
+            <div class="menu-btn" onclick="openMonitor('USDT')">
+                <h3>USDT MARKET</h3>
+                <p>تتر / دلار</p>
+            </div>
+            <div class="menu-btn" onclick="openMonitor('GOLD')">
+                <h3>GOLD MARKET</h3>
+                <p>طلا / آبشده</p>
+            </div>
+            <div class="menu-btn" onclick="openMonitor('BTC')">
+                <h3>BTC MARKET</h3>
+                <p>بیت‌کوین / کریپتو</p>
+            </div>
+            <div class="menu-btn" onclick="openMonitor('ALL')">
+                <h3>GLOBAL VIEW</h3>
+                <p>نمایش همه</p>
+            </div>
         </div>
+    </div>
+
+    <div id="monitor-screen">
+        <header class="text-center mb-8">
+            <h2 id="market-title" class="text-lg font-black uppercase tracking-widest text-zinc-400">MARKET</h2>
+        </header>
+
+        <div id="cards-area" class="a6-container">
+            </div>
+
+        <button class="back-btn" onclick="goBack()">بازگشت به منو</button>
+    </div>
 
     <script>
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
+        
+        let currentFilter = 'ALL';
 
-        setInterval(() => { 
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR');
-        }, 1000);
+        function openMonitor(filter) {
+            currentFilter = filter;
+            document.getElementById('selector-screen').style.display = 'none';
+            document.getElementById('monitor-screen').style.display = 'block';
+            document.getElementById('market-title').innerText = filter === 'ALL' ? 'GLOBAL MONITOR' : `${filter} MARKET`;
+            loadSignals();
+        }
 
-        db.ref('stealth_matrix').on('value', snapshot => {
-            const container = document.getElementById('matrix-container');
-            const data = snapshot.val();
-            if(!data) { container.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 text-xs italic uppercase tracking-[.5em]">Empty Shelf</div>`; return; }
+        function goBack() {
+            document.getElementById('monitor-screen').style.display = 'none';
+            document.getElementById('selector-screen').style.display = 'flex';
+        }
 
-            container.innerHTML = Object.keys(data).map(key => {
-                const s = data[key];
-                const isBuy = s.mode === 'BUYING';
-                const accent = isBuy ? '#10b981' : '#3b82f6';
+        function loadSignals() {
+            db.ref('stealth_matrix').on('value', snapshot => {
+                const container = document.getElementById('cards-area');
+                const data = snapshot.val();
                 
-                return `
-                <div class="product-card" style="border-top: 3px solid ${accent}">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="badge" style="background: ${accent}22; color: ${accent}">${s.path}</span>
-                            <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="opacity-30 hover:opacity-100 text-xs text-white">✕</button>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <p class="text-[8px] text-zinc-600 font-black uppercase mb-1">Entry Average (VWAP)</p>
-                            <div class="text-xl price-val">${s.vwap}</div>
+                if(!data) { container.innerHTML = '<div class="text-zinc-700 font-black">NO ACTIVE SIGNALS</div>'; return; }
+
+                container.innerHTML = Object.keys(data).map(key => {
+                    const s = data[key];
+                    // فیلتر کردن: اگر فیلتر ALL نیست و مقصد سیگنال با فیلتر یکی نیست، نمایش نده
+                    if(currentFilter !== 'ALL' && s.tar !== currentFilter && s.src !== currentFilter) return '';
+
+                    const isBuy = s.mode === 'BUY';
+                    const color = isBuy ? '#10b981' : '#3b82f6'; // سبز یا آبی
+
+                    return `
+                    <div class="a6-card" style="--accent: ${color}">
+                        <div class="card-header">
+                            <span class="text-xs font-black bg-zinc-900 px-2 py-1 rounded text-zinc-300">${s.path}</span>
+                            <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="text-zinc-600 font-bold hover:text-red-500">✕</button>
                         </div>
 
-                        <div class="bg-zinc-900/40 rounded-xl px-3 py-1 mb-4">
+                        <div class="mb-6">
+                            <p class="text-[9px] text-zinc-500 font-bold uppercase">VWAP (Average Price)</p>
+                            <div class="text-2xl font-mono text-white mt-1">${s.vwap}</div>
+                        </div>
+
+                        <div class="mb-6">
                             ${s.tiers.map((t, i) => `
-                                <div class="tier-row">
-                                    <span class="text-[8px] text-zinc-700 font-bold uppercase">S${i+1}</span>
-                                    <span class="text-[11px] price-val text-zinc-400">${t.p}</span>
-                                    <div class="text-left">
-                                        <div class="text-[10px] text-white font-black font-mono">${t.tarV}</div>
-                                        <div class="text-[7px] text-zinc-600 font-bold uppercase">${t.srcV} ${s.src}</div>
+                                <div class="data-row">
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] text-zinc-500 font-bold">STEP ${i+1}</span>
+                                        <span class="text-sm font-mono text-zinc-300">${t.p}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] text-indigo-400 font-bold">${t.s} <span class="text-[7px] text-zinc-600">${s.src}</span></div>
+                                        <div class="text-[12px] text-white font-black">${t.t} <span class="text-[8px] text-zinc-500">${s.tar}</span></div>
                                     </div>
                                 </div>
                             `).join('')}
                         </div>
-                    </div>
 
-                    <div>
-                        <p class="text-[7px] text-zinc-600 font-black uppercase mb-2 text-center tracking-widest">Exit Targets</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            ${s.targets.map((p, i) => `
-                                <div class="target-box">
-                                    <div class="text-[6px] text-zinc-700 font-bold uppercase">Goal ${i+1}</div>
-                                    <div class="text-[10px] font-mono text-emerald-500/80">${parseFloat(p).toLocaleString()}</div>
-                                </div>
-                            `).join('')}
+                        <div class="bg-zinc-900/50 p-3 rounded border border-zinc-800">
+                            <p class="text-[8px] text-center text-zinc-600 mb-2 font-bold uppercase">Profit Targets</p>
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                ${s.targets.map((p, i) => `
+                                    <div>
+                                        <span class="text-[7px] text-zinc-500 block">T${i+1}</span>
+                                        <span class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-            }).join('');
-        });
+                        <div class="mt-2 text-center">
+                            <span class="text-[7px] text-zinc-700 font-mono">${s.ts}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            });
+        }
     </script>
 </body>
 </html>
