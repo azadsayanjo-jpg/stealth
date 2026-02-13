@@ -2,80 +2,124 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Quant Master Admin | v19.0</title>
+    <title>StealthCapital v1 | Commander</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #0b0e14; color: #ebedf0; font-family: 'Vazirmatn'; }
-        .panel-bg { background: #161b22; border: 1px solid #30363d; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .input-field { background: #0d1117; border: 1px solid #30363d; border-radius: 14px; transition: all 0.2s; color: white; font-family: monospace; }
-        .input-field:focus { border-color: #58a6ff; outline: none; box-shadow: 0 0 0 3px rgba(88,166,255,0.1); }
-        .btn-broadcast { background: linear-gradient(135deg, #1f6feb, #38bdf8); transition: 0.3s; font-weight: 900; }
-        .btn-broadcast:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        body { background: #050505; color: #e5e7eb; font-family: 'Vazirmatn'; }
+        .panel-bg { background: #0f1115; border: 1px solid #1f2937; border-radius: 24px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .input-field { background: #0a0a0a; border: 1px solid #27272a; border-radius: 12px; color: white; font-family: monospace; transition: 0.3s; }
+        .input-field:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        
+        /* Asset Buttons */
+        .asset-btn { opacity: 0.4; filter: grayscale(100%); transition: all 0.3s; border: 1px solid transparent; }
+        .asset-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.05); font-weight: 900; }
+        .asset-gold.active { border-color: #eab308; background: rgba(234, 179, 8, 0.1); color: #eab308; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
+        .asset-btc.active { border-color: #f97316; background: rgba(249, 115, 22, 0.1); color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
+        .asset-usdt.active { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+
+        .btn-broadcast { background: linear-gradient(135deg, #4f46e5, #818cf8); font-weight: 900; letter-spacing: 1px; }
+        .btn-broadcast:hover { box-shadow: 0 0 30px rgba(79, 70, 229, 0.4); }
     </style>
 </head>
-<body class="p-6 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-2xl panel-bg p-10 border-t-8 border-blue-600">
-        <div class="flex justify-between items-center mb-10">
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg panel-bg p-8 relative overflow-hidden">
+        <div class="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
             <div>
-                <h1 class="text-2xl font-black text-white tracking-tighter uppercase italic">Master <span class="text-blue-500">Control</span></h1>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Enterprise Signal Engine</p>
+                <h1 class="text-xl font-black text-white tracking-tighter uppercase italic">StealthCapital <span class="text-indigo-500">v1</span></h1>
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Multi-Asset Signal Engine</p>
             </div>
-            <div id="status-indicator" class="px-4 py-2 rounded-full bg-black/50 border border-gray-800 text-[9px] font-bold uppercase flex items-center gap-2">
-                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Connecting...
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6 mb-8">
-            <div class="space-y-2">
-                <label class="text-[11px] font-black text-gray-500 uppercase mr-1">سرمایه کل (Cap)</label>
-                <input type="number" id="cap" class="w-full input-field p-4 text-2xl" placeholder="1000">
-            </div>
-            <div class="space-y-2">
-                <label class="text-[11px] font-black text-gray-500 uppercase mr-1">قیمت مرجع (Market Ref)</label>
-                <input type="number" id="ref" class="w-full input-field p-4 text-2xl" placeholder="165000">
+            <div id="status-indicator" class="px-3 py-1 rounded-full bg-black/40 border border-gray-800 text-[9px] font-bold uppercase flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Offline
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-10">
-            <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Distance %</label>
-                <input type="number" id="gap" class="w-full input-field p-3 text-center" value="1.5" step="0.1">
-            </div>
-            <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Fee %</label>
-                <input type="number" id="fee" class="w-full input-field p-3 text-center" value="0.25" step="0.01">
-            </div>
-            <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Mode</label>
-                <select id="mode" class="w-full input-field p-3 text-center bg-black cursor-pointer">
-                    <option value="BUY">ACCUMULATION</option>
-                    <option value="SELL">DISTRIBUTION</option>
-                </select>
+        <div class="mb-8">
+            <label class="text-[10px] text-gray-500 font-black block text-center uppercase mb-3 tracking-widest">Select Asset Class</label>
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="selectAsset('GOLD')" id="btn-GOLD" class="asset-btn asset-gold active p-4 rounded-xl flex flex-col items-center gap-1">
+                    <span class="text-xl">🏆</span>
+                    <span class="text-[10px] uppercase">Gold</span>
+                </button>
+                <button onclick="selectAsset('BTC')" id="btn-BTC" class="asset-btn asset-btc p-4 rounded-xl flex flex-col items-center gap-1">
+                    <span class="text-xl">₿</span>
+                    <span class="text-[10px] uppercase">Bitcoin</span>
+                </button>
+                <button onclick="selectAsset('USDT')" id="btn-USDT" class="asset-btn asset-usdt p-4 rounded-xl flex flex-col items-center gap-1">
+                    <span class="text-xl">₮</span>
+                    <span class="text-[10px] uppercase">Tether</span>
+                </button>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <button onclick="transmit()" id="mainBtn" class="w-full btn-broadcast py-5 rounded-2xl text-white shadow-xl uppercase tracking-widest text-sm">
-                Push Signal to Cloud
+        <div class="space-y-4 mb-8">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Capital (Cap)</label>
+                    <input type="number" id="cap" class="w-full input-field p-3 text-lg" placeholder="e.g 1000">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Market Price</label>
+                    <input type="number" id="ref" class="w-full input-field p-3 text-lg" placeholder="Current Price">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Gap %</label>
+                    <input type="number" id="gap" class="w-full input-field p-2 text-center text-sm" value="1.5" step="0.1">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Fee %</label>
+                    <input type="number" id="fee" class="w-full input-field p-2 text-center text-sm" value="0.25" step="0.01">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Action</label>
+                    <select id="mode" class="w-full input-field p-2 text-center text-sm bg-black cursor-pointer">
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <button onclick="transmit()" id="mainBtn" class="w-full btn-broadcast py-4 rounded-xl text-white shadow-lg uppercase tracking-widest text-xs transition-all transform active:scale-95">
+                Broadcast Signal
             </button>
-            <button onclick="resetCloud()" class="w-full border border-red-500/30 text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all">
-                Kill All Active Signals
+            <button onclick="clearAsset()" class="w-full text-red-500/50 hover:text-red-500 py-2 text-[10px] font-black uppercase tracking-widest transition-colors">
+                Clear Active Signal
             </button>
         </div>
     </div>
 
     <script>
+        // CONFIG
         const firebaseConfig = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let currentAsset = 'GOLD';
+
+        // Connection Check
         db.ref('.info/connected').on('value', s => {
-            const ind = document.getElementById('status-indicator');
-            ind.innerHTML = s.val() ? '<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Cloud Ready' : '<span class="w-2 h-2 bg-red-500 rounded-full"></span> Connection Error';
+            document.getElementById('status-indicator').innerHTML = s.val() 
+                ? '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Online' 
+                : '<span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Offline';
         });
+
+        function selectAsset(asset) {
+            currentAsset = asset;
+            document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${asset}`).classList.add('active');
+            
+            // Visual feedback on button text
+            const btn = document.getElementById('mainBtn');
+            btn.innerText = `Broadcast to ${asset}`;
+        }
 
         async function transmit() {
             const btn = document.getElementById('mainBtn');
@@ -85,37 +129,64 @@
             const fee = parseFloat(document.getElementById('fee').value) / 100;
             const mode = document.getElementById('mode').value;
 
-            if(!cap || !ref) return alert("Error: Missing Data");
+            if(!cap || !ref) return alert("Please enter Capital and Price.");
 
             btn.disabled = true;
-            btn.innerText = "COMPUTING...";
+            btn.innerText = "CALCULATING...";
 
+            // StealthCapital Algorithm
             const weights = [0.2, 0.3, 0.5];
-            let tiers = []; let tV = 0; let tQ = 0;
+            let tV = 0; let tQ = 0;
+            let tiers = [];
 
             weights.forEach((w, i) => {
                 let p = mode === 'BUY' ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
-                let v = mode === 'BUY' ? cap * w : (cap * w) * p;
-                let q = mode === 'BUY' ? v / p : cap * w;
-                tV += v; tQ += q;
-                tiers.push({ p: Math.ceil(p), v: Math.round(v), q: q.toFixed(2) });
+                let v = mode === 'BUY' ? cap * w : (cap * w) * p; // Value
+                let q = mode === 'BUY' ? v / p : cap * w;         // Quantity
+                
+                // Adjust for precision based on asset
+                if(currentAsset === 'BTC') { p = p.toFixed(2); q = q.toFixed(6); }
+                else { p = Math.ceil(p); q = q.toFixed(2); }
+
+                tV += parseFloat(v); 
+                tQ += parseFloat(q);
+                tiers.push({ p: Number(p), v: Math.round(v), q: Number(q) });
             });
 
             const vwap = tV / tQ;
-            const targets = [0.01, 0.02, 0.03, 0.05].map(t => {
-                return Math.ceil(mode === 'BUY' ? vwap * (1 + t + (fee*2)) : vwap * (1 - t - (fee*2)));
+            const targets = [0.015, 0.03, 0.05, 0.08].map(t => {
+                let targetP = mode === 'BUY' ? vwap * (1 + t + fee) : vwap * (1 - t - fee);
+                return currentAsset === 'BTC' ? targetP.toFixed(2) : Math.ceil(targetP);
             });
 
-            const signal = { mode, vwap: Math.ceil(vwap), tiers, targets, timestamp: new Date().toLocaleTimeString('fa-IR'), active: true };
+            const signalData = {
+                asset: currentAsset,
+                mode: mode,
+                vwap: currentAsset === 'BTC' ? vwap.toFixed(2) : Math.ceil(vwap),
+                tiers: tiers,
+                targets: targets,
+                timestamp: new Date().toLocaleTimeString('fa-IR'),
+                active: true
+            };
 
-            await db.ref(`signals/${mode.toLowerCase()}`).set(signal);
-            btn.innerText = "BROADCAST SUCCESSFUL";
-            setTimeout(() => { btn.disabled = false; btn.innerText = "Push Signal to Cloud"; }, 2000);
+            // Save to specific asset path
+            await db.ref(`stealth_capital/${currentAsset}`).set(signalData);
+
+            btn.innerText = "SIGNAL SENT ✔";
+            setTimeout(() => { 
+                btn.disabled = false; 
+                btn.innerText = `Broadcast to ${currentAsset}`; 
+            }, 1500);
         }
 
-        function resetCloud() {
-            if(confirm("آیا مانیتورینگ پاکسازی شود؟")) db.ref('signals').remove();
+        function clearAsset() {
+            if(confirm(`Are you sure you want to clear ${currentAsset} signals?`)) {
+                db.ref(`stealth_capital/${currentAsset}`).remove();
+            }
         }
+
+        // Initialize button text
+        selectAsset('GOLD');
     </script>
 </body>
 </html>
