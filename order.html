@@ -9,62 +9,55 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Vazirmatn'; min-height: 100vh; overflow-y: auto; }
-        .glass-card { background: rgba(23, 23, 23, 0.8); backdrop-filter: blur(10px); border: 1px solid #333; border-radius: 24px; }
-        .input-dark { background: #0a0a0a; border: 1px solid #262626; border-radius: 12px; padding: 12px; width: 100%; transition: 0.3s; }
-        .input-dark:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 15px rgba(99,102,241,0.3); }
-        .asset-tab { opacity: 0.3; transition: 0.4s; cursor: pointer; border: 1px solid transparent; }
-        .asset-tab.active { opacity: 1; border-color: var(--color); background: var(--bg); transform: translateY(-3px); }
-        .btn-primary { background: linear-gradient(135deg, #4f46e5, #818cf8); font-weight: 900; transition: 0.3s; }
-        .btn-primary:active { transform: scale(0.95); }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; min-height: 100vh; padding-bottom: 50px; }
+        .glass-card { background: rgba(20, 20, 20, 0.9); border: 1px solid #333; border-radius: 24px; padding: 20px; }
+        .input-dark { background: #050505; border: 1px solid #222; border-radius: 14px; padding: 14px; width: 100%; color: #fff; font-family: monospace; transition: 0.3s; }
+        .input-dark:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+        .asset-tab { opacity: 0.2; transition: 0.4s; cursor: pointer; border: 1px solid transparent; text-align: center; padding: 12px; border-radius: 16px; }
+        .asset-tab.active { opacity: 1; border-color: var(--c); background: var(--b); transform: scale(1.05); }
     </style>
 </head>
-<body class="p-4 pb-12">
-    <div class="max-w-md mx-auto space-y-6">
-        <div class="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
+<body class="p-4">
+    <div class="max-w-md mx-auto space-y-5">
+        <div class="flex justify-between items-center bg-zinc-900/80 p-5 rounded-3xl border border-zinc-800">
             <div>
-                <h1 class="text-lg font-black tracking-tighter uppercase italic">Stealth<span class="text-indigo-500">Capital</span> v1</h1>
-                <p id="assistant-msg" class="text-[10px] text-indigo-400 font-bold animate-pulse">آماده برای تحلیل بازار...</p>
+                <h1 class="text-xl font-black tracking-tighter italic">Stealth<span class="text-indigo-500">Capital</span></h1>
+                <p id="assistant-status" class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Ready to sync...</p>
             </div>
-            <div id="status-dot" class="flex items-center gap-2 text-[10px] font-black opacity-50">
-                OFFLINE <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-            </div>
+            <div id="status-dot" class="w-3 h-3 bg-red-500 rounded-full"></div>
         </div>
 
-        <div class="glass-card p-5">
-            <label class="text-[10px] uppercase font-black text-zinc-500 block mb-3 tracking-widest text-center">گام اول: انتخاب دارایی مقصد</label>
+        <div class="glass-card">
             <div class="grid grid-cols-3 gap-2">
-                <div onclick="selectAsset('GOLD', '#eab308', 'rgba(234,179,8,0.1)')" id="tab-GOLD" class="asset-tab active p-3 rounded-xl text-center" style="--color:#eab308; --bg:rgba(234,179,8,0.1)">
-                    <span class="block text-xl">🏆</span>
-                    <span class="text-[10px] font-bold">GOLD</span>
+                <div onclick="setAsset('GOLD', '#eab308', 'rgba(234,179,8,0.1)')" id="t-GOLD" class="asset-tab active" style="--c:#eab308; --b:rgba(234,179,8,0.1)">
+                    <span class="text-xl">🏆</span><span class="block text-[9px] font-black mt-1">GOLD</span>
                 </div>
-                <div onclick="selectAsset('BTC', '#f97316', 'rgba(249,115,22,0.1)')" id="tab-BTC" class="asset-tab p-3 rounded-xl text-center" style="--color:#f97316; --bg:rgba(249,115,22,0.1)">
-                    <span class="block text-xl">₿</span>
-                    <span class="text-[10px] font-bold">BTC</span>
+                <div onclick="setAsset('BTC', '#f97316', 'rgba(249,115,22,0.1)')" id="t-BTC" class="asset-tab" style="--c:#f97316; --b:rgba(249,115,22,0.1)">
+                    <span class="text-xl">₿</span><span class="block text-[9px] font-black mt-1">BTC</span>
                 </div>
-                <div onclick="selectAsset('USDT', '#22c55e', 'rgba(34,197,94,0.1)')" id="tab-USDT" class="asset-tab p-3 rounded-xl text-center" style="--color:#22c55e; --bg:rgba(34,197,94,0.1)">
-                    <span class="block text-xl">₮</span>
-                    <span class="text-[10px] font-bold">USDT</span>
+                <div onclick="setAsset('USDT', '#22c55e', 'rgba(34,197,94,0.1)')" id="t-USDT" class="asset-tab" style="--c:#22c55e; --b:rgba(34,197,94,0.1)">
+                    <span class="text-xl">₮</span><span class="block text-[9px] font-black mt-1">USDT</span>
                 </div>
             </div>
         </div>
 
-        <div class="glass-card p-5 space-y-4">
+        <div class="glass-card space-y-4">
+            <div>
+                <label id="cap-label" class="text-[10px] font-black text-zinc-500 uppercase mb-2 block mr-1">سرمایه (USDT/Toman)</label>
+                <div class="relative">
+                    <input type="number" id="cap" class="input-dark text-xl" placeholder="0.00">
+                    <button onclick="document.getElementById('cap').value=1100" class="absolute left-2 top-3 bg-indigo-600 text-[8px] px-2 py-1 rounded-lg">1100</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-3">
-                <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase">سرمایه ورودی (Cap)</label>
-                    <div class="relative">
-                        <input type="number" id="cap" class="input-dark text-xl font-mono" placeholder="0.00">
-                        <button onclick="setQuickCap(1100)" class="absolute left-2 top-2 bg-indigo-600 text-[8px] px-2 py-1 rounded">1100 USDT</button>
-                    </div>
+                <div>
+                    <label class="text-[10px] font-black text-zinc-500 uppercase mb-2 block mr-1">قیمت فعلی بازار</label>
+                    <input type="number" id="ref" class="input-dark text-center" placeholder="Price">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase text-center block">قیمت مرجع</label>
-                    <input type="number" id="ref" class="input-dark text-center font-mono" placeholder="قیمت بازار">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase text-center block">نوع عملیات</label>
-                    <select id="mode" class="input-dark text-center bg-black">
+                    <label class="text-[10px] font-black text-zinc-500 uppercase mb-2 block mr-1">نوع استراتژی</label>
+                    <select id="mode" class="input-dark text-center bg-black cursor-pointer">
                         <option value="BUY">خرید (Entry)</option>
                         <option value="SELL">فروش (Exit)</option>
                     </select>
@@ -73,47 +66,39 @@
 
             <div class="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
                 <div>
-                    <label class="text-[10px] font-bold text-zinc-500 block text-center uppercase">فاصله پله‌ها (Gap %)</label>
-                    <input type="number" id="gap" class="input-dark text-center" value="1.5" step="0.1">
+                    <label class="text-[10px] font-black text-zinc-500 block text-center uppercase mb-2">فاصله پله (Gap %)</label>
+                    <input type="number" id="gap" class="input-dark text-center" value="1.2" step="0.1">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-zinc-500 block text-center uppercase">کارمزد (Fee %)</label>
+                    <label class="text-[10px] font-black text-zinc-500 block text-center uppercase mb-2">کارمزد (Fee %)</label>
                     <input type="number" id="fee" class="input-dark text-center" value="0.2" step="0.01">
                 </div>
             </div>
         </div>
 
-        <div class="space-y-3">
-            <button onclick="transmit()" id="mainBtn" class="w-full btn-primary py-5 rounded-2xl shadow-2xl shadow-indigo-500/20 uppercase tracking-[0.2em] text-sm">
-                ارسال دستور به ترمینال
-            </button>
-            <button onclick="clearData()" class="w-full text-zinc-600 text-[9px] font-black uppercase tracking-widest">
-                پاکسازی مانیتورینگ دارایی فعلی
-            </button>
-        </div>
+        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 py-5 rounded-3xl font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 transition-all active:scale-95">
+            Broadcast Signal
+        </button>
     </div>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
+        const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(config);
         const db = firebase.database();
 
         let activeAsset = 'GOLD';
 
         db.ref('.info/connected').on('value', s => {
-            const dot = document.getElementById('status-dot');
-            dot.innerHTML = s.val() ? 'ONLINE <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>' : 'OFFLINE <span class="w-2 h-2 bg-red-500 rounded-full"></span>';
+            document.getElementById('status-dot').className = s.val() ? 'w-3 h-3 bg-emerald-500 rounded-full animate-pulse' : 'w-3 h-3 bg-red-500 rounded-full';
         });
 
-        function selectAsset(asset, color, bg) {
-            activeAsset = asset;
+        function setAsset(a, c, b) {
+            activeAsset = a;
             document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${asset}`).classList.add('active');
-            document.getElementById('assistant-msg').innerText = `در حال تنظیم استراتژی روی ${asset}...`;
-            document.getElementById('mainBtn').innerText = `Broadcast ${asset} Signal`;
+            document.getElementById(`t-${a}`).classList.add('active');
+            document.getElementById('assistant-status').innerText = `STAGING ${a} STRATEGY...`;
+            document.getElementById('cap-label').innerText = (a === 'BTC' || a === 'USDT') ? `سرمایه (${a} یا USDT)` : `سرمایه (تومان)`;
         }
-
-        function setQuickCap(val) { document.getElementById('cap').value = val; }
 
         async function transmit() {
             const btn = document.getElementById('mainBtn');
@@ -123,45 +108,44 @@
             const fee = parseFloat(document.getElementById('fee').value) / 100;
             const mode = document.getElementById('mode').value;
 
-            if(!cap || !ref) return alert("خطا: اطلاعات ناقص است");
+            if(!cap || !ref) return alert("Data Incomplete");
 
-            btn.disabled = true;
-            btn.innerText = "در حال محاسبه پله‌ها...";
+            btn.disabled = true; btn.innerText = "COMPUTING...";
 
             const weights = [0.2, 0.3, 0.5];
-            let tV = 0, tQ = 0, tiers = [];
+            let tiers = []; let tV = 0; let tQ = 0;
 
             weights.forEach((w, i) => {
+                // BUY: Ladder DOWN | SELL: Ladder UP
                 let p = mode === 'BUY' ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
-                let v = mode === 'BUY' ? cap * w : (cap * w) * p;
-                let q = mode === 'BUY' ? v / p : cap * w;
-                
-                if(activeAsset === 'BTC') { p = Number(p.toFixed(0)); q = Number(q.toFixed(6)); }
-                else { p = Math.ceil(p); q = Number(q.toFixed(2)); }
+                let v, q;
 
-                tV += (cap * w);
-                tQ += (mode === 'BUY' ? (cap * w / p) : (cap * w));
-                tiers.push({ p, v: Math.round(v), q });
+                if (mode === 'BUY') {
+                    v = cap * w; // Money spent
+                    q = v / p;   // Asset gained
+                } else {
+                    q = cap * w; // Asset sold
+                    v = q * p;   // Money gained
+                }
+                
+                tV += v; tQ += q;
+                tiers.push({ p: Math.round(p), v: Math.round(v), q: q.toFixed(activeAsset === 'BTC' ? 6 : 2) });
             });
 
-            const vwap = mode === 'BUY' ? (cap / tQ) : (tV / cap);
+            const vwap = tV / tQ;
+            // Targets: BUY goes UP, SELL goes DOWN (to rebuy)
             const targets = [0.015, 0.03, 0.05, 0.08].map(t => {
-                let targetP = mode === 'BUY' ? vwap * (1 + t + (fee*2)) : vwap * (1 - t - (fee*2));
-                return activeAsset === 'BTC' ? Math.round(targetP) : Math.ceil(targetP);
+                return Math.round(mode === 'BUY' ? vwap * (1 + t + (fee*2)) : vwap * (1 - t - (fee*2)));
             });
 
             const signal = {
-                asset: activeAsset, mode, vwap: Math.round(vwap), tiers, targets,
-                timestamp: new Date().toLocaleTimeString('fa-IR'), active: true
+                asset: activeAsset, mode, vwap: Math.round(vwap),
+                tiers, targets, timestamp: new Date().toLocaleTimeString('fa-IR'), active: true
             };
 
             await db.ref(`stealth_v1/${activeAsset}`).set(signal);
-            btn.innerText = "سیگنال با موفقیت ارسال شد";
-            setTimeout(() => { btn.disabled = false; selectAsset(activeAsset); }, 2000);
-        }
-
-        function clearData() {
-            if(confirm(`حذف مانیتورینگ ${activeAsset}؟`)) db.ref(`stealth_v1/${activeAsset}`).remove();
+            btn.innerText = "SUCCESSFUL";
+            setTimeout(() => { btn.disabled = false; btn.innerText = "Broadcast Signal"; }, 1500);
         }
     </script>
 </body>
