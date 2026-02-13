@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital v3.1 | Admin</title>
+    <title>StealthCapital v3.2 | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -13,21 +13,24 @@
         .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 20px; padding: 20px; max-width: 400px; margin: auto; }
         .asset-btn { border: 1px solid #27272a; opacity: 0.3; font-size: 10px; font-weight: 900; }
         .asset-btn.active { opacity: 1; border-color: #6366f1; background: #6366f122; color: #818cf8; }
-        input { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; color: #fff; font-family: monospace; font-size: 16px; margin-bottom: 15px; }
+        input { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; color: #fff; font-family: monospace; font-size: 16px; margin-bottom: 10px; }
+        label { display: block; font-size: 10px; color: #52525b; margin-bottom: 5px; font-weight: bold; padding-right: 5px; }
     </style>
 </head>
 <body>
     <div class="matrix-card">
-        <h2 class="text-center font-black text-xs uppercase mb-6 tracking-[0.3em]">Commander v3.1</h2>
+        <h2 class="text-center font-black text-xs uppercase mb-6 tracking-[0.3em] text-indigo-500">Commander v3.2</h2>
         
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div id="src-group" class="space-y-1">
+                <label>SOURCE</label>
                 <button onclick="setSrc('IRT', this)" class="asset-btn w-full p-2 rounded active">IRT</button>
                 <button onclick="setSrc('USDT', this)" class="asset-btn w-full p-2 rounded">USDT</button>
                 <button onclick="setSrc('GOLD', this)" class="asset-btn w-full p-2 rounded">GOLD</button>
                 <button onclick="setSrc('BTC', this)" class="asset-btn w-full p-2 rounded">BTC</button>
             </div>
             <div id="tar-group" class="space-y-1">
+                <label>TARGET</label>
                 <button onclick="setTar('IRT', this)" class="asset-btn w-full p-2 rounded">IRT</button>
                 <button onclick="setTar('USDT', this)" class="asset-btn w-full p-2 rounded active">USDT</button>
                 <button onclick="setTar('GOLD', this)" class="asset-btn w-full p-2 rounded">GOLD</button>
@@ -35,9 +38,24 @@
             </div>
         </div>
 
-        <input type="number" id="cap" placeholder="Total Capital">
-        <input type="number" id="ref" placeholder="Reference Price">
-        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs">Broadcast to Shelf</button>
+        <label>سرمایه کل</label>
+        <input type="number" id="cap" placeholder="1100">
+        
+        <label>نرخ فعلی بازار</label>
+        <input type="number" id="ref" placeholder="قیمت ورود">
+
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <label>GAP % (فاصله پله‌ها)</label>
+                <input type="number" id="gap" value="1.2">
+            </div>
+            <div>
+                <label>FEE % (کارمزد)</label>
+                <input type="number" id="fee" value="0.2">
+            </div>
+        </div>
+
+        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">ارسال سیگنال به ویترین</button>
     </div>
 
     <script>
@@ -52,17 +70,19 @@
         async function transmit() {
             const cap = parseFloat(document.getElementById('cap').value);
             const ref = parseFloat(document.getElementById('ref').value);
-            if(!cap || !ref || src === tar) return;
+            const gapVal = parseFloat(document.getElementById('gap').value) / 100;
+            const feeVal = parseFloat(document.getElementById('fee').value) / 100;
+
+            if(!cap || !ref || src === tar) return alert("خطا در ورودی");
 
             const order = ['IRT', 'USDT', 'GOLD', 'BTC'];
             const isBuy = order.indexOf(tar) > order.indexOf(src);
             const weights = [0.2, 0.3, 0.5];
-            const gap = 0.012, fee = 0.002;
             let tiers = [], tSrc = 0, tTar = 0;
             let precision = tar === 'BTC' ? 8 : (tar === 'GOLD' ? 5 : 2);
 
             weights.forEach((w, i) => {
-                let p = isBuy ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
+                let p = isBuy ? ref * (1 - (gapVal * i)) : ref * (1 + (gapVal * i));
                 let sV = cap * w;
                 let tV = isBuy ? (sV / p) : (sV * p);
                 tSrc += sV; tTar += tV;
@@ -71,16 +91,16 @@
 
             const vwap = isBuy ? (tSrc / tTar) : (tTar / tSrc);
             const targets = [0.02, 0.05, 0.08, 0.15].map(t => {
-                let tp = isBuy ? vwap * (1 + t + fee) : vwap * (1 - t - fee);
+                let tp = isBuy ? vwap * (1 + t + feeVal) : vwap * (1 - t - feeVal);
                 return tp.toFixed(tar === 'BTC' ? 2 : 0);
             });
 
             await db.ref(`stealth_matrix/${src}_TO_${tar}`).set({
                 path: `${src} ➔ ${tar}`, src, tar, vwap: vwap.toLocaleString(),
-                tiers, targets, mode: isBuy ? 'BUY' : 'SELL',
+                tiers, targets, mode: isBuy ? 'BUY' : 'SELL', fee: feeVal,
                 ts: new Date().toLocaleTimeString('fa-IR')
             });
-            alert("Sent!");
+            alert("سیگنال با موفقیت ارسال شد");
         }
     </script>
 </body>
