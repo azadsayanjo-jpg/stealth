@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v1.7 | Admin</title>
+    <title>StealthCapital v1.9 | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding-bottom: 50px; }
-        .matrix-card { background: #0a0a0c; border: 1px solid #1a1a1e; border-radius: 20px; padding: 15px; }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding: 10px; margin: 0; }
+        .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 20px; padding: 15px; width: 100%; box-sizing: border-box; }
         .asset-btn { border: 1px solid #27272a; opacity: 0.3; transition: 0.2s; cursor: pointer; text-align: center; font-size: 10px; font-weight: 900; }
         .asset-btn.active { opacity: 1; border-color: var(--c); background: var(--b); color: var(--c); box-shadow: 0 0 10px var(--b); }
-        .input-box { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 10px; width: 100%; text-align: center; font-family: monospace; color: #fff; font-size: 16px; }
-        .input-box:focus { border-color: #6366f1; outline: none; }
+        .input-box { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; font-family: monospace; color: #fff; font-size: 16px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #6366f1; }
     </style>
 </head>
-<body class="p-4">
+<body>
     <div class="max-w-md mx-auto space-y-4">
         <header class="flex justify-between items-center bg-zinc-900/40 p-4 rounded-2xl border border-zinc-800">
-            <h1 class="text-md font-black italic uppercase">Stealth<span class="text-indigo-500">Capital</span> v1.7</h1>
+            <h1 class="text-sm font-black italic uppercase">Stealth<span class="text-indigo-500">Capital</span> v1.9</h1>
             <div id="status" class="w-2 h-2 bg-red-500 rounded-full"></div>
         </header>
 
@@ -45,15 +45,15 @@
 
         <div class="matrix-card space-y-4">
             <div>
-                <label id="cap-label" class="text-[9px] font-black text-zinc-500 mb-2 block uppercase tracking-widest">مقدار کل سرمایه مبدأ</label>
+                <label class="text-[9px] font-black text-zinc-500 mb-2 block uppercase tracking-widest">مقدار موجودی</label>
                 <div class="relative">
                     <input type="number" id="cap" class="input-box" placeholder="0.00">
                     <button onclick="document.getElementById('cap').value=1100" class="absolute left-2 top-2.5 bg-indigo-600 text-[9px] px-2 py-1 rounded">1100</button>
                 </div>
             </div>
             <div>
-                <label class="text-[9px] font-black text-zinc-500 mb-2 block uppercase text-center tracking-widest">نرخ تبدیل فعلی</label>
-                <input type="number" id="ref" class="input-box" placeholder="مثلا 98000">
+                <label class="text-[9px] font-black text-zinc-500 mb-2 block uppercase text-center tracking-widest">نرخ تبدیل (قیمت واحد)</label>
+                <input type="number" id="ref" class="input-box" placeholder="قیمت فعلی">
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="text-center">
@@ -67,32 +67,29 @@
             </div>
         </div>
 
-        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs shadow-2xl active:scale-95 transition-all tracking-widest">ارسال به ویترین مانیتور</button>
+        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs shadow-2xl active:scale-95 transition-all">ارسال دستور به مانیتور</button>
     </div>
 
     <script>
-        // آدرس دیتابیس شما
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
         let src = 'IRT', tar = 'USDT';
 
-        db.ref('.info/connected').on('value', s => { 
-            document.getElementById('status').className = s.val() ? 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse' : 'w-2 h-2 bg-red-500 rounded-full'; 
-        });
+        db.ref('.info/connected').on('value', s => { document.getElementById('status').className = s.val() ? 'w-2 h-2 bg-emerald-500 rounded-full' : 'w-2 h-2 bg-red-500 rounded-full'; });
 
-        function setSrc(a) { src = a; document.querySelectorAll('#src-group .asset-btn').forEach(b => b.classList.remove('active')); document.getElementById(`s-${a}`).classList.add('active'); document.getElementById('cap-label').innerText = `مقدار موجودی ${src}`; }
+        function setSrc(a) { src = a; document.querySelectorAll('#src-group .asset-btn').forEach(b => b.classList.remove('active')); document.getElementById(`s-${a}`).classList.add('active'); }
         function setTar(a) { tar = a; document.querySelectorAll('#tar-group .asset-btn').forEach(b => b.classList.remove('active')); document.getElementById(`t-${a}`).classList.add('active'); }
 
         async function transmit() {
             const btn = document.getElementById('mainBtn');
             const cap = parseFloat(document.getElementById('cap').value);
             const ref = parseFloat(document.getElementById('ref').value);
-            const gap = parseFloat(document.getElementById('gap').value) / 100;
-            const fee = parseFloat(document.getElementById('fee').value) / 100;
+            const gap = (parseFloat(document.getElementById('gap').value) || 0) / 100;
+            const fee = (parseFloat(document.getElementById('fee').value) || 0) / 100;
 
-            if(!cap || !ref || src === tar) return alert("ورودی‌ها ناقص است");
-            btn.disabled = true; btn.innerText = "در حال محاسبه...";
+            if(!cap || !ref || src === tar) return alert("ورودی‌ها اشتباه است");
+            btn.disabled = true;
 
             const order = ['IRT', 'USDT', 'GOLD', 'BTC'];
             const isBuying = order.indexOf(tar) > order.indexOf(src);
@@ -104,15 +101,8 @@
                 let p = isBuying ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
                 let srcVol = cap * w;
                 let tarVol = isBuying ? (srcVol / p) : (srcVol * p);
-                
-                totalSrcUsed += srcVol; 
-                totalTarGained += tarVol;
-
-                tiers.push({
-                    p: p.toLocaleString(),
-                    srcV: srcVol.toLocaleString(),
-                    tarV: tarVol.toFixed(precision)
-                });
+                totalSrcUsed += srcVol; totalTarGained += tarVol;
+                tiers.push({ p: p.toLocaleString(), srcV: srcVol.toLocaleString(), tarV: tarVol.toFixed(precision) });
             });
 
             const vwap = isBuying ? (totalSrcUsed / totalTarGained) : (totalTarGained / totalSrcUsed);
@@ -122,15 +112,11 @@
             });
 
             await db.ref(`stealth_matrix/${src}_TO_${tar}`).set({
-                path: `${src} ➔ ${tar}`, src, tar,
-                vwap: vwap.toLocaleString(),
-                tiers, targets,
-                mode: isBuying ? 'BUYING' : 'SELLING',
+                path: `${src} ➔ ${tar}`, src, tar, vwap: vwap.toLocaleString(),
+                tiers, targets, mode: isBuying ? 'BUYING' : 'SELLING',
                 timestamp: new Date().toLocaleTimeString('fa-IR')
             });
-
-            btn.disabled = false; btn.innerText = "سیگنال ارسال شد";
-            setTimeout(() => btn.innerText = "ارسال به ویترین مانیتور", 2000);
+            btn.disabled = false;
         }
     </script>
 </body>
