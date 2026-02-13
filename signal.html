@@ -3,177 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v2.1 | A6 Monitor</title>
+    <title>StealthCapital v3.0 | Live Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: #fff; font-family: 'Vazirmatn'; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: #050505; color: #e4e4e7; font-family: 'Vazirmatn'; margin: 0; min-height: 100vh; padding-bottom: 50px; }
         
-        /* === صفحه اول: منوی انتخاب === */
-        #selector-screen {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100vh; padding: 20px; text-align: center;
-        }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        .menu-btn {
-            background: #111; border: 1px solid #222; padding: 30px 10px;
-            border-radius: 20px; cursor: pointer; transition: 0.2s;
-        }
-        .menu-btn:hover { background: #222; border-color: #4f46e5; }
-        .menu-btn h3 { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 5px; }
-        .menu-btn p { font-size: 10px; color: #666; }
-
-        /* === صفحه دوم: نمایش کارت‌ها === */
-        #monitor-screen { display: none; padding: 20px; }
-        
-        /* استایل A6 برای کارت */
-        .a6-container {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
-        }
-        
-        .a6-card {
-            width: 320px; /* عرض ثابت مشابه A6 در اسکرین */
-            background: #08080a;
-            border: 1px solid #222;
-            border-radius: 10px; /* گوشه‌های کمی تیزتر برای حس کاغذ */
+        /* گرید بندی کارت‌ها */
+        .shelf-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
             padding: 20px;
+            justify-items: center;
+        }
+
+        .card {
+            background: #0f0f11;
+            border: 1px solid #27272a;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 350px;
+            padding: 16px;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
         }
-        
-        /* هدر کارت */
-        .card-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 15px;
+
+        /* استایل پله‌های خرید */
+        .step-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; margin-bottom: 8px;
+            background: #18181b; border: 1px solid #27272a; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s;
         }
+        .step-row:hover { background: #27272a; }
         
-        /* جداول داخلی */
-        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #222; }
-        .data-row:last-child { border-bottom: none; }
+        /* وقتی پله انتخاب می‌شود (Active) */
+        .step-row.active {
+            background: rgba(16, 185, 129, 0.1); /* سبز کمرنگ */
+            border-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        .step-row.active .step-label { color: #10b981; font-weight: 900; }
+
+        /* استایل تارگت‌ها */
+        .target-btn {
+            background: #000; border: 1px solid #27272a;
+            border-radius: 8px; padding: 8px; text-align: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .target-btn.active {
+            background: rgba(59, 130, 246, 0.2); /* آبی کمرنگ */
+            border-color: #3b82f6;
+            color: #fff;
+        }
+
+        /* باکس محاسبه سود */
+        .profit-box {
+            margin-top: 15px; padding: 12px;
+            background: #111; border-top: 2px solid #333;
+            border-radius: 12px; text-align: center;
+            display: none; /* پیش‌فرض مخفی است */
+        }
+        .profit-box.visible { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .font-mono { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: -0.5px; }
-        .back-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 30px; border-radius: 50px; font-size: 12px; z-index: 100; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .font-mono { font-family: 'Courier New', monospace; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <div id="selector-screen">
-        <h1 class="text-xl font-black italic mb-8 uppercase">Stealth<span class="text-indigo-600">Terminal</span></h1>
-        <p class="text-xs text-zinc-500 mb-6">SELECT MARKET TO MONITOR</p>
-        
-        <div class="menu-grid">
-            <div class="menu-btn" onclick="openMonitor('USDT')">
-                <h3>USDT MARKET</h3>
-                <p>تتر / دلار</p>
-            </div>
-            <div class="menu-btn" onclick="openMonitor('GOLD')">
-                <h3>GOLD MARKET</h3>
-                <p>طلا / آبشده</p>
-            </div>
-            <div class="menu-btn" onclick="openMonitor('BTC')">
-                <h3>BTC MARKET</h3>
-                <p>بیت‌کوین / کریپتو</p>
-            </div>
-            <div class="menu-btn" onclick="openMonitor('ALL')">
-                <h3>GLOBAL VIEW</h3>
-                <p>نمایش همه</p>
-            </div>
+    <header class="p-4 border-b border-zinc-900 bg-black/60 sticky top-0 z-50 backdrop-blur-md flex justify-between items-center">
+        <h1 class="text-sm font-black italic tracking-widest text-zinc-300">STEALTH<span class="text-indigo-500">CAPITAL</span> <span class="text-[9px] opacity-50">CALCULATOR</span></h1>
+        <div id="clock" class="text-[10px] font-mono text-zinc-500">00:00:00</div>
+    </header>
+
+    <div id="matrix-container" class="shelf-container">
         </div>
-    </div>
-
-    <div id="monitor-screen">
-        <header class="text-center mb-8">
-            <h2 id="market-title" class="text-lg font-black uppercase tracking-widest text-zinc-400">MARKET</h2>
-        </header>
-
-        <div id="cards-area" class="a6-container">
-            </div>
-
-        <button class="back-btn" onclick="goBack()">بازگشت به منو</button>
-    </div>
 
     <script>
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
-        
-        let currentFilter = 'ALL';
 
-        function openMonitor(filter) {
-            currentFilter = filter;
-            document.getElementById('selector-screen').style.display = 'none';
-            document.getElementById('monitor-screen').style.display = 'block';
-            document.getElementById('market-title').innerText = filter === 'ALL' ? 'GLOBAL MONITOR' : `${filter} MARKET`;
-            loadSignals();
-        }
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR'), 1000);
 
-        function goBack() {
-            document.getElementById('monitor-screen').style.display = 'none';
-            document.getElementById('selector-screen').style.display = 'flex';
-        }
+        db.ref('stealth_matrix').on('value', snapshot => {
+            const container = document.getElementById('matrix-container');
+            const data = snapshot.val();
+            
+            if(!data) { container.innerHTML = `<div class="col-span-full text-center py-20 opacity-20 text-xl font-black">NO ACTIVE TRADES</div>`; return; }
 
-        function loadSignals() {
-            db.ref('stealth_matrix').on('value', snapshot => {
-                const container = document.getElementById('cards-area');
-                const data = snapshot.val();
+            // نکته: ما از innerHTML کامل استفاده نمی‌کنیم تا اگر کاربر در حال محاسبه است، صفحه رفرش نشود.
+            // اما برای سادگی فعلی، کل کانتینر رندر می‌شود.
+            container.innerHTML = Object.keys(data).map(key => {
+                const s = data[key];
+                const isBuy = s.mode === 'BUYING'; // توجه: چک کنید در ادمین BUYING ارسال می‌کنید یا BUY
+                const color = isBuy ? '#10b981' : '#3b82f6';
                 
-                if(!data) { container.innerHTML = '<div class="text-zinc-700 font-black">NO ACTIVE SIGNALS</div>'; return; }
-
-                container.innerHTML = Object.keys(data).map(key => {
-                    const s = data[key];
-                    // فیلتر کردن: اگر فیلتر ALL نیست و مقصد سیگنال با فیلتر یکی نیست، نمایش نده
-                    if(currentFilter !== 'ALL' && s.tar !== currentFilter && s.src !== currentFilter) return '';
-
-                    const isBuy = s.mode === 'BUY';
-                    const color = isBuy ? '#10b981' : '#3b82f6'; // سبز یا آبی
-
-                    return `
-                    <div class="a6-card" style="--accent: ${color}">
-                        <div class="card-header">
-                            <span class="text-xs font-black bg-zinc-900 px-2 py-1 rounded text-zinc-300">${s.path}</span>
-                            <button onclick="firebase.database().ref('stealth_matrix/${key}').remove()" class="text-zinc-600 font-bold hover:text-red-500">✕</button>
+                return `
+                <div class="card" id="card-${key}" style="border-top: 4px solid ${color}">
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-black px-2 py-1 rounded bg-zinc-800 text-zinc-300 uppercase">${s.path}</span>
                         </div>
 
-                        <div class="mb-6">
-                            <p class="text-[9px] text-zinc-500 font-bold uppercase">VWAP (Average Price)</p>
-                            <div class="text-2xl font-mono text-white mt-1">${s.vwap}</div>
-                        </div>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Entry Steps (Click to Activate)</p>
+                        ${s.tiers.map((t, i) => `
+                            <div class="step-row" onclick="toggleStep(this, '${key}')" 
+                                 data-price="${cleanNum(t.p)}" 
+                                 data-src="${cleanNum(t.srcV)}" 
+                                 data-tar="${cleanNum(t.tarV)}">
+                                
+                                <div class="flex flex-col">
+                                    <span class="step-label text-[8px] text-zinc-500 font-bold uppercase">STEP ${i+1}</span>
+                                    <span class="font-mono text-sm text-zinc-200">${t.p}</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[9px] font-bold text-indigo-400">${t.srcV} <span class="text-[7px] opacity-50">${s.src}</span></div>
+                                    <div class="text-[11px] font-black text-white">${t.tarV} <span class="text-[7px] opacity-50">${s.tar}</span></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
 
-                        <div class="mb-6">
-                            ${s.tiers.map((t, i) => `
-                                <div class="data-row">
-                                    <div class="flex flex-col">
-                                        <span class="text-[8px] text-zinc-500 font-bold">STEP ${i+1}</span>
-                                        <span class="text-sm font-mono text-zinc-300">${t.p}</span>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-[10px] text-indigo-400 font-bold">${t.s} <span class="text-[7px] text-zinc-600">${s.src}</span></div>
-                                        <div class="text-[12px] text-white font-black">${t.t} <span class="text-[8px] text-zinc-500">${s.tar}</span></div>
-                                    </div>
+                    <div class="mb-2">
+                        <p class="text-[8px] text-zinc-500 font-bold uppercase mb-2 text-center">Select Exit Target</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${s.targets.map((p, i) => `
+                                <div class="target-btn" onclick="selectTarget(this, '${key}', ${cleanNum(p)})">
+                                    <div class="text-[7px] text-zinc-600 font-bold uppercase">Goal ${i+1}</div>
+                                    <div class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
                                 </div>
                             `).join('')}
                         </div>
+                    </div>
 
-                        <div class="bg-zinc-900/50 p-3 rounded border border-zinc-800">
-                            <p class="text-[8px] text-center text-zinc-600 mb-2 font-bold uppercase">Profit Targets</p>
-                            <div class="grid grid-cols-2 gap-2 text-center">
-                                ${s.targets.map((p, i) => `
-                                    <div>
-                                        <span class="text-[7px] text-zinc-500 block">T${i+1}</span>
-                                        <span class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        <div class="mt-2 text-center">
-                            <span class="text-[7px] text-zinc-700 font-mono">${s.ts}</span>
-                        </div>
-                    </div>`;
-                }).join('');
+                    <div id="result-${key}" class="profit-box">
+                        <p class="text-[8px] text-zinc-400 mb-1">ESTIMATED PROFIT</p>
+                        <div class="text-xl font-mono text-emerald-400" id="profit-val-${key}">0</div>
+                        <div class="text-[9px] font-bold text-zinc-500" id="profit-pct-${key}">0%</div>
+                    </div>
+
+                </div>`;
+            }).join('');
+        });
+
+        // توابع کمکی
+        function cleanNum(str) {
+            // حذف کاما و تبدیل به عدد خالص برای محاسبات
+            if(!str) return 0;
+            return parseFloat(str.toString().replace(/,/g, ''));
+        }
+
+        // 1. انتخاب/عدم انتخاب پله
+        window.toggleStep = function(el, key) {
+            el.classList.toggle('active');
+            calculate(key);
+        }
+
+        // 2. انتخاب تارگت (فقط یکی)
+        window.selectTarget = function(el, key, price) {
+            // حذف کلاس active از بقیه تارگت‌های این کارت
+            const parent = el.parentNode;
+            parent.querySelectorAll('.target-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // فعال کردن این تارگت
+            el.classList.add('active');
+            el.dataset.price = price; // ذخیره قیمت در المنت
+            calculate(key);
+        }
+
+        // 3. موتور محاسبه‌گر
+        window.calculate = function(key) {
+            const card = document.getElementById(`card-${key}`);
+            const activeSteps = card.querySelectorAll('.step-row.active');
+            const activeTarget = card.querySelector('.target-btn.active');
+            const resultBox = document.getElementById(`result-${key}`);
+
+            // اگر هیچ پله‌ای انتخاب نشده یا تارگت انتخاب نشده، محاسبه نکن
+            if(activeSteps.length === 0 || !activeTarget) {
+                resultBox.classList.remove('visible');
+                return;
+            }
+
+            let totalCost = 0; // کل پولی که دادیم (مثلا تتر)
+            let totalAsset = 0; // کل دارایی که گرفتیم (مثلا طلا)
+
+            activeSteps.forEach(step => {
+                totalCost += parseFloat(step.dataset.src);
+                totalAsset += parseFloat(step.dataset.tar);
             });
+
+            // محاسبه قیمت فروش در تارگت
+            const sellPrice = parseFloat(activeTarget.dataset.price);
+            
+            // ارزش دارایی در لحظه فروش
+            // فرمول: اگر تتر داده‌ایم و طلا خریده‌ایم (BUY):
+            // ارزش نهایی = مقدار طلا * قیمت فروش
+            
+            // نکته مهم: باید بدانیم معامله BUY است یا SELL.
+            // اما چون فرمول کلی: (مقدار دارایی * قیمت خروج) - هزینه اولیه = سود
+            // در اینجا فرض بر معاملات استاندارد (Long/Buy) است.
+            
+            const finalValue = totalAsset * sellPrice; 
+            const profit = finalValue - totalCost;
+            const percent = (profit / totalCost) * 100;
+
+            // نمایش نتیجه
+            resultBox.classList.add('visible');
+            const profitEl = document.getElementById(`profit-val-${key}`);
+            const pctEl = document.getElementById(`profit-pct-${key}`);
+
+            profitEl.innerText = profit.toLocaleString(undefined, {maximumFractionDigits: 1});
+            profitEl.style.color = profit >= 0 ? '#34d399' : '#f87171'; // سبز یا قرمز
+
+            pctEl.innerText = (profit >= 0 ? '+' : '') + percent.toFixed(2) + '%';
         }
     </script>
 </body>
