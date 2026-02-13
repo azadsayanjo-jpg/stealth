@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital v3.2 | Admin</title>
+    <title>StealthCapital v3.3 | Master Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding: 20px; }
-        .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 20px; padding: 20px; max-width: 400px; margin: auto; }
+        .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 20px; padding: 20px; max-width: 450px; margin: auto; }
         .asset-btn { border: 1px solid #27272a; opacity: 0.3; font-size: 10px; font-weight: 900; }
         .asset-btn.active { opacity: 1; border-color: #6366f1; background: #6366f122; color: #818cf8; }
         input { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; color: #fff; font-family: monospace; font-size: 16px; margin-bottom: 10px; }
         label { display: block; font-size: 10px; color: #52525b; margin-bottom: 5px; font-weight: bold; padding-right: 5px; }
+        
+        /* استایل لیست مدیریت */
+        .live-item { background: #111; border: 1px solid #1f1f23; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     </style>
 </head>
 <body>
     <div class="matrix-card">
-        <h2 class="text-center font-black text-xs uppercase mb-6 tracking-[0.3em] text-indigo-500">Commander v3.2</h2>
+        <h2 class="text-center font-black text-xs uppercase mb-6 tracking-[0.3em] text-indigo-500">Master Control v3.3</h2>
         
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div id="src-group" class="space-y-1">
@@ -38,24 +41,30 @@
             </div>
         </div>
 
-        <label>سرمایه کل</label>
-        <input type="number" id="cap" placeholder="1100">
-        
-        <label>نرخ فعلی بازار</label>
-        <input type="number" id="ref" placeholder="قیمت ورود">
+        <label>سرمایه کل و نرخ ورود</label>
+        <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="cap" placeholder="1100">
+            <input type="number" id="ref" placeholder="Price">
+        </div>
 
         <div class="grid grid-cols-2 gap-2">
             <div>
-                <label>GAP % (فاصله پله‌ها)</label>
+                <label>GAP %</label>
                 <input type="number" id="gap" value="1.2">
             </div>
             <div>
-                <label>FEE % (کارمزد)</label>
+                <label>FEE %</label>
                 <input type="number" id="fee" value="0.2">
             </div>
         </div>
 
-        <button onclick="transmit()" id="mainBtn" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">ارسال سیگنال به ویترین</button>
+        <button onclick="transmit()" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-xs mt-2 shadow-lg hover:bg-indigo-500 transition-all">ارسال به مانیتور</button>
+
+        <div class="mt-10 pt-6 border-t border-zinc-800">
+            <h3 class="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-widest text-center">Live on Monitor</h3>
+            <div id="live-list">
+                </div>
+        </div>
     </div>
 
     <script>
@@ -67,13 +76,36 @@
         function setSrc(v, el) { src = v; document.querySelectorAll('#src-group button').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
         function setTar(v, el) { tar = v; document.querySelectorAll('#tar-group button').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
 
+        // لود کردن سیگنال‌های فعال برای مدیریت
+        db.ref('stealth_matrix').on('value', snapshot => {
+            const list = document.getElementById('live-list');
+            const data = snapshot.val();
+            if(!data) { list.innerHTML = '<p class="text-center text-[9px] text-zinc-700 italic">No Active Signals</p>'; return; }
+            
+            list.innerHTML = Object.keys(data).map(key => `
+                <div class="live-item">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black text-zinc-300">${data[key].path}</span>
+                        <span class="text-[8px] font-mono text-zinc-600">${data[key].ts || ''}</span>
+                    </div>
+                    <button onclick="removeSignal('${key}')" class="bg-red-950/30 text-red-500 text-[9px] font-black px-3 py-1.5 rounded-lg border border-red-900/50 hover:bg-red-600 hover:text-white transition-all">حذف</button>
+                </div>
+            `).join('');
+        });
+
+        function removeSignal(key) {
+            if(confirm('آیا از حذف این سیگنال از مانیتور اطمینان دارید؟')) {
+                db.ref(`stealth_matrix/${key}`).remove();
+            }
+        }
+
         async function transmit() {
             const cap = parseFloat(document.getElementById('cap').value);
             const ref = parseFloat(document.getElementById('ref').value);
             const gapVal = parseFloat(document.getElementById('gap').value) / 100;
             const feeVal = parseFloat(document.getElementById('fee').value) / 100;
 
-            if(!cap || !ref || src === tar) return alert("خطا در ورودی");
+            if(!cap || !ref || src === tar) return;
 
             const order = ['IRT', 'USDT', 'GOLD', 'BTC'];
             const isBuy = order.indexOf(tar) > order.indexOf(src);
@@ -100,7 +132,6 @@
                 tiers, targets, mode: isBuy ? 'BUY' : 'SELL', fee: feeVal,
                 ts: new Date().toLocaleTimeString('fa-IR')
             });
-            alert("سیگنال با موفقیت ارسال شد");
         }
     </script>
 </body>
