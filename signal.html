@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital v1 | Vision</title>
+    <title>StealthCapital v1 | Vision Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #eee; font-family: 'Vazirmatn'; min-height: 100vh; overflow-y: auto; padding-bottom: 100px; }
-        .asset-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 28px; padding: 20px; transition: 0.4s; position: relative; }
-        .active-buy { border-top: 5px solid #10b981; box-shadow: 0 -15px 40px -15px rgba(16, 185, 129, 0.2); }
-        .active-sell { border-top: 5px solid #3b82f6; box-shadow: 0 -15px 40px -15px rgba(59, 130, 246, 0.2); }
-        .price-font { font-family: monospace; font-weight: 900; letter-spacing: -1px; }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; min-height: 100vh; overflow-y: auto; padding-bottom: 100px; }
+        .path-card { background: #0a0a0c; border: 1px solid #1a1a1e; border-radius: 32px; padding: 24px; position: relative; border-top: 4px solid #6366f1; }
+        .font-mono { font-family: monospace; font-weight: 900; }
+        .badge { background: rgba(99, 102, 241, 0.1); color: #818cf8; padding: 4px 12px; border-radius: 8px; font-size: 10px; font-weight: 900; }
     </style>
 </head>
 <body class="p-4 md:p-10">
     <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-xl font-black italic tracking-tighter uppercase">Stealth<span class="text-indigo-500">Vision</span></h1>
-            <div id="sync-status" class="text-[9px] font-black text-zinc-500 border border-zinc-800 px-4 py-2 rounded-full">WAITING FOR CLOUD...</div>
+        <header class="flex justify-between items-center mb-10 border-b border-zinc-900 pb-5">
+            <h1 class="text-2xl font-black italic uppercase tracking-tighter">Stealth<span class="text-indigo-500">Matrix</span></h1>
+            <div id="clock" class="text-xs font-mono text-zinc-600">00:00:00</div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div id="card-GOLD" class="asset-card"><div class="h-40 flex items-center justify-center opacity-10 font-black italic">GOLD IDLE</div></div>
-            <div id="card-BTC" class="asset-card"><div class="h-40 flex items-center justify-center opacity-10 font-black italic">BTC IDLE</div></div>
-            <div id="card-USDT" class="asset-card"><div class="h-40 flex items-center justify-center opacity-10 font-black italic">USDT IDLE</div></div>
-        </div>
+        <div id="matrix-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
     </div>
 
     <script>
@@ -35,49 +31,59 @@
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        function updateUI(asset, data) {
-            const el = document.getElementById(`card-${asset}`);
-            if(!data) { el.innerHTML = `<div class="h-40 flex items-center justify-center opacity-10 font-black italic text-2xl uppercase">${asset} IDLE</div>`; el.className="asset-card"; return; }
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
+
+        db.ref('stealth_matrix').on('value', snapshot => {
+            const container = document.getElementById('matrix-container');
+            const data = snapshot.val();
             
-            const isBuy = data.mode === 'BUY';
-            el.className = `asset-card ${isBuy ? 'active-buy' : 'active-sell'}`;
-            document.getElementById('sync-status').innerText = `LAST UPDATE: ${data.timestamp}`;
+            if(!data) {
+                container.innerHTML = `<div class="col-span-full h-64 flex items-center justify-center opacity-20 font-black italic text-4xl uppercase tracking-widest">No Active Path</div>`;
+                return;
+            }
 
-            el.innerHTML = `
-                <div class="flex justify-between items-start mb-6">
-                    <span class="text-[10px] font-black px-2 py-1 rounded bg-white/5 ${isBuy ? 'text-emerald-500' : 'text-blue-500'} uppercase">${data.mode}</span>
-                    <span class="text-3xl font-black italic text-white">${asset}</span>
-                </div>
-                
-                <div class="bg-white/5 p-4 rounded-2xl text-center mb-6">
-                    <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estimated VWAP</div>
-                    <div class="text-3xl price-font text-white">${data.vwap.toLocaleString()}</div>
-                </div>
+            container.innerHTML = Object.keys(data).map(key => {
+                const s = data[key];
+                return `
+                <div class="path-card shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="badge uppercase tracking-widest">${s.path}</div>
+                        <button onclick="deletePath('${key}')" class="text-zinc-700 hover:text-red-500 text-xs font-black">CLOSE</button>
+                    </div>
 
-                <div class="space-y-2 mb-6">
-                    ${data.tiers.map((t, i) => `
-                        <div class="flex justify-between items-center p-3 bg-white/[0.02] border border-white/5 rounded-xl">
-                            <span class="text-[9px] font-black text-zinc-600 italic uppercase">Step ${i+1}</span>
-                            <span class="price-font text-lg">${t.p.toLocaleString()}</span>
-                            <span class="text-[10px] font-bold text-zinc-500">${t.q}</span>
-                        </div>
-                    `).join('')}
-                </div>
+                    <div class="text-center mb-8">
+                        <span class="text-[9px] text-zinc-500 font-black uppercase">Avg. Exchange Rate</span>
+                        <div class="text-4xl font-mono text-white mt-1">${parseFloat(s.vwap).toLocaleString()}</div>
+                        <div class="text-[10px] text-indigo-400 mt-1 font-bold">Target units per Source</div>
+                    </div>
 
-                <div class="border-t border-zinc-800 pt-5">
-                    <div class="grid grid-cols-2 gap-2">
-                        ${data.targets.map((p, i) => `
-                            <div class="bg-black border border-zinc-800 p-3 rounded-xl text-center">
-                                <div class="text-[8px] text-zinc-600 font-black mb-1">TARGET ${i+1}</div>
-                                <div class="text-xs price-font text-emerald-500">${p.toLocaleString()}</div>
+                    <div class="space-y-3 mb-8">
+                        ${s.tiers.map((t, i) => `
+                            <div class="flex justify-between items-center p-3 bg-white/5 rounded-2xl border border-white/5">
+                                <span class="text-[9px] font-black text-zinc-600">STEP ${i+1}</span>
+                                <span class="font-mono text-lg">${t.p}</span>
+                                <span class="text-[9px] font-bold text-indigo-300">${t.q} ${s.tar}</span>
                             </div>
                         `).join('')}
                     </div>
-                </div>
-            `;
-        }
 
-        ['GOLD', 'BTC', 'USDT'].forEach(a => db.ref(`stealth_v1/${a}`).on('value', s => updateUI(a, s.val())));
+                    <div class="border-t border-zinc-800 pt-6">
+                        <span class="text-[9px] font-black text-zinc-600 uppercase italic mb-3 block text-center tracking-widest">Growth Targets</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${s.targets.map((p, i) => `
+                                <div class="bg-black border border-zinc-800 p-3 rounded-xl text-center">
+                                    <div class="text-[8px] text-zinc-600 font-bold mb-1">GOAL ${i+1}</div>
+                                    <div class="text-[11px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="text-[8px] text-center text-zinc-800 mt-4 font-mono font-bold">${s.timestamp}</div>
+                </div>`;
+            }).join('');
+        });
+
+        function deletePath(key) { if(confirm('Close this path?')) db.ref(`stealth_matrix/${key}`).remove(); }
     </script>
 </body>
 </html>
