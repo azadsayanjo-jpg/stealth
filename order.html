@@ -2,84 +2,82 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Master Quant Admin | v18.0</title>
+    <title>Quant Master Admin | v19.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { background: #0b0e14; color: #ebedf0; font-family: 'Vazirmatn'; }
-        .panel-bg { background: #161b22; border: 1px solid #30363d; border-radius: 16px; }
-        .input-field { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; transition: all 0.2s; }
+        .panel-bg { background: #161b22; border: 1px solid #30363d; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .input-field { background: #0d1117; border: 1px solid #30363d; border-radius: 14px; transition: all 0.2s; color: white; font-family: monospace; }
         .input-field:focus { border-color: #58a6ff; outline: none; box-shadow: 0 0 0 3px rgba(88,166,255,0.1); }
-        .mode-buy { border-right: 4px solid #238636; }
-        .mode-sell { border-right: 4px solid #1f6feb; }
+        .btn-broadcast { background: linear-gradient(135deg, #1f6feb, #38bdf8); transition: 0.3s; font-weight: 900; }
+        .btn-broadcast:hover { transform: translateY(-2px); filter: brightness(1.1); }
     </style>
 </head>
 <body class="p-6 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-2xl panel-bg p-8 shadow-2xl border-t-4 border-blue-500">
+    <div class="w-full max-w-2xl panel-bg p-10 border-t-8 border-blue-600">
         <div class="flex justify-between items-center mb-10">
-            <h1 class="text-xl font-black tracking-widest text-white uppercase italic">Quant <span class="text-blue-500">Master</span> Control</h1>
-            <div id="status-indicator" class="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase">
-                <span class="w-2 h-2 bg-gray-500 rounded-full"></span> Offline
+            <div>
+                <h1 class="text-2xl font-black text-white tracking-tighter uppercase italic">Master <span class="text-blue-500">Control</span></h1>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Enterprise Signal Engine</p>
+            </div>
+            <div id="status-indicator" class="px-4 py-2 rounded-full bg-black/50 border border-gray-800 text-[9px] font-bold uppercase flex items-center gap-2">
+                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Connecting...
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-6 mb-8">
             <div class="space-y-2">
-                <label class="text-[11px] font-bold text-gray-500 mr-1 uppercase">سرمایه کل (Investment)</label>
-                <input type="number" id="cap" class="w-full input-field p-4 text-xl font-mono font-bold text-blue-400" placeholder="0">
+                <label class="text-[11px] font-black text-gray-500 uppercase mr-1">سرمایه کل (Cap)</label>
+                <input type="number" id="cap" class="w-full input-field p-4 text-2xl" placeholder="1000">
             </div>
             <div class="space-y-2">
-                <label class="text-[11px] font-bold text-gray-500 mr-1 uppercase">قیمت رفرنس بازار (Ref)</label>
-                <input type="number" id="ref" class="w-full input-field p-4 text-xl font-mono font-bold text-emerald-400" placeholder="0">
+                <label class="text-[11px] font-black text-gray-500 uppercase mr-1">قیمت مرجع (Market Ref)</label>
+                <input type="number" id="ref" class="w-full input-field p-4 text-2xl" placeholder="165000">
             </div>
         </div>
 
         <div class="grid grid-cols-3 gap-4 mb-10">
             <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-bold block text-center italic">GAP %</label>
-                <input type="number" id="gap" class="w-full input-field p-3 text-center font-bold" value="1.5" step="0.1">
+                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Distance %</label>
+                <input type="number" id="gap" class="w-full input-field p-3 text-center" value="1.5" step="0.1">
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-bold block text-center italic">FEE %</label>
-                <input type="number" id="fee" class="w-full input-field p-3 text-center font-bold" value="0.25" step="0.01">
+                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Fee %</label>
+                <input type="number" id="fee" class="w-full input-field p-3 text-center" value="0.25" step="0.01">
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] text-gray-600 font-bold block text-center italic">STRATEGY</label>
-                <select id="mode" class="w-full input-field p-3 text-center font-bold bg-black text-white">
-                    <option value="BUY">BUY ZONE</option>
-                    <option value="SELL">SELL ZONE</option>
+                <label class="text-[10px] text-gray-600 font-black block text-center italic uppercase">Mode</label>
+                <select id="mode" class="w-full input-field p-3 text-center bg-black cursor-pointer">
+                    <option value="BUY">ACCUMULATION</option>
+                    <option value="SELL">DISTRIBUTION</option>
                 </select>
             </div>
         </div>
 
-        <div class="flex gap-4">
-            <button onclick="pushToCloud()" id="mainBtn" class="flex-[3] bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-sm">
-                Broadcast Signal
+        <div class="space-y-4">
+            <button onclick="transmit()" id="mainBtn" class="w-full btn-broadcast py-5 rounded-2xl text-white shadow-xl uppercase tracking-widest text-sm">
+                Push Signal to Cloud
             </button>
-            <button onclick="clearAll()" class="flex-1 border border-red-500/50 text-red-500 hover:bg-red-500/10 rounded-2xl font-bold text-[10px] uppercase">
-                Reset Monitor
+            <button onclick="resetCloud()" class="w-full border border-red-500/30 text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all">
+                Kill All Active Signals
             </button>
         </div>
     </div>
 
     <script>
-        const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
+        const firebaseConfig = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // اتصال زنده برای مانیتور وضعیت
         db.ref('.info/connected').on('value', s => {
-            const indicator = document.getElementById('status-indicator');
-            if(s.val()) {
-                indicator.innerHTML = `<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Cloud Active`;
-            } else {
-                indicator.innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> Connection Lost`;
-            }
+            const ind = document.getElementById('status-indicator');
+            ind.innerHTML = s.val() ? '<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Cloud Ready' : '<span class="w-2 h-2 bg-red-500 rounded-full"></span> Connection Error';
         });
 
-        async function pushToCloud() {
+        async function transmit() {
             const btn = document.getElementById('mainBtn');
             const cap = parseFloat(document.getElementById('cap').value);
             const ref = parseFloat(document.getElementById('ref').value);
@@ -87,10 +85,10 @@
             const fee = parseFloat(document.getElementById('fee').value) / 100;
             const mode = document.getElementById('mode').value;
 
-            if(!cap || !ref) return alert("ورودی ناقص");
+            if(!cap || !ref) return alert("Error: Missing Data");
 
-            btn.innerText = "PROCESSING...";
             btn.disabled = true;
+            btn.innerText = "COMPUTING...";
 
             const weights = [0.2, 0.3, 0.5];
             let tiers = []; let tV = 0; let tQ = 0;
@@ -108,27 +106,15 @@
                 return Math.ceil(mode === 'BUY' ? vwap * (1 + t + (fee*2)) : vwap * (1 - t - (fee*2)));
             });
 
-            const signal = {
-                mode, vwap: Math.ceil(vwap), tiers, targets,
-                timestamp: new Date().toLocaleTimeString('fa-IR'),
-                active: true
-            };
+            const signal = { mode, vwap: Math.ceil(vwap), tiers, targets, timestamp: new Date().toLocaleTimeString('fa-IR'), active: true };
 
             await db.ref(`signals/${mode.toLowerCase()}`).set(signal);
-            btn.innerText = "SIGNAL BROADCASTED";
-            btn.classList.replace('bg-blue-600', 'bg-emerald-600');
-            
-            setTimeout(() => {
-                btn.innerText = "Broadcast Signal";
-                btn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                btn.disabled = false;
-            }, 2000);
+            btn.innerText = "BROADCAST SUCCESSFUL";
+            setTimeout(() => { btn.disabled = false; btn.innerText = "Push Signal to Cloud"; }, 2000);
         }
 
-        function clearAll() {
-            if(confirm("آیا مانیتورینگ کاملاً پاک شود؟")) {
-                db.ref('signals').remove();
-            }
+        function resetCloud() {
+            if(confirm("آیا مانیتورینگ پاکسازی شود؟")) db.ref('signals').remove();
         }
     </script>
 </body>

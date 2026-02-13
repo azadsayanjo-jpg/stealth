@@ -9,75 +9,63 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { background: #010409; color: #c9d1d9; font-family: 'Vazirmatn'; overflow: hidden; }
-        .terminal-grid { height: calc(100vh - 120px); }
-        .zone-card { background: rgba(13, 17, 23, 0.8); border: 1px solid #30363d; border-radius: 20px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .buy-active { border-top: 5px solid #238636; box-shadow: 0 0 30px rgba(35, 134, 54, 0.1); opacity: 1 !important; }
-        .sell-active { border-top: 5px solid #1f6feb; box-shadow: 0 0 30px rgba(31, 111, 235, 0.1); opacity: 1 !important; }
-        .price-font { font-family: 'Courier New', monospace; font-weight: 900; }
-        .target-pill { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; }
-        .glow-text-buy { color: #3fb950; text-shadow: 0 0 15px rgba(63, 185, 80, 0.4); }
-        .glow-text-sell { color: #58a6ff; text-shadow: 0 0 15px rgba(88, 166, 255, 0.4); }
-        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-        .scan { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.02); animation: scanline 8s linear infinite; pointer-events: none; }
+        .zone-card { background: rgba(13, 17, 23, 0.95); border: 1px solid #30363d; border-radius: 24px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .buy-active { border-top: 6px solid #238636; box-shadow: 0 0 40px rgba(35, 134, 54, 0.15); opacity: 1 !important; }
+        .sell-active { border-top: 6px solid #1f6feb; box-shadow: 0 0 40px rgba(31, 111, 235, 0.15); opacity: 1 !important; }
+        .price-num { font-family: monospace; font-weight: 900; letter-spacing: -1px; }
+        .target-node { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; transition: 0.3s; }
+        .glow-buy { color: #3fb950; text-shadow: 0 0 20px rgba(63, 185, 80, 0.4); }
+        .glow-sell { color: #58a6ff; text-shadow: 0 0 20px rgba(88, 166, 255, 0.4); }
+        .target-hit { background: #10b981 !important; color: white !important; transform: scale(1.05); animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { box-shadow: 0 0 5px #10b981; } to { box-shadow: 0 0 20px #10b981; } }
     </style>
 </head>
-<body class="p-4 md:p-6">
-    <div class="scan"></div>
-
-    <div class="flex justify-between items-center mb-6 px-4">
-        <div class="flex items-center gap-4">
-            <div class="h-10 w-1 px-1 bg-blue-500 rounded-full"></div>
-            <h1 class="text-xl font-black uppercase tracking-tighter text-white">Advanced <span class="text-blue-500 font-mono italic">Cloud.Quant</span></h1>
-        </div>
-        <div id="sync-info" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest border border-gray-800 px-4 py-2 rounded-full bg-black/50">
-            Waiting for Signal...
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 terminal-grid">
-        
-        <div id="buy-zone" class="zone-card p-6 opacity-20 overflow-y-auto">
-            <div class="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
-                <div>
-                    <span class="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Entry Strategy</span>
-                    <h2 class="text-2xl font-black text-white italic">ACCUMULATION</h2>
-                </div>
-                <div class="text-left">
-                    <span class="text-[9px] text-gray-500 block uppercase font-bold">VWAP IRT</span>
-                    <div id="buy-vwap" class="text-4xl price-font glow-text-buy tracking-tighter">-</div>
-                </div>
-            </div>
-
-            <div id="buy-ladder" class="space-y-3 mb-8">
-                </div>
-
-            <div class="mt-auto">
-                <span class="text-[9px] text-gray-600 font-black uppercase mb-3 block">Exit Targets (Gross Profit)</span>
-                <div id="buy-targets" class="grid grid-cols-4 gap-2"></div>
+<body class="p-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
+        <div class="flex justify-between items-center px-4">
+            <h1 class="text-2xl font-black italic tracking-tighter text-white">Advanced <span class="text-blue-500">Cloud.Terminal</span></h1>
+            <div id="sync-info" class="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-black border border-gray-800 px-6 py-2 rounded-full">
+                Synchronizing with Cloud...
             </div>
         </div>
 
-        <div id="sell-zone" class="zone-card p-6 opacity-20 overflow-y-auto">
-            <div class="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
-                <div>
-                    <span class="text-[10px] text-blue-500 font-black uppercase tracking-widest">Exit Strategy</span>
-                    <h2 class="text-2xl font-black text-white italic">DISTRIBUTION</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-140px)]">
+            <div id="buy-zone" class="zone-card p-8 opacity-20 flex flex-col justify-between overflow-hidden">
+                <div class="flex justify-between items-end border-b border-gray-800 pb-6 mb-6">
+                    <div>
+                        <span class="text-[10px] text-emerald-500 font-black uppercase tracking-[0.3em]">Accumulation Zone</span>
+                        <h2 class="text-3xl font-black text-white italic">BUY.STRAT</h2>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[9px] text-gray-600 block uppercase font-bold">VWAP Average</span>
+                        <div id="buy-vwap" class="text-5xl price-num glow-buy">-</div>
+                    </div>
                 </div>
-                <div class="text-left">
-                    <span class="text-[9px] text-gray-500 block uppercase font-bold">VWAP USDT</span>
-                    <div id="sell-vwap" class="text-4xl price-font glow-text-sell tracking-tighter">-</div>
+                <div id="buy-ladder" class="space-y-4 flex-grow"></div>
+                <div class="mt-8 border-t border-gray-800 pt-6">
+                    <span class="text-[10px] text-gray-600 font-black uppercase mb-4 block italic">Profit Exit Nodes:</span>
+                    <div id="buy-targets" class="grid grid-cols-4 gap-3"></div>
                 </div>
             </div>
 
-            <div id="sell-ladder" class="space-y-3 mb-8">
+            <div id="sell-zone" class="zone-card p-8 opacity-20 flex flex-col justify-between overflow-hidden">
+                <div class="flex justify-between items-end border-b border-gray-800 pb-6 mb-6">
+                    <div>
+                        <span class="text-[10px] text-blue-500 font-black uppercase tracking-[0.3em]">Distribution Zone</span>
+                        <h2 class="text-3xl font-black text-white italic">SELL.STRAT</h2>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[9px] text-gray-600 block uppercase font-bold">VWAP Average</span>
+                        <div id="sell-vwap" class="text-5xl price-num glow-sell">-</div>
+                    </div>
                 </div>
-
-            <div class="mt-auto">
-                <span class="text-[9px] text-gray-600 font-black uppercase mb-3 block">Re-buy Points (Market Correction)</span>
-                <div id="sell-targets" class="grid grid-cols-4 gap-2"></div>
+                <div id="sell-ladder" class="space-y-4 flex-grow"></div>
+                <div class="mt-8 border-t border-gray-800 pt-6">
+                    <span class="text-[10px] text-gray-600 font-black uppercase mb-4 block italic">Re-buy Targets:</span>
+                    <div id="sell-targets" class="grid grid-cols-4 gap-3"></div>
+                </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -85,7 +73,7 @@
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        function syncPanel(snap, mode) {
+        function syncUI(snap, mode) {
             const data = snap.val();
             const prefix = mode.toLowerCase();
             const zone = document.getElementById(`${prefix}-zone`);
@@ -94,38 +82,36 @@
                 zone.classList.remove(`${prefix}-active`);
                 zone.style.opacity = "0.2";
                 document.getElementById(`${prefix}-vwap`).innerText = "-";
-                document.getElementById(`${prefix}-ladder`).innerHTML = `<div class="text-center p-10 text-[10px] text-gray-700 italic">No ${mode} Signal Active</div>`;
+                document.getElementById(`${prefix}-ladder`).innerHTML = `<div class="h-full flex items-center justify-center text-[10px] text-gray-800 uppercase tracking-widest italic font-bold">No Active ${mode} Pipeline</div>`;
                 document.getElementById(`${prefix}-targets`).innerHTML = "";
                 return;
             }
 
             zone.classList.add(`${prefix}-active`);
-            document.getElementById('sync-info').innerText = `LIVE SYNC: ${data.timestamp}`;
+            document.getElementById('sync-info').innerText = `LIVE BROADCAST: ${data.timestamp}`;
             document.getElementById(`${prefix}-vwap`).innerText = data.vwap.toLocaleString();
 
-            const ladder = document.getElementById(`${prefix}-ladder`);
-            ladder.innerHTML = data.tiers.map((t, i) => `
-                <div class="flex justify-between items-center p-4 bg-black/40 border border-gray-800 rounded-xl hover:border-gray-600 transition-colors">
-                    <div class="flex items-center gap-4">
-                        <span class="text-[10px] font-black text-gray-600">L${i+1}</span>
-                        <span class="text-xl price-font text-white">${t.p.toLocaleString()}</span>
+            document.getElementById(`${prefix}-ladder`).innerHTML = data.tiers.map((t, i) => `
+                <div class="flex justify-between items-center p-5 bg-black/40 border border-gray-800 rounded-2xl group hover:border-blue-500/50 transition-all">
+                    <div class="flex items-center gap-6">
+                        <span class="text-[10px] font-black text-gray-700">LVL${i+1}</span>
+                        <span class="text-3xl price-num text-white">${t.p.toLocaleString()}</span>
                     </div>
-                    <span class="text-[10px] font-bold text-blue-500">${mode === 'BUY' ? t.v.toLocaleString() + ' IRT' : t.q + ' USDT'}</span>
+                    <span class="text-[11px] font-black text-blue-500/70">${mode === 'BUY' ? t.v.toLocaleString() + ' IRT' : t.q + ' USDT'}</span>
                 </div>
             `).join('');
 
-            const targets = document.getElementById(`${prefix}-targets`);
-            const pcts = ['1%', '2%', '3%', '5%'];
-            targets.innerHTML = data.targets.map((p, i) => `
-                <div class="target-pill p-3 text-center">
-                    <div class="text-[8px] text-gray-600 font-bold mb-1">${pcts[i]}</div>
-                    <div class="text-[10px] price-font text-emerald-500">${p.toLocaleString()}</div>
+            const labels = ['Safe', 'Mid', 'High', 'Max'];
+            document.getElementById(`${prefix}-targets`).innerHTML = data.targets.map((p, i) => `
+                <div class="target-node p-4 text-center border border-white/5 shadow-2xl">
+                    <div class="text-[8px] text-gray-600 font-black uppercase mb-1">${labels[i]} Goal</div>
+                    <div class="text-[12px] price-num text-emerald-500">${p.toLocaleString()}</div>
                 </div>
             `).join('');
         }
 
-        db.ref('signals/buy').on('value', s => syncPanel(s, 'BUY'));
-        db.ref('signals/sell').on('value', s => syncPanel(s, 'SELL'));
+        db.ref('signals/buy').on('value', s => syncUI(s, 'BUY'));
+        db.ref('signals/sell').on('value', s => syncUI(s, 'SELL'));
     </script>
 </body>
 </html>
