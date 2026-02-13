@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Monitor | پایش ابری</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; background: #020617; color: #e2e8f0; }
+        .stat-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 1.5rem; padding: 1.5rem; }
+        .ranking-row { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(51, 65, 85, 0.5); margin-bottom: 8px; padding: 12px; border-radius: 12px; }
+    </style>
+</head>
+<body class="p-6 lg:p-12">
+
+    <header class="flex justify-between items-center mb-10">
+        <div>
+            <h1 class="text-3xl font-black text-white">مانیتورینگ زنده</h1>
+            <p id="cloud-status" class="text-emerald-500 text-xs mt-2 font-bold">در حال اتصال به ابر...</p>
+        </div>
+        <a href="index.html" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-xl text-white text-sm font-bold transition-all">
+            <i class="fa-solid fa-arrow-right ml-2"></i> پنل مدیریت
+        </a>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="stat-card">
+            <h3 class="text-slate-500 text-[10px] font-black uppercase mb-2">گردش واقعی (فامیل)</h3>
+            <p id="total-turnover" class="text-3xl font-black text-white font-mono">0</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="text-slate-500 text-[10px] font-black uppercase mb-2">سود ناخالص کل</h3>
+            <p id="net-profit" class="text-3xl font-black text-blue-400 font-mono">0</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="text-slate-500 text-[10px] font-black uppercase mb-2">بهره‌وری نقدینگی</h3>
+            <p id="utilization" class="text-3xl font-black text-purple-400 font-mono">0%</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-8 bg-slate-900/50 rounded-[2.5rem] border border-slate-800 overflow-hidden">
+            <div class="p-6 border-b border-slate-800 bg-slate-900/30 font-black text-sm">جریان لحظه‌ای تراکنش‌ها</div>
+            <div class="overflow-x-auto h-[500px]">
+                <table class="w-full text-right text-xs">
+                    <thead class="sticky top-0 bg-slate-900 text-slate-500">
+                        <tr><th class="p-5">زمان</th><th class="p-5">طرف معامله</th><th class="p-5 text-center">مقدار USDT</th><th class="p-5 text-center">تومان</th></tr>
+                    </thead>
+                    <tbody id="monitor-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4">
+            <div class="stat-card">
+                <h3 class="font-black text-sm mb-6">رتبه‌بندی دارایی اعضا</h3>
+                <div id="user-ranking"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // *** دقیقاً همان کانفیگی که در index.html گذاشتی را اینجا هم بگذار ***
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project.firebaseio.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'stealth_data');
+
+        // تابع اصلی رندر کردن داده‌ها (بدون تغییر در دیتابیس)
+        function renderData(trades, baseBalance) {
+            const table = document.getElementById('monitor-table');
+            const rankingDiv = document.getElementById('user-ranking');
+            table.innerHTML = '';
+            rankingDiv.innerHTML = '';
+
+            let turnover = 0, profit = 0, totalInHands = 0;
+            let userStats = {};
+
+            trades.forEach(t => {
+                const isSystem = (t.name === 'SYSTEM_REFILL');
+                if (!isSystem) {
+                    turnover += t.total;
+                    totalInHands += (t.type === 'SELL' ? t.qnt : -t.qnt);
+                    userStats[t.name] = (userStats[t.name] || 0) + (t.type === 'SELL' ? t.qnt : -t.qnt);
+                }
+                profit += t.profit;
+
+                table.innerHTML += `
+                    <tr class="border-b border-slate-800 hover:bg-white/5 transition-all">
+                        <td class="p-5 text-slate-500 font-mono">${t.date}</td>
+                        <td class="p-5 font-bold ${isSystem ? 'text-emerald-400' : 'text-white'}">${isSystem ? '⚡ شارژ خزانه' : t.name}</td>
+                        <td class="p-5 text-center font-bold text-blue-400 font-mono">${t.qnt.toFixed(2)}</td>
+                        <td class="p-5 text-center font-black font-mono">${Math.round(t.total).toLocaleString()}</td>
+                    </tr>`;
+            });
+
+            document.getElementById('total-turnover').innerText = Math.round(turnover).toLocaleString();
+            document.getElementById('net-profit').innerText = Math.round(profit).toLocaleString();
+            const util = baseBalance > 0 ? (totalInHands / baseBalance) * 100 : 0;
+            document.getElementById('utilization').innerText = util.toFixed(1) + '%';
+
+            Object.entries(userStats).sort((a,b) => b[1]-a[1]).forEach(([name, bal]) => {
+                if(bal > 0.01) {
+                    rankingDiv.innerHTML += `
+                        <div class="ranking-row flex justify-between items-center">
+                            <span class="text-xs font-bold">${name}</span>
+                            <span class="font-mono font-black text-blue-400">${bal.toFixed(2)}</span>
+                        </div>`;
+                }
+            });
+        }
+
+        // گوش دادن به تغییرات فایربیس (Real-time)
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                renderData(data.trades || [], data.base || 1000);
+                document.getElementById('cloud-status').innerText = '● متصل به ابر - آپدیت لحظه‌ای فعال';
+            }
+        });
+    </script>
+</body>
+</html>
