@@ -2,124 +2,118 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StealthCapital v1 | Commander</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #050505; color: #e5e7eb; font-family: 'Vazirmatn'; }
-        .panel-bg { background: #0f1115; border: 1px solid #1f2937; border-radius: 24px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .input-field { background: #0a0a0a; border: 1px solid #27272a; border-radius: 12px; color: white; font-family: monospace; transition: 0.3s; }
-        .input-field:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        
-        /* Asset Buttons */
-        .asset-btn { opacity: 0.4; filter: grayscale(100%); transition: all 0.3s; border: 1px solid transparent; }
-        .asset-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.05); font-weight: 900; }
-        .asset-gold.active { border-color: #eab308; background: rgba(234, 179, 8, 0.1); color: #eab308; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
-        .asset-btc.active { border-color: #f97316; background: rgba(249, 115, 22, 0.1); color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
-        .asset-usdt.active { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
-
-        .btn-broadcast { background: linear-gradient(135deg, #4f46e5, #818cf8); font-weight: 900; letter-spacing: 1px; }
-        .btn-broadcast:hover { box-shadow: 0 0 30px rgba(79, 70, 229, 0.4); }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; min-height: 100vh; overflow-y: auto; }
+        .glass-card { background: rgba(23, 23, 23, 0.8); backdrop-filter: blur(10px); border: 1px solid #333; border-radius: 24px; }
+        .input-dark { background: #0a0a0a; border: 1px solid #262626; border-radius: 12px; padding: 12px; width: 100%; transition: 0.3s; }
+        .input-dark:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 15px rgba(99,102,241,0.3); }
+        .asset-tab { opacity: 0.3; transition: 0.4s; cursor: pointer; border: 1px solid transparent; }
+        .asset-tab.active { opacity: 1; border-color: var(--color); background: var(--bg); transform: translateY(-3px); }
+        .btn-primary { background: linear-gradient(135deg, #4f46e5, #818cf8); font-weight: 900; transition: 0.3s; }
+        .btn-primary:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-
-    <div class="w-full max-w-lg panel-bg p-8 relative overflow-hidden">
-        <div class="flex justify-between items-start mb-8 border-b border-gray-800 pb-6">
+<body class="p-4 pb-12">
+    <div class="max-w-md mx-auto space-y-6">
+        <div class="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
             <div>
-                <h1 class="text-xl font-black text-white tracking-tighter uppercase italic">StealthCapital <span class="text-indigo-500">v1</span></h1>
-                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Multi-Asset Signal Engine</p>
+                <h1 class="text-lg font-black tracking-tighter uppercase italic">Stealth<span class="text-indigo-500">Capital</span> v1</h1>
+                <p id="assistant-msg" class="text-[10px] text-indigo-400 font-bold animate-pulse">آماده برای تحلیل بازار...</p>
             </div>
-            <div id="status-indicator" class="px-3 py-1 rounded-full bg-black/40 border border-gray-800 text-[9px] font-bold uppercase flex items-center gap-2">
-                <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Offline
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <label class="text-[10px] text-gray-500 font-black block text-center uppercase mb-3 tracking-widest">Select Asset Class</label>
-            <div class="grid grid-cols-3 gap-3">
-                <button onclick="selectAsset('GOLD')" id="btn-GOLD" class="asset-btn asset-gold active p-4 rounded-xl flex flex-col items-center gap-1">
-                    <span class="text-xl">🏆</span>
-                    <span class="text-[10px] uppercase">Gold</span>
-                </button>
-                <button onclick="selectAsset('BTC')" id="btn-BTC" class="asset-btn asset-btc p-4 rounded-xl flex flex-col items-center gap-1">
-                    <span class="text-xl">₿</span>
-                    <span class="text-[10px] uppercase">Bitcoin</span>
-                </button>
-                <button onclick="selectAsset('USDT')" id="btn-USDT" class="asset-btn asset-usdt p-4 rounded-xl flex flex-col items-center gap-1">
-                    <span class="text-xl">₮</span>
-                    <span class="text-[10px] uppercase">Tether</span>
-                </button>
+            <div id="status-dot" class="flex items-center gap-2 text-[10px] font-black opacity-50">
+                OFFLINE <span class="w-2 h-2 bg-red-500 rounded-full"></span>
             </div>
         </div>
 
-        <div class="space-y-4 mb-8">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Capital (Cap)</label>
-                    <input type="number" id="cap" class="w-full input-field p-3 text-lg" placeholder="e.g 1000">
+        <div class="glass-card p-5">
+            <label class="text-[10px] uppercase font-black text-zinc-500 block mb-3 tracking-widest text-center">گام اول: انتخاب دارایی مقصد</label>
+            <div class="grid grid-cols-3 gap-2">
+                <div onclick="selectAsset('GOLD', '#eab308', 'rgba(234,179,8,0.1)')" id="tab-GOLD" class="asset-tab active p-3 rounded-xl text-center" style="--color:#eab308; --bg:rgba(234,179,8,0.1)">
+                    <span class="block text-xl">🏆</span>
+                    <span class="text-[10px] font-bold">GOLD</span>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Market Price</label>
-                    <input type="number" id="ref" class="w-full input-field p-3 text-lg" placeholder="Current Price">
+                <div onclick="selectAsset('BTC', '#f97316', 'rgba(249,115,22,0.1)')" id="tab-BTC" class="asset-tab p-3 rounded-xl text-center" style="--color:#f97316; --bg:rgba(249,115,22,0.1)">
+                    <span class="block text-xl">₿</span>
+                    <span class="text-[10px] font-bold">BTC</span>
+                </div>
+                <div onclick="selectAsset('USDT', '#22c55e', 'rgba(34,197,94,0.1)')" id="tab-USDT" class="asset-tab p-3 rounded-xl text-center" style="--color:#22c55e; --bg:rgba(34,197,94,0.1)">
+                    <span class="block text-xl">₮</span>
+                    <span class="text-[10px] font-bold">USDT</span>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-3 gap-3">
-                <div>
-                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Gap %</label>
-                    <input type="number" id="gap" class="w-full input-field p-2 text-center text-sm" value="1.5" step="0.1">
+        <div class="glass-card p-5 space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="col-span-2">
+                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase">سرمایه ورودی (Cap)</label>
+                    <div class="relative">
+                        <input type="number" id="cap" class="input-dark text-xl font-mono" placeholder="0.00">
+                        <button onclick="setQuickCap(1100)" class="absolute left-2 top-2 bg-indigo-600 text-[8px] px-2 py-1 rounded">1100 USDT</button>
+                    </div>
                 </div>
                 <div>
-                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Fee %</label>
-                    <input type="number" id="fee" class="w-full input-field p-2 text-center text-sm" value="0.25" step="0.01">
+                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase text-center block">قیمت مرجع</label>
+                    <input type="number" id="ref" class="input-dark text-center font-mono" placeholder="قیمت بازار">
                 </div>
                 <div>
-                    <label class="text-[9px] font-bold text-gray-500 uppercase block text-center">Action</label>
-                    <select id="mode" class="w-full input-field p-2 text-center text-sm bg-black cursor-pointer">
-                        <option value="BUY">BUY</option>
-                        <option value="SELL">SELL</option>
+                    <label class="text-[10px] font-bold text-zinc-500 mr-1 uppercase text-center block">نوع عملیات</label>
+                    <select id="mode" class="input-dark text-center bg-black">
+                        <option value="BUY">خرید (Entry)</option>
+                        <option value="SELL">فروش (Exit)</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-500 block text-center uppercase">فاصله پله‌ها (Gap %)</label>
+                    <input type="number" id="gap" class="input-dark text-center" value="1.5" step="0.1">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-500 block text-center uppercase">کارمزد (Fee %)</label>
+                    <input type="number" id="fee" class="input-dark text-center" value="0.2" step="0.01">
                 </div>
             </div>
         </div>
 
         <div class="space-y-3">
-            <button onclick="transmit()" id="mainBtn" class="w-full btn-broadcast py-4 rounded-xl text-white shadow-lg uppercase tracking-widest text-xs transition-all transform active:scale-95">
-                Broadcast Signal
+            <button onclick="transmit()" id="mainBtn" class="w-full btn-primary py-5 rounded-2xl shadow-2xl shadow-indigo-500/20 uppercase tracking-[0.2em] text-sm">
+                ارسال دستور به ترمینال
             </button>
-            <button onclick="clearAsset()" class="w-full text-red-500/50 hover:text-red-500 py-2 text-[10px] font-black uppercase tracking-widest transition-colors">
-                Clear Active Signal
+            <button onclick="clearData()" class="w-full text-zinc-600 text-[9px] font-black uppercase tracking-widest">
+                پاکسازی مانیتورینگ دارایی فعلی
             </button>
         </div>
     </div>
 
     <script>
-        // CONFIG
         const firebaseConfig = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentAsset = 'GOLD';
+        let activeAsset = 'GOLD';
 
-        // Connection Check
         db.ref('.info/connected').on('value', s => {
-            document.getElementById('status-indicator').innerHTML = s.val() 
-                ? '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Online' 
-                : '<span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span> Offline';
+            const dot = document.getElementById('status-dot');
+            dot.innerHTML = s.val() ? 'ONLINE <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>' : 'OFFLINE <span class="w-2 h-2 bg-red-500 rounded-full"></span>';
         });
 
-        function selectAsset(asset) {
-            currentAsset = asset;
-            document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${asset}`).classList.add('active');
-            
-            // Visual feedback on button text
-            const btn = document.getElementById('mainBtn');
-            btn.innerText = `Broadcast to ${asset}`;
+        function selectAsset(asset, color, bg) {
+            activeAsset = asset;
+            document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${asset}`).classList.add('active');
+            document.getElementById('assistant-msg').innerText = `در حال تنظیم استراتژی روی ${asset}...`;
+            document.getElementById('mainBtn').innerText = `Broadcast ${asset} Signal`;
         }
+
+        function setQuickCap(val) { document.getElementById('cap').value = val; }
 
         async function transmit() {
             const btn = document.getElementById('mainBtn');
@@ -129,64 +123,46 @@
             const fee = parseFloat(document.getElementById('fee').value) / 100;
             const mode = document.getElementById('mode').value;
 
-            if(!cap || !ref) return alert("Please enter Capital and Price.");
+            if(!cap || !ref) return alert("خطا: اطلاعات ناقص است");
 
             btn.disabled = true;
-            btn.innerText = "CALCULATING...";
+            btn.innerText = "در حال محاسبه پله‌ها...";
 
-            // StealthCapital Algorithm
             const weights = [0.2, 0.3, 0.5];
-            let tV = 0; let tQ = 0;
-            let tiers = [];
+            let tV = 0, tQ = 0, tiers = [];
 
             weights.forEach((w, i) => {
                 let p = mode === 'BUY' ? ref * (1 - (gap * i)) : ref * (1 + (gap * i));
-                let v = mode === 'BUY' ? cap * w : (cap * w) * p; // Value
-                let q = mode === 'BUY' ? v / p : cap * w;         // Quantity
+                let v = mode === 'BUY' ? cap * w : (cap * w) * p;
+                let q = mode === 'BUY' ? v / p : cap * w;
                 
-                // Adjust for precision based on asset
-                if(currentAsset === 'BTC') { p = p.toFixed(2); q = q.toFixed(6); }
-                else { p = Math.ceil(p); q = q.toFixed(2); }
+                if(activeAsset === 'BTC') { p = Number(p.toFixed(0)); q = Number(q.toFixed(6)); }
+                else { p = Math.ceil(p); q = Number(q.toFixed(2)); }
 
-                tV += parseFloat(v); 
-                tQ += parseFloat(q);
-                tiers.push({ p: Number(p), v: Math.round(v), q: Number(q) });
+                tV += (cap * w);
+                tQ += (mode === 'BUY' ? (cap * w / p) : (cap * w));
+                tiers.push({ p, v: Math.round(v), q });
             });
 
-            const vwap = tV / tQ;
+            const vwap = mode === 'BUY' ? (cap / tQ) : (tV / cap);
             const targets = [0.015, 0.03, 0.05, 0.08].map(t => {
-                let targetP = mode === 'BUY' ? vwap * (1 + t + fee) : vwap * (1 - t - fee);
-                return currentAsset === 'BTC' ? targetP.toFixed(2) : Math.ceil(targetP);
+                let targetP = mode === 'BUY' ? vwap * (1 + t + (fee*2)) : vwap * (1 - t - (fee*2));
+                return activeAsset === 'BTC' ? Math.round(targetP) : Math.ceil(targetP);
             });
 
-            const signalData = {
-                asset: currentAsset,
-                mode: mode,
-                vwap: currentAsset === 'BTC' ? vwap.toFixed(2) : Math.ceil(vwap),
-                tiers: tiers,
-                targets: targets,
-                timestamp: new Date().toLocaleTimeString('fa-IR'),
-                active: true
+            const signal = {
+                asset: activeAsset, mode, vwap: Math.round(vwap), tiers, targets,
+                timestamp: new Date().toLocaleTimeString('fa-IR'), active: true
             };
 
-            // Save to specific asset path
-            await db.ref(`stealth_capital/${currentAsset}`).set(signalData);
-
-            btn.innerText = "SIGNAL SENT ✔";
-            setTimeout(() => { 
-                btn.disabled = false; 
-                btn.innerText = `Broadcast to ${currentAsset}`; 
-            }, 1500);
+            await db.ref(`stealth_v1/${activeAsset}`).set(signal);
+            btn.innerText = "سیگنال با موفقیت ارسال شد";
+            setTimeout(() => { btn.disabled = false; selectAsset(activeAsset); }, 2000);
         }
 
-        function clearAsset() {
-            if(confirm(`Are you sure you want to clear ${currentAsset} signals?`)) {
-                db.ref(`stealth_capital/${currentAsset}`).remove();
-            }
+        function clearData() {
+            if(confirm(`حذف مانیتورینگ ${activeAsset}؟`)) db.ref(`stealth_v1/${activeAsset}`).remove();
         }
-
-        // Initialize button text
-        selectAsset('GOLD');
     </script>
 </body>
 </html>
