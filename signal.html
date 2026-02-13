@@ -3,84 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StealthCapital v3.0 | Live Calculator</title>
+    <title>StealthCapital v3.1 | Professional Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: #050505; color: #e4e4e7; font-family: 'Vazirmatn'; margin: 0; min-height: 100vh; padding-bottom: 50px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* گرید بندی کارت‌ها */
+        /* کانتینر ویترینی فیکس شده */
         .shelf-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
             padding: 20px;
-            justify-items: center;
-        }
-
-        .card {
-            background: #0f0f11;
-            border: 1px solid #27272a;
-            border-radius: 20px;
             width: 100%;
-            max-width: 350px;
-            padding: 16px;
-            position: relative;
-            transition: transform 0.2s;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
         }
 
-        /* استایل پله‌های خرید */
+        /* کارت با ابعاد استاندارد A6 */
+        .a6-card {
+            width: 340px;
+            background: #09090b;
+            border: 1px solid #1f1f23;
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+
+        .card-header { border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 15px; }
+
+        /* پله‌های خرید قابل کلیک */
         .step-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; margin-bottom: 8px;
-            background: #18181b; border: 1px solid #27272a; border-radius: 12px;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .step-row:hover { background: #27272a; }
-        
-        /* وقتی پله انتخاب می‌شود (Active) */
-        .step-row.active {
-            background: rgba(16, 185, 129, 0.1); /* سبز کمرنگ */
-            border-color: #10b981;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
-        }
-        .step-row.active .step-label { color: #10b981; font-weight: 900; }
-
-        /* استایل تارگت‌ها */
-        .target-btn {
-            background: #000; border: 1px solid #27272a;
-            border-radius: 8px; padding: 8px; text-align: center;
+            padding: 12px; margin-bottom: 8px;
+            background: #111; border: 1px solid #1f1f23; border-radius: 12px;
             cursor: pointer; transition: 0.2s;
         }
-        .target-btn.active {
-            background: rgba(59, 130, 246, 0.2); /* آبی کمرنگ */
-            border-color: #3b82f6;
-            color: #fff;
-        }
+        .step-row.active { border-color: #10b981; background: rgba(16, 185, 129, 0.15); }
+        .step-row.active .step-tag { color: #10b981; }
 
-        /* باکس محاسبه سود */
-        .profit-box {
-            margin-top: 15px; padding: 12px;
-            background: #111; border-top: 2px solid #333;
-            border-radius: 12px; text-align: center;
-            display: none; /* پیش‌فرض مخفی است */
+        /* تارگت‌های قابل کلیک */
+        .target-btn {
+            background: #000; border: 1px solid #1f1f23;
+            border-radius: 10px; padding: 8px; text-align: center;
+            cursor: pointer; transition: 0.2s;
         }
-        .profit-box.visible { display: block; animation: fadeIn 0.3s ease; }
+        .target-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
+        /* باکس نمایش سود نهایی */
+        .profit-display {
+            margin-top: 15px; padding: 15px; background: #000;
+            border: 1px solid #27272a; border-radius: 12px;
+            display: none; text-align: center;
+        }
+        .profit-display.show { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .font-mono { font-family: 'Courier New', monospace; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <header class="p-4 border-b border-zinc-900 bg-black/60 sticky top-0 z-50 backdrop-blur-md flex justify-between items-center">
-        <h1 class="text-sm font-black italic tracking-widest text-zinc-300">STEALTH<span class="text-indigo-500">CAPITAL</span> <span class="text-[9px] opacity-50">CALCULATOR</span></h1>
-        <div id="clock" class="text-[10px] font-mono text-zinc-500">00:00:00</div>
+    <header class="p-4 bg-zinc-950 border-b border-zinc-900 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <h1 class="text-xs font-black tracking-widest uppercase italic">STEALTH<span class="text-indigo-500">CAPITAL</span></h1>
+        </div>
+        <div id="clock" class="text-[10px] font-mono text-zinc-600">00:00:00</div>
     </header>
 
     <div id="matrix-container" class="shelf-container">
@@ -91,140 +83,95 @@
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR'), 1000);
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
+
+        function clean(val) { return parseFloat(val.toString().replace(/,/g, '')); }
 
         db.ref('stealth_matrix').on('value', snapshot => {
             const container = document.getElementById('matrix-container');
             const data = snapshot.val();
-            
-            if(!data) { container.innerHTML = `<div class="col-span-full text-center py-20 opacity-20 text-xl font-black">NO ACTIVE TRADES</div>`; return; }
+            if(!data) { container.innerHTML = '<p class="opacity-20 mt-20 italic">Waiting for Signals...</p>'; return; }
 
-            // نکته: ما از innerHTML کامل استفاده نمی‌کنیم تا اگر کاربر در حال محاسبه است، صفحه رفرش نشود.
-            // اما برای سادگی فعلی، کل کانتینر رندر می‌شود.
             container.innerHTML = Object.keys(data).map(key => {
                 const s = data[key];
-                const isBuy = s.mode === 'BUYING'; // توجه: چک کنید در ادمین BUYING ارسال می‌کنید یا BUY
-                const color = isBuy ? '#10b981' : '#3b82f6';
+                const accent = s.mode === 'BUY' ? '#10b981' : '#3b82f6';
                 
                 return `
-                <div class="card" id="card-${key}" style="border-top: 4px solid ${color}">
-                    
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-[10px] font-black px-2 py-1 rounded bg-zinc-800 text-zinc-300 uppercase">${s.path}</span>
-                        </div>
+                <div class="a6-card" id="card-${key}" style="--accent: ${accent}">
+                    <div class="card-header flex justify-between items-center">
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded bg-zinc-900 text-zinc-400 uppercase">${s.path}</span>
+                        <span class="text-[8px] font-mono text-zinc-600">${s.ts || ''}</span>
+                    </div>
 
-                    <div class="space-y-2 mb-4">
-                        <p class="text-[8px] text-zinc-500 font-bold uppercase mb-1">Entry Steps (Click to Activate)</p>
+                    <div class="mb-5 text-center">
+                        <p class="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-1">Entry Average (VWAP)</p>
+                        <div class="text-2xl font-mono text-white">${s.vwap}</div>
+                    </div>
+
+                    <div class="space-y-2 mb-5">
+                        <p class="text-[8px] text-zinc-500 font-black uppercase">Active Entry Steps:</p>
                         ${s.tiers.map((t, i) => `
-                            <div class="step-row" onclick="toggleStep(this, '${key}')" 
-                                 data-price="${cleanNum(t.p)}" 
-                                 data-src="${cleanNum(t.srcV)}" 
-                                 data-tar="${cleanNum(t.tarV)}">
-                                
-                                <div class="flex flex-col">
-                                    <span class="step-label text-[8px] text-zinc-500 font-bold uppercase">STEP ${i+1}</span>
-                                    <span class="font-mono text-sm text-zinc-200">${t.p}</span>
+                            <div class="step-row" onclick="toggleStep(this, '${key}')" data-s="${clean(t.s)}" data-t="${clean(t.t)}">
+                                <div>
+                                    <div class="step-tag text-[7px] text-zinc-600 font-bold uppercase">STEP ${i+1}</div>
+                                    <div class="text-xs font-mono text-zinc-200">${t.p}</div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-[9px] font-bold text-indigo-400">${t.srcV} <span class="text-[7px] opacity-50">${s.src}</span></div>
-                                    <div class="text-[11px] font-black text-white">${t.tarV} <span class="text-[7px] opacity-50">${s.tar}</span></div>
+                                    <div class="text-[10px] text-indigo-400 font-bold font-mono">${t.s} <span class="text-[7px] opacity-30">${s.src}</span></div>
+                                    <div class="text-[12px] text-white font-black font-mono">${t.t} <span class="text-[8px] opacity-30">${s.tar}</span></div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
 
-                    <div class="mb-2">
-                        <p class="text-[8px] text-zinc-500 font-bold uppercase mb-2 text-center">Select Exit Target</p>
+                    <div class="mb-4">
+                        <p class="text-[8px] text-zinc-500 font-black uppercase mb-2 text-center">Target Exit Price</p>
                         <div class="grid grid-cols-2 gap-2">
                             ${s.targets.map((p, i) => `
-                                <div class="target-btn" onclick="selectTarget(this, '${key}', ${cleanNum(p)})">
-                                    <div class="text-[7px] text-zinc-600 font-bold uppercase">Goal ${i+1}</div>
+                                <div class="target-btn" onclick="selectTarget(this, '${key}', ${clean(p)})">
+                                    <div class="text-[7px] text-zinc-600 font-bold mb-0.5">T${i+1}</div>
                                     <div class="text-[10px] font-mono text-emerald-500">${parseFloat(p).toLocaleString()}</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
 
-                    <div id="result-${key}" class="profit-box">
-                        <p class="text-[8px] text-zinc-400 mb-1">ESTIMATED PROFIT</p>
-                        <div class="text-xl font-mono text-emerald-400" id="profit-val-${key}">0</div>
-                        <div class="text-[9px] font-bold text-zinc-500" id="profit-pct-${key}">0%</div>
+                    <div id="profit-box-${key}" class="profit-display">
+                        <div class="text-[8px] text-zinc-500 font-black uppercase mb-1">Estimated Net Profit</div>
+                        <div id="profit-val-${key}" class="text-xl font-mono text-emerald-400">0.00</div>
+                        <div id="profit-pct-${key}" class="text-[10px] font-bold text-zinc-400">0%</div>
                     </div>
-
                 </div>`;
             }).join('');
         });
 
-        // توابع کمکی
-        function cleanNum(str) {
-            // حذف کاما و تبدیل به عدد خالص برای محاسبات
-            if(!str) return 0;
-            return parseFloat(str.toString().replace(/,/g, ''));
-        }
-
-        // 1. انتخاب/عدم انتخاب پله
-        window.toggleStep = function(el, key) {
-            el.classList.toggle('active');
-            calculate(key);
-        }
-
-        // 2. انتخاب تارگت (فقط یکی)
-        window.selectTarget = function(el, key, price) {
-            // حذف کلاس active از بقیه تارگت‌های این کارت
-            const parent = el.parentNode;
-            parent.querySelectorAll('.target-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // فعال کردن این تارگت
+        window.toggleStep = (el, key) => { el.classList.toggle('active'); runCalc(key); };
+        window.selectTarget = (el, key, price) => {
+            el.parentNode.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
-            el.dataset.price = price; // ذخیره قیمت در المنت
-            calculate(key);
-        }
+            el.dataset.price = price;
+            runCalc(key);
+        };
 
-        // 3. موتور محاسبه‌گر
-        window.calculate = function(key) {
+        function runCalc(key) {
             const card = document.getElementById(`card-${key}`);
-            const activeSteps = card.querySelectorAll('.step-row.active');
-            const activeTarget = card.querySelector('.target-btn.active');
-            const resultBox = document.getElementById(`result-${key}`);
+            const steps = card.querySelectorAll('.step-row.active');
+            const target = card.querySelector('.target-btn.active');
+            const box = document.getElementById(`profit-box-${key}`);
 
-            // اگر هیچ پله‌ای انتخاب نشده یا تارگت انتخاب نشده، محاسبه نکن
-            if(activeSteps.length === 0 || !activeTarget) {
-                resultBox.classList.remove('visible');
-                return;
-            }
+            if (steps.length === 0 || !target) { box.classList.remove('show'); return; }
 
-            let totalCost = 0; // کل پولی که دادیم (مثلا تتر)
-            let totalAsset = 0; // کل دارایی که گرفتیم (مثلا طلا)
+            let sumCost = 0, sumAsset = 0;
+            steps.forEach(s => { sumCost += parseFloat(s.dataset.s); sumAsset += parseFloat(s.dataset.t); });
 
-            activeSteps.forEach(step => {
-                totalCost += parseFloat(step.dataset.src);
-                totalAsset += parseFloat(step.dataset.tar);
-            });
+            const exitPrice = parseFloat(target.dataset.price);
+            const profit = (sumAsset * exitPrice) - sumCost;
+            const pct = (profit / sumCost) * 100;
 
-            // محاسبه قیمت فروش در تارگت
-            const sellPrice = parseFloat(activeTarget.dataset.price);
-            
-            // ارزش دارایی در لحظه فروش
-            // فرمول: اگر تتر داده‌ایم و طلا خریده‌ایم (BUY):
-            // ارزش نهایی = مقدار طلا * قیمت فروش
-            
-            // نکته مهم: باید بدانیم معامله BUY است یا SELL.
-            // اما چون فرمول کلی: (مقدار دارایی * قیمت خروج) - هزینه اولیه = سود
-            // در اینجا فرض بر معاملات استاندارد (Long/Buy) است.
-            
-            const finalValue = totalAsset * sellPrice; 
-            const profit = finalValue - totalCost;
-            const percent = (profit / totalCost) * 100;
-
-            // نمایش نتیجه
-            resultBox.classList.add('visible');
-            const profitEl = document.getElementById(`profit-val-${key}`);
-            const pctEl = document.getElementById(`profit-pct-${key}`);
-
-            profitEl.innerText = profit.toLocaleString(undefined, {maximumFractionDigits: 1});
-            profitEl.style.color = profit >= 0 ? '#34d399' : '#f87171'; // سبز یا قرمز
-
-            pctEl.innerText = (profit >= 0 ? '+' : '') + percent.toFixed(2) + '%';
+            box.classList.add('show');
+            document.getElementById(`profit-val-${key}`).innerText = profit.toLocaleString(undefined, {maximumFractionDigits: 2});
+            document.getElementById(`profit-val-${key}`).style.color = profit >= 0 ? '#10b981' : '#ef4444';
+            document.getElementById(`profit-pct-${key}`).innerText = (profit >= 0 ? '+' : '') + pct.toFixed(2) + '%';
         }
     </script>
 </body>
