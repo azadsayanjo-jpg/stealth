@@ -2,34 +2,87 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Stealth Terminal v3.9 | Interactive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMB Monitor v4.6 | Motivation Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding-bottom: 50px; }
-        .card { background: #09090b; border: 1px solid #1f1f23; border-radius: 24px; padding: 20px; width: 360px; position: relative; }
-        .step { background: #111; border: 1px solid #1f1f23; border-radius: 14px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; position: relative; }
-        .step.active { border-color: #6366f1; background: #6366f115; }
-        .step.active::after { content: '✓'; position: absolute; left: 10px; top: 10px; color: #6366f1; font-weight: bold; }
-        .target-node { background: #000; border: 1px solid #1f1f23; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; font-size: 11px; font-family: monospace; transition: 0.2s; }
-        .target-node.active { border-color: #10b981; color: #10b981; background: #10b98110; transform: scale(1.05); }
-        .guide-box { background: #111; border: 1px solid #27272a; border-radius: 15px; padding: 15px; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        body { background: #000; color: #f4f4f5; font-family: 'Vazirmatn'; }
+        .card { 
+            background: #09090b; border: 1px solid #18181b; border-radius: 20px; padding: 16px; 
+            width: 100%; max-width: 320px; transition: 0.3s;
+        }
+        .step { background: #111; border: 1px solid #1f1f23; border-radius: 10px; padding: 8px 12px; cursor: pointer; transition: 0.2s; }
+        .step.active { border-color: #6366f1; background: #6366f110; }
+        .target-node { background: #000; border: 1px solid #18181b; border-radius: 8px; padding: 5px 2px; text-align: center; cursor: pointer; font-size: 10px; font-family: monospace; }
+        .target-node.active { border-color: #10b981; color: #10b981; background: #10b98110; }
+        .big-number { font-family: monospace; letter-spacing: -1px; }
+        .motivate-card { background: linear-gradient(145deg, #09090b 0%, #020617 100%); border: 1px solid #1e1b4b; }
     </style>
 </head>
-<body class="p-5">
+<body class="p-4 md:p-6">
 
-    <div class="guide-box">
-        <h3 class="text-indigo-400 text-xs font-black mb-3">🚀 راهنمای سریع معاملات (SMB Safe Mode)</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-[10px] text-zinc-400 leading-relaxed">
-            <div><b class="text-white">۱. انتخاب پله:</b> پله‌هایی که خرید کرده‌اید را لمس کنید تا میانگین قیمت شما (VWAP) محاسبه شود.</div>
-            <div><b class="text-white">۲. تعیین هدف:</b> یکی از تارگت‌های سبز (T) را انتخاب کنید تا سود خالص خروج را ببینید.</div>
-            <div><b class="text-white">۳. کارمزد دوطرفه:</b> تمام سودها با کسر کارمزد خرید و فروش (Double-Fee) نمایش داده می‌شوند.</div>
+    <header class="max-w-6xl mx-auto flex justify-between items-center mb-8 border-b border-zinc-900 pb-4">
+        <div>
+            <h1 class="text-indigo-500 font-black text-2xl tracking-tighter italic">SMB SYSTEM</h1>
+            <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">The Art of Discipline & Precision</p>
         </div>
-    </div>
+        <div class="text-emerald-500 text-[10px] font-black flex items-center gap-2">
+            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+            LIVE SERVER
+        </div>
+    </header>
 
-    <div id="display" class="flex flex-wrap gap-8 justify-center text-zinc-500">در حال اتصال به دیتابیس...</div>
+    <main id="display" class="flex flex-wrap gap-4 justify-center min-h-[300px]">
+        <div class="py-20 text-zinc-800 text-xs font-black animate-pulse uppercase">Connecting to Matrix...</div>
+    </main>
+
+    <footer class="max-w-5xl mx-auto mt-16 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="motivate-card p-5 rounded-2xl shadow-xl">
+                <div class="text-indigo-500 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-black text-white mb-2 italic tracking-tight">قدرت استمرار و سودهای کوچک</h3>
+                <p class="text-[11px] text-zinc-400 leading-relaxed font-light">
+                    ثروت‌های عظیم، حاصل یک شبه بیدار شدن نیستند؛ بلکه نتیجه تکرار پیروزی‌های کوچک و حساب‌شده‌اند. در SMB، ما روی نظم خروج در تارگت‌های اولیه تاکید داریم. به یاد داشته باش: <span class="text-indigo-400 font-bold">"یک تریدر ثروتمند، یک تریدر با انضباط است که طمع را با ریاضیات جایگزین کرده است."</span>
+                </p>
+            </div>
+
+            <div class="motivate-card p-5 rounded-2xl shadow-xl border-emerald-900/30">
+                <div class="text-emerald-500 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040 12.02 12.02 0 003 9c4.757 1.225 8.243 1.225 13 0a12.02 12.02 0 003-9z" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-black text-white mb-2 italic tracking-tight">امنیت در سایه محاسبات نانو</h3>
+                <p class="text-[11px] text-zinc-400 leading-relaxed font-light">
+                    انتخاب دارایی‌های با اصالت (طلا و لیدرهای بازار) اولین قدم برای بقاست. ما در SMB با دقت ۸ رقم اعشار، کوچک‌ترین حق شما را محاسبه می‌کنیم تا با خیالی آسوده بر روی استراتژی تمرکز کنید. امنیت شما در معامله، نتیجه مستقیم حذف حدس و گمان و جایگزینی آن با اعداد واقعی است.
+                </p>
+            </div>
+
+            <div class="motivate-card p-5 rounded-2xl shadow-xl border-amber-900/30">
+                <div class="text-amber-500 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-black text-white mb-2 italic tracking-tight">فضیلت صبر؛ شکار لحظه‌ها</h3>
+                <p class="text-[11px] text-zinc-400 leading-relaxed font-light">
+                    بازار همیشه هست، اما سرمایه شما نه! اگر قیمت به پله‌های مورد نظر نرسید، تماشاگر بودن خود یک مهارت بزرگ است. صبر کردن برای فعال شدن پله‌های خرید، تفاوت بین یک معامله‌گر حرفه‌ای و یک آماتور عجول است. <span class="text-amber-400 font-bold">صبور باش، سیستم برای تو می‌جنگد.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center py-8 opacity-30">
+            <p class="text-[10px] font-mono tracking-[0.5em] uppercase">Built for Professionals | SMB Terminal v4.6</p>
+        </div>
+    </footer>
 
     <script>
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
@@ -41,45 +94,40 @@
             const data = snap.val();
             window.activeSignals = data;
             const cont = document.getElementById('display');
-            if(!data) { cont.innerHTML = "سیگنال فعالی موجود نیست."; return; }
+            if(!data) { cont.innerHTML = "<div class='text-zinc-800 font-black text-[10px] tracking-widest'>NO SIGNALS DETECTED</div>"; return; }
 
             cont.innerHTML = Object.keys(data).map(key => {
                 const s = data[key];
-                const isBuy = s.mode === 'BUY';
                 return `
                 <div class="card" id="card-${key}">
-                    <div class="flex justify-between items-center mb-5">
-                        <span class="bg-indigo-500/10 text-indigo-400 text-[10px] px-3 py-1 rounded-full font-black">${s.path}</span>
-                        <span class="text-[9px] text-zinc-600 font-mono">FEE: ${(s.fee*100).toFixed(2)}%</span>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-black text-indigo-500 italic tracking-tighter uppercase">${s.path}</span>
+                        <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></div>
                     </div>
 
-                    <div class="text-center mb-6">
-                        <p class="text-[8px] text-zinc-500 uppercase tracking-tighter mb-1">قیمت میانگین ورود (VWAP)</p>
-                        <div class="text-3xl font-mono text-white">${s.vwap}</div>
+                    <div class="bg-black/50 p-3 rounded-xl border border-zinc-800/50 text-center mb-4">
+                        <p class="text-[8px] text-zinc-600 uppercase mb-1 font-bold">VWAP ENTRY</p>
+                        <div class="text-xl font-mono text-white big-number leading-none">${s.vwap}</div>
                     </div>
 
-                    <p class="text-[9px] text-zinc-400 mb-2 mr-1">۱. پله‌های فعال را انتخاب کنید:</p>
-                    <div class="space-y-2 mb-6">
-                        ${s.tiers.map((t, i) => `
-                        <div class="step" onclick="toggleStep(this, '${key}')" data-cost="${t.s.replace(/,/g,'')}" data-qty="${t.t}">
-                            <div class="flex justify-between text-[11px] font-bold">
-                                <span>پله ${i+1} <small class="text-zinc-500">(${t.w}%)</small></span>
-                                <span class="font-mono">${t.p}</span>
-                            </div>
-                            <div class="flex justify-between mt-1 text-[10px]">
-                                <span class="text-indigo-400/80">${t.s} ${s.src}</span>
-                                <span class="text-white font-mono">${t.t} ${s.tar}</span>
-                            </div>
-                        </div>`).join('')}
+                    <div class="grid grid-cols-1 gap-1.5 mb-4 font-vazir">
+                        ${s.tiers.map((t, i) => {
+                            const cost = t.s.toString().replace(/,/g,'');
+                            const buyPrice = t.p.toString().replace(/,/g,'');
+                            return `
+                            <div class="step flex justify-between items-center" onclick="toggleStep(this, '${key}')" data-cost="${cost}" data-price="${buyPrice}">
+                                <span class="text-[10px] text-zinc-500 font-black">پله ${i+1}</span>
+                                <span class="font-mono text-[11px] text-zinc-300 font-bold">${t.p}</span>
+                            </div>`;
+                        }).join('')}
                     </div>
 
-                    <p class="text-[9px] text-zinc-400 mb-2 mr-1">۲. هدف فروش را انتخاب کنید:</p>
-                    <div class="grid grid-cols-4 gap-2 mb-6">
-                        ${s.targets.map((p, i) => `<div class="target-node" onclick="setTarget(this, '${key}', ${p})">T${i+1}<br>${parseFloat(p).toLocaleString()}</div>`).join('')}
+                    <div class="grid grid-cols-4 gap-1.5 mb-4">
+                        ${s.targets.map((p, i) => `<div class="target-node" onclick="setTarget(this, '${key}', ${p})"><span class="opacity-40 block mb-0.5">T${i+1}</span>${parseFloat(p).toLocaleString()}</div>`).join('')}
                     </div>
 
-                    <div id="profit-box-${key}" class="bg-black/50 border border-zinc-800 border-dashed rounded-2xl p-4 text-center min-h-[85px] flex flex-col justify-center">
-                        <span class="text-[10px] text-zinc-700 animate-pulse">در انتظار انتخاب شما...</span>
+                    <div id="profit-box-${key}" class="bg-zinc-950/50 border border-zinc-800/30 rounded-xl p-3 text-center min-h-[55px] flex flex-col justify-center">
+                        <span class="text-[8px] text-zinc-700 font-black tracking-tighter uppercase">Waiting for Input...</span>
                     </div>
                 </div>`;
             }).join('');
@@ -101,27 +149,27 @@
 
             if(!steps.length || !target) return;
 
-            let totalInvest = 0, totalAsset = 0;
+            let totalInvest = 0, totalRealAsset = 0;
             steps.forEach(s => {
-                totalInvest += parseFloat(s.dataset.cost);
-                totalAsset += parseFloat(s.dataset.qty);
+                const cost = parseFloat(s.dataset.cost);
+                const price = parseFloat(s.dataset.price);
+                totalInvest += cost;
+                totalRealAsset += (cost / price); 
             });
 
             const exitPrice = parseFloat(target.dataset.price);
-            const feeRate = data.fee || 0.005;
-
-            // محاسبه سود خالص بر اساس فرمول کارمزد دوطرفه
-            // $$Net Profit = (Assets \times ExitPrice \times (1 - Fee/2)) - TotalInvest$$
-            const grossReturn = totalAsset * exitPrice;
-            const netReturn = grossReturn * (1 - (feeRate/2)); 
-            const profit = netReturn - totalInvest;
+            const feeRate = parseFloat(data.fee) || 0.0025;
+            const grossSale = totalRealAsset * exitPrice;
+            const netSale = grossSale * (1 - feeRate);
+            const profit = netSale - totalInvest;
             const pct = (profit / totalInvest) * 100;
 
             resBox.innerHTML = `
-                <div class="text-[9px] text-zinc-500 font-bold mb-1 uppercase tracking-widest">Net Profit (سود خالص نهایی)</div>
-                <div class="text-2xl font-mono ${profit >= 0 ? 'text-emerald-500' : 'text-red-500'}">${profit.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
-                <div class="text-[11px] font-black ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}">
-                    ${profit >= 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(2)}%
+                <div class="text-[16px] font-mono font-black ${profit >= 0 ? 'text-emerald-500' : 'text-rose-500'}">
+                    ${profit >= 0 ? '+' : ''}${profit.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                </div>
+                <div class="text-[9px] font-black ${profit >= 0 ? 'text-emerald-700' : 'text-rose-700'} tracking-tighter leading-none">
+                     ${profit >= 0 ? 'PROFIT' : 'LOSS'} ${Math.abs(pct).toFixed(2)}%
                 </div>
             `;
         }

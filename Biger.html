@@ -2,135 +2,132 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Stealth Admin v3.8 | Delete Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMB Master Admin v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { background: #050507; color: #fff; font-family: 'Vazirmatn'; padding: 20px; }
-        .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 24px; padding: 24px; max-width: 480px; margin: auto; }
-        .asset-btn { border: 1px solid #27272a; opacity: 0.4; font-size: 11px; transition: 0.3s; cursor: pointer; }
+        body { background: #000; color: #fff; font-family: 'Vazirmatn'; padding: 20px; }
+        .matrix-card { background: #0c0c0e; border: 1px solid #1f1f23; border-radius: 24px; padding: 25px; max-width: 450px; margin: auto; }
+        .asset-btn { border: 1px solid #27272a; opacity: 0.3; font-size: 10px; font-weight: 900; transition: 0.2s; }
         .asset-btn.active { opacity: 1; border-color: #6366f1; background: #6366f122; color: #818cf8; }
-        input { background: #111; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; color: #fff; margin-bottom: 10px; outline: none; }
-        .signal-item { background: #111; border: 1px solid #1f1f23; border-radius: 12px; padding: 10px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        input { background: #000; border: 1px solid #27272a; border-radius: 12px; padding: 12px; width: 100%; text-align: center; color: #fff; font-family: monospace; font-size: 16px; margin-bottom: 10px; outline: none; }
+        input:focus { border-color: #6366f1; }
+        label { display: block; font-size: 10px; color: #52525b; margin-bottom: 5px; font-weight: bold; padding-right: 5px; }
+        .live-item { background: #111; border: 1px solid #1f1f23; border-radius: 12px; padding: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     </style>
 </head>
 <body>
     <div class="matrix-card">
-        <h2 class="text-center font-black text-indigo-500 mb-6 italic">STEALTH COMMANDER v3.8</h2>
+        <h2 class="text-center font-black text-[10px] uppercase mb-6 tracking-[0.4em] text-indigo-500">SMB MASTER CONTROL</h2>
         
-        <div class="grid grid-cols-2 gap-4 mb-6 text-center">
-            <div id="src-group">
-                <p class="text-[9px] text-zinc-500 mb-2 font-bold uppercase">Source</p>
-                <div class="flex gap-1">
-                    <button onclick="setAsset('src','IRT',this)" class="asset-btn flex-1 p-2 rounded active">IRT</button>
-                    <button onclick="setAsset('src','USDT',this)" class="asset-btn flex-1 p-2 rounded">USDT</button>
-                    <button onclick="setAsset('src','BTC',this)" class="asset-btn flex-1 p-2 rounded">BTC</button>
-                </div>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div id="src-group" class="space-y-1">
+                <label>SOURCE</label>
+                <button onclick="setSrc('IRT', this)" class="asset-btn w-full p-2 rounded active">IRT</button>
+                <button onclick="setSrc('USDT', this)" class="asset-btn w-full p-2 rounded">USDT</button>
+                <button onclick="setSrc('GOLD', this)" class="asset-btn w-full p-2 rounded">GOLD</button>
+                <button onclick="setSrc('BTC', this)" class="asset-btn w-full p-2 rounded">BTC</button>
             </div>
-            <div id="tar-group">
-                <p class="text-[9px] text-zinc-500 mb-2 font-bold uppercase">Target</p>
-                <div class="flex gap-1">
-                    <button onclick="setAsset('tar','USDT',this)" class="asset-btn flex-1 p-2 rounded active">USDT</button>
-                    <button onclick="setAsset('tar','XAUT',this)" class="asset-btn flex-1 p-2 rounded">XAUT</button>
-                    <button onclick="setAsset('tar','BTC',this)" class="asset-btn flex-1 p-2 rounded">BTC</button>
-                </div>
+            <div id="tar-group" class="space-y-1">
+                <label>TARGET</label>
+                <button onclick="setTar('IRT', this)" class="asset-btn w-full p-2 rounded">IRT</button>
+                <button onclick="setTar('USDT', this)" class="asset-btn w-full p-2 rounded active">USDT</button>
+                <button onclick="setTar('GOLD', this)" class="asset-btn w-full p-2 rounded">GOLD</button>
+                <button onclick="setTar('BTC', this)" class="asset-btn w-full p-2 rounded">BTC</button>
             </div>
+        </div>
+
+        <label>سرمایه کل و نرخ ورود</label>
+        <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="cap" placeholder="سرمایه">
+            <input type="number" id="ref" placeholder="قیمت">
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="cap" placeholder="سرمایه">
-            <input type="number" id="ref" placeholder="قیمت واحد">
+            <div><label>GAP %</label><input type="number" id="gap" value="1.2"></div>
+            <div><label>FEE %</label><input type="number" id="fee" value="0.25"></div>
         </div>
 
-        <button id="main-btn" onclick="transmit()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-black mt-2 transition-all">ارسال سیگنال جدید</button>
-        
-        <hr class="my-8 border-zinc-900">
+        <button onclick="transmit()" class="w-full bg-indigo-600 py-4 rounded-xl font-black uppercase text-[11px] mt-2 shadow-lg hover:bg-indigo-500 transition-all">بروزرسانی مانیتور SMB</button>
 
-        <div>
-            <h3 class="text-[10px] font-bold text-zinc-500 mb-4 uppercase tracking-widest">Active Signals on Network</h3>
-            <div id="active-list" class="space-y-2">
-                <p class="text-center text-zinc-700 text-[10px] py-4">در حال بارگذاری لیست...</p>
-            </div>
+        <div class="mt-10 pt-6 border-t border-zinc-800">
+            <h3 class="text-[9px] font-black uppercase text-zinc-500 mb-4 tracking-widest text-center">Active Signals</h3>
+            <div id="live-list"></div>
         </div>
     </div>
 
     <script>
         const config = { databaseURL: "https://sellusd-ea252-default-rtdb.firebaseio.com" };
-        if (!firebase.apps.length) { firebase.initializeApp(config); }
+        if (!firebase.apps.length) firebase.initializeApp(config);
         const db = firebase.database();
-
         let src = 'IRT', tar = 'USDT';
-        const feeTable = { 'IRT_USDT': 0.50, 'USDT_BTC': 0.20, 'USDT_XAUT': 0.26, 'BTC_USDT': 0.20, 'XAUT_USDT': 0.26 };
 
-        function setAsset(type, val, el) {
-            if(type === 'src') {
-                src = val; document.querySelectorAll('#src-group button').forEach(b => b.classList.remove('active'));
-            } else {
-                tar = val; document.querySelectorAll('#tar-group button').forEach(b => b.classList.remove('active'));
-            }
-            el.classList.add('active');
-        }
+        function setSrc(v, el) { src = v; document.querySelectorAll('#src-group button').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
+        function setTar(v, el) { tar = v; document.querySelectorAll('#tar-group button').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
 
-        // نمایش لحظه‌ای سیگنال‌ها برای حذف
-        db.ref('stealth_matrix').on('value', snap => {
-            const list = document.getElementById('active-list');
-            const data = snap.val();
-            if(!data) { list.innerHTML = '<p class="text-center text-zinc-800 text-[10px] py-4">هیچ سیگنال فعالی نیست</p>'; return; }
-
+        db.ref('stealth_matrix').on('value', snapshot => {
+            const list = document.getElementById('live-list');
+            const data = snapshot.val();
+            if(!data) { list.innerHTML = '<p class="text-center text-[9px] text-zinc-700 italic">No Active Signals</p>'; return; }
             list.innerHTML = Object.keys(data).map(key => `
-                <div class="signal-item">
-                    <div>
-                        <div class="text-[10px] font-black text-indigo-400">${data[key].path}</div>
-                        <div class="text-[8px] text-zinc-600 font-mono">${data[key].mode} | VWAP: ${data[key].vwap}</div>
+                <div class="live-item">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black text-zinc-300">${data[key].path}</span>
+                        <span class="text-[8px] font-mono text-zinc-600">${data[key].ts || ''}</span>
                     </div>
-                    <button onclick="removeSignal('${key}')" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded-md text-[9px] font-bold transition-all border border-red-500/20">حذف</button>
+                    <button onclick="removeSignal('${key}')" class="bg-red-950/20 text-red-500 text-[9px] font-black px-3 py-1.5 rounded-lg border border-red-900/30">حذف</button>
                 </div>
             `).join('');
         });
 
-        async function removeSignal(key) {
-            if(confirm('آیا از حذف این سیگنال مطمئن هستید؟')) {
-                await db.ref(`stealth_matrix/${key}`).remove();
-            }
-        }
+        function removeSignal(key) { if(confirm('حذف سیگنال؟')) db.ref(`stealth_matrix/${key}`).remove(); }
 
         async function transmit() {
-            const btn = document.getElementById('main-btn');
-            try {
-                const cap = parseFloat(document.getElementById('cap').value);
-                const ref = parseFloat(document.getElementById('ref').value);
-                if(!cap || !ref || src === tar) return alert("ورودی‌ها را چک کنید");
+            const cap = parseFloat(document.getElementById('cap').value);
+            const ref = parseFloat(document.getElementById('ref').value);
+            const gapVal = parseFloat(document.getElementById('gap').value) / 100;
+            const feeVal = parseFloat(document.getElementById('fee').value) / 100;
 
-                btn.disabled = true; btn.innerText = "Sourcing...";
+            if(!cap || !ref || src === tar) return;
 
-                const isBuy = ['BTC', 'XAUT'].includes(tar) || (src === 'IRT' && tar === 'USDT');
-                let tiers = [], totalSrc = 0, totalTar = 0;
-                const weights = [0.2, 0.3, 0.5];
-                const prec = (tar === 'BTC' || src === 'BTC') ? 8 : 2;
+            const isBuy = true; // پیش‌فرض سیستم شما بر خرید پله‌ای بود
+            const weights = [0.2, 0.3, 0.5];
+            let tiers = [], tSrc = 0, tTar = 0;
+            
+            // تعیین دقت اعشار بر اساس مقصد (فقط این بخش بهینه شد)
+            let precision = (tar === 'BTC') ? 8 : (tar === 'GOLD' || tar === 'XAUT' ? 5 : 2);
 
-                weights.forEach((w, i) => {
-                    let p = isBuy ? ref * (1 - (0.015 * i)) : ref * (1 + (0.015 * i));
-                    let sV = cap * w;
-                    let tV = isBuy ? (sV / p) : (sV * p);
-                    totalSrc += sV; totalTar += tV;
-                    tiers.push({ p: p.toFixed(2), s: sV.toLocaleString(), t: tV.toFixed(prec), w: w*100 });
+            weights.forEach((w, i) => {
+                let p = ref * (1 - (gapVal * i));
+                let sV = cap * w;
+                let tV = sV / p; // محاسبه تعداد دقیق
+                tSrc += sV; tTar += tV;
+                
+                // اصلاح سورس و تارگت برای نمایش بدون به هم ریختگی
+                tiers.push({ 
+                    p: p.toLocaleString(undefined, {maximumFractionDigits: 0}), 
+                    s: sV.toLocaleString(undefined, {maximumFractionDigits: 0}), 
+                    t: tV.toFixed(precision),
+                    w: (w * 100).toString()
                 });
+            });
 
-                const vwap = isBuy ? (totalSrc / totalTar) : (totalTar / totalSrc);
-                const targets = [0.02, 0.05, 0.10, 0.20].map(t => {
-                    let tp = isBuy ? vwap * (1 + t) : vwap * (1 - t);
-                    return tp.toFixed(2);
-                });
+            const vwap = tSrc / tTar;
+            const targets = [0.015, 0.03, 0.05, 0.08].map(t => {
+                let tp = vwap * (1 + t + feeVal);
+                return tp.toFixed(precision > 2 ? 0 : 0); // رُند کردن قیمت هدف ریالی/تتری
+            });
 
-                await db.ref(`stealth_matrix/${src}_TO_${tar}`).set({
-                    path: `${src} ➔ ${tar}`, src, tar, fee: (feeTable[`${src}_${tar}`] || 0.2)/100,
-                    vwap: vwap.toFixed(prec), tiers, targets, mode: isBuy ? 'BUY' : 'SELL'
-                });
-
-                btn.disabled = false; btn.innerText = "ارسال سیگنال جدید";
-            } catch (e) { alert(e.message); btn.disabled = false; }
+            await db.ref(`stealth_matrix/${src}_TO_${tar}`).set({
+                path: `${src} ➔ ${tar}`, src, tar, 
+                vwap: vwap.toLocaleString(undefined, {maximumFractionDigits: 0}),
+                tiers, targets, mode: 'BUY', fee: feeVal,
+                ts: new Date().toLocaleTimeString('fa-IR')
+            });
+            alert("ارسال شد");
         }
     </script>
 </body>
