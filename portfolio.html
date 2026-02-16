@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>پنل مدیریت ثروت | Stealth Admin</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root { --bg: #050608; --surface: #0f1115; --primary: #3b82f6; --danger: #ef4444; --font: 'Vazirmatn', sans-serif; }
+        * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.3s; }
+        body { background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; }
+        aside { width: 360px; background: var(--surface); padding: 25px; border-left: 1px solid #222; overflow-y: auto; }
+        main { flex: 1; padding: 40px; overflow-y: auto; }
+        .box { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 8px; font-weight: 700; }
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #333; padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .btn { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; margin-bottom: 10px; }
+        .btn-del { background: var(--danger); }
+        .card { background: var(--surface); border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .card:hover { border-color: var(--primary); background: #16181d; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h2 style="margin-bottom:30px; font-weight: 900; color: var(--primary);">STEALTH <span style="color:#fff">ADMIN</span></h2>
+        
+        <div class="box">
+            <label>نرخ تتر (تومان)</label>
+            <input type="number" id="cfg-toman" value="162000" oninput="saveConfig()">
+            
+            <label>وضعیت بازار</label>
+            <select id="cfg-type" onchange="saveConfig()">
+                <option value="صعودی">صعودی (Bullish)</option>
+                <option value="خنثی">متعادل (Neutral)</option>
+                <option value="نزولی">احتیاطی (Bearish)</option>
+            </select>
+        </div>
+
+        <div class="box">
+            <label>پیام استراتژیک برای مشتری</label>
+            <textarea id="cfg-note" rows="5" oninput="saveConfig()" placeholder="پیام خود را اینجا بنویسید..."></textarea>
+            <select onchange="document.getElementById('cfg-note').value = this.value; saveConfig();" style="font-size: 0.75rem; background: #111;">
+                <option value="">— انتخاب پیام‌های پیشنهادی —</option>
+                <option value="بزرگترین ریسک، ریسک نکردن است. ما اینجا هستیم تا هوشمندانه جسور باشیم.">۱. ریسک هوشمندانه</option>
+                <option value="ثروت واقعی، حاصل صبر آگاهانه در کنار انتخاب‌های استراتژیک است.">۲. صبر استراتژیک</option>
+                <option value="امروز شما در حال ساختن میراثی هستید که آیندگان به آن افتخار خواهند کرد.">۳. ساخت میراث</option>
+                <option value="بازار محل انتقال ثروت از افراد عجول به افراد صبور است.">۴. پاداش صبر</option>
+                <option value="استراتژی ما تکیه بر اعداد است، نه شایعات. به مسیر اعتماد کنید.">۵. تکیه بر دیتا</option>
+                <option value="هر نوسان بازار، یک پله برای صعود در بلندمدت است.">۶. نگاه بلندمدت</option>
+                <option value="ما دارایی نمی‌خریم، ما تکه‌ای از آینده را تصاحب می‌کنیم.">۷. تصاحب آینده</option>
+                <option value="نظم مالی، مرز بین رویاپردازی و ثروتمند شدن واقعی است.">۸. نظم مالی</option>
+                <option value="هدف ما فقط رشد اعداد نیست، هدف ما خلق آزادی مطلق مالی برای شماست.">۹. آزادی مالی</option>
+                <option value="در تلاطم بازار، سکان در دست ماست. با آرامش شاهد رشد باشید.">۱۰. مدیریت تلاطم</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="openModal()">+ افزودن دارایی جدید</button>
+        <div id="list-area" style="margin-top: 10px;"></div>
+    </aside>
+
+    <main>
+        <h1 style="font-weight: 900;">مدیریت پورتفوی فعال</h1>
+        <p style="color: #64748b;">برای ویرایش یا حذف، روی کارت دارایی کلیک کنید.</p>
+        <div id="grid-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;"></div>
+    </main>
+
+    <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(5px);">
+        <div style="background:#16181d; width:400px; padding:35px; border-radius:30px; border:1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <h3 id="m-title" style="margin-top:0">ویرایش دارایی</h3>
+            <label>نام دارایی</label><input type="text" id="in-name">
+            <label>نماد (مثلاً BTCUSDT)</label><input type="text" id="in-sym">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><label>موجودی فعلی</label><input type="number" id="in-qty"></div>
+                <div><label>تعداد هدف</label><input type="number" id="in-tqty"></div>
+            </div>
+            <label>قیمت هدف ($)</label><input type="number" id="in-tprice">
+            <label>دسته‌بندی استراتژیک</label>
+            <select id="in-cat">
+                <option value="safe">🛡️ سپر امن (طلا، تتر و...)</option>
+                <option value="growth">🚀 موتور رشد (بیت‌کوین، اتریوم و...)</option>
+            </select>
+            <button class="btn" onclick="saveAsset()">ذخیره تغییرات</button>
+            <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف این دارایی</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer;">انصراف</button>
+        </div>
+    </div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('Wealth_DB_V5')) || [];
+    let config = JSON.parse(localStorage.getItem('Wealth_Cfg_V5')) || { toman: 162000, type: 'خنثی', note: '' };
+    let editIdx = null;
+
+    function saveConfig() {
+        config.toman = document.getElementById('cfg-toman').value;
+        config.type = document.getElementById('cfg-type').value;
+        config.note = document.getElementById('cfg-note').value;
+        localStorage.setItem('Wealth_Cfg_V5', JSON.stringify(config));
+    }
+
+    function openModal(i = null) {
+        editIdx = i;
+        document.getElementById('modal').style.display = 'flex';
+        const dBtn = document.getElementById('del-btn');
+        if(i !== null) {
+            const d = db[i];
+            document.getElementById('in-name').value = d.name;
+            document.getElementById('in-sym').value = d.sym;
+            document.getElementById('in-qty').value = d.qty;
+            document.getElementById('in-tqty').value = d.tqty;
+            document.getElementById('in-tprice').value = d.tprice;
+            document.getElementById('in-cat').value = d.cat;
+            dBtn.style.display = 'block';
+        } else {
+            document.querySelectorAll('#modal input').forEach(el => el.value = '');
+            dBtn.style.display = 'none';
+        }
+    }
+
+    function saveAsset() {
+        const obj = {
+            name: document.getElementById('in-name').value,
+            sym: document.getElementById('in-sym').value.toUpperCase(),
+            qty: parseFloat(document.getElementById('in-qty').value) || 0,
+            tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
+            tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
+            cat: document.getElementById('in-cat').value
+        };
+        if(editIdx !== null) db[editIdx] = obj; else db.push(obj);
+        localStorage.setItem('Wealth_DB_V5', JSON.stringify(db));
+        closeModal(); render();
+    }
+
+    function deleteAsset() {
+        if(confirm('آیا از حذف این دارایی مطمئن هستید؟')) {
+            db.splice(editIdx, 1);
+            localStorage.setItem('Wealth_DB_V5', JSON.stringify(db));
+            closeModal(); render();
+        }
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function render() {
+        const area = document.getElementById('list-area');
+        const grid = document.getElementById('grid-preview');
+        area.innerHTML = ''; grid.innerHTML = '';
+        db.forEach((item, i) => {
+            area.innerHTML += `<div class="card" onclick="openModal(${i})"><span>${item.name}</span> <small style="color:var(--primary)">${item.sym}</small></div>`;
+            grid.innerHTML += `<div class="card" style="font-size:0.85rem"><span>${item.name}</span> <span>${item.cat=='safe'?'🛡️':'🚀'}</span></div>`;
+        });
+        document.getElementById('cfg-toman').value = config.toman;
+        document.getElementById('cfg-type').value = config.type;
+        document.getElementById('cfg-note').value = config.note;
+    }
+    render();
+</script>
+</body>
+</html>

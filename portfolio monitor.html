@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ترمینال فوق حرفه‌ای مانیتورینگ ثروت</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root { --bg: #020406; --accent: #00f2ea; --gold: #d4af37; --danger: #ff4d4d; --success: #00ff88; --font: 'Vazirmatn', sans-serif; }
+        * { box-sizing: border-box; font-family: var(--font) !important; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        body { 
+            background: var(--bg); color: #fff; margin: 0; padding: 40px; 
+            background-image: radial-gradient(circle at 50% -20%, #152033 0%, transparent 70%);
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* بخش هدر و برندینگ */
+        header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 50px; }
+        .logo-box h1 { font-size: 3.5rem; font-weight: 900; margin: 0; line-height: 1; background: linear-gradient(to bottom, #fff 40%, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .live-tag { background: rgba(0, 242, 234, 0.1); color: var(--accent); padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 900; border: 1px solid var(--accent); box-shadow: 0 0 15px rgba(0,242,234,0.2); }
+
+        /* باکس ریسک و استراتژی */
+        .strategy-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .luxury-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 40px; padding: 35px; backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        
+        .risk-bar { height: 14px; background: rgba(0,0,0,0.5); border-radius: 20px; margin-top: 25px; position: relative; direction: rtl; overflow: visible; border: 1px solid #222; }
+        /* اصلاح نوار ریسک برای RTL: سبز راست، قرمز چپ */
+        .risk-gradient { height: 100%; width: 100%; border-radius: 20px; background: linear-gradient(to left, var(--success) 0%, #f59e0b 50%, var(--danger) 100%); }
+        .risk-cursor { position: absolute; top: -5px; width: 6px; height: 24px; background: #fff; border-radius: 10px; box-shadow: 0 0 20px #fff; z-index: 2; }
+
+        /* آمار طلایی */
+        .hero-stats { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 30px; margin-bottom: 50px; }
+        .stat-main { text-align: center; }
+        .label { font-size: 0.8rem; color: #475569; font-weight: 900; letter-spacing: 2px; margin-bottom: 15px; display: block; }
+        .val-usd { font-size: 5rem; font-weight: 900; line-height: 0.9; letter-spacing: -3px; }
+        .val-irt { font-size: 1.4rem; color: var(--accent); font-weight: 700; margin-top: 15px; }
+
+        /* دارایی‌ها */
+        .assets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
+        .a-card { 
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), transparent);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 45px; padding: 35px;
+            position: relative; overflow: hidden;
+        }
+        .a-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,242,234,0.1); }
+        .a-card::after { content: ""; position: absolute; top: 0; right: 40px; width: 60px; height: 5px; border-radius: 0 0 10px 10px; }
+        .a-card.safe::after { background: var(--success); box-shadow: 0 0 15px var(--success); }
+        .a-card.growth::after { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+
+        .big-price { font-size: 2.8rem; font-weight: 900; margin: 20px 0 5px; }
+        .prog-track { height: 6px; background: rgba(0,0,0,0.4); border-radius: 20px; margin-top: 25px; overflow: hidden; }
+        .prog-fill { height: 100%; background: #fff; box-shadow: 0 0 15px #fff; border-radius: 20px; }
+        
+        .watermark-perc { position: absolute; bottom: -20px; left: 20px; font-size: 6rem; font-weight: 900; color: rgba(255,255,255,0.02); pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-box">
+            <div class="live-tag">LIVE STRATEGIC MONITOR</div>
+            <h1>گزارش مدیریت ثروت</h1>
+        </div>
+        <div style="text-align: left;">
+            <div id="live-time" style="font-size: 2rem; font-weight: 900; color: #fff;">00:00:00</div>
+            <div id="m-status" style="color: var(--accent); font-weight: 900; font-size: 0.8rem;">وضعیت بازار: صعودی</div>
+        </div>
+    </header>
+
+    <div class="strategy-grid">
+        <div class="luxury-card">
+            <span class="label">تفسیر استراتژیک مدیر</span>
+            <div id="strat-note" style="font-size: 1.4rem; font-weight: 600; line-height: 1.8; color: #cbd5e1;">در حال تحلیل داده‌های زنجیره‌ای...</div>
+        </div>
+        <div class="luxury-card">
+            <span class="label">شاخص ریسک سبد (Risk Index)</span>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <div id="risk-val" style="font-size: 2.5rem; font-weight: 900; color: var(--danger);">0%</div>
+                <div id="risk-desc" style="font-size: 0.9rem; font-weight: 800; color: #64748b;">پر ریسک</div>
+            </div>
+            <div class="risk-bar">
+                <div class="risk-gradient"></div>
+                <div id="risk-cursor" class="risk-cursor" style="right: 0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-stats">
+        <div class="stat-main luxury-card">
+            <span class="label">ارزش فعلی کل</span>
+            <div id="total-usd" class="val-usd">$0</div>
+            <div id="total-irt" class="val-irt">0 تومان</div>
+        </div>
+        <div class="stat-main luxury-card" style="border-color: var(--gold); background: radial-gradient(circle at center, rgba(212,175,55,0.05), transparent);">
+            <span class="label" style="color:var(--gold)">هدف نهایی ثروت</span>
+            <div id="target-usd" class="val-usd" style="color:var(--gold); font-size: 6.5rem;">$0</div>
+            <div id="total-prog" style="color: var(--accent); font-weight: 900; font-size: 1.2rem; margin-top: 10px;">0% تکمیل شده</div>
+        </div>
+        <div class="stat-main luxury-card">
+            <span class="label">نرخ لحظه‌ای تتر</span>
+            <div id="rate-usd" class="val-usd" style="font-size: 3.5rem;">0</div>
+            <div class="val-irt">تومان (ارز مبنا)</div>
+        </div>
+    </div>
+
+    <div class="assets-container" id="asset-root"></div>
+
+<script>
+    let prices = {};
+
+    function updateTime() {
+        document.getElementById('live-time').innerText = new Date().toLocaleTimeString('fa-IR');
+    }
+
+    async function fetchData() {
+        const config = JSON.parse(localStorage.getItem('Wealth_Cfg_V5')) || { toman: 162000, type: 'خنثی', note: '' };
+        const db = JSON.parse(localStorage.getItem('Wealth_DB_V5')) || [];
+
+        document.getElementById('rate-usd').innerText = parseInt(config.toman).toLocaleString();
+        document.getElementById('strat-note').innerText = config.note || "در حال رصد هوشمند بازارهای جهانی...";
+        document.getElementById('m-status').innerText = `وضعیت بازار: ${config.type}`;
+
+        try {
+            const r = await fetch('https://api.binance.com/api/v3/ticker/price');
+            const data = await r.json();
+            data.forEach(d => prices[d.symbol] = parseFloat(d.price));
+            prices['USDT'] = 1;
+            render(db, config.toman);
+        } catch(e) { console.error("Price fetch failed"); }
+    }
+
+    function render(db, rate) {
+        const root = document.getElementById('asset-root');
+        root.innerHTML = '';
+        let tAct = 0, tFut = 0, growthUSD = 0;
+
+        db.forEach(item => {
+            const p = prices[item.sym] || 0;
+            const curUSD = item.qty * p;
+            const futUSD = item.tqty * item.tprice;
+            tAct += curUSD; tFut += futUSD;
+            if(item.cat === 'growth') growthUSD += curUSD;
+
+            const prog = futUSD > 0 ? (curUSD / futUSD) * 100 : 0;
+
+            root.innerHTML += `
+                <div class="a-card ${item.cat}">
+                    <div class="watermark-perc">${prog.toFixed(0)}%</div>
+                    <div style="position:relative; z-index:1">
+                        <div style="display:flex; justify-content:space-between; align-items:center">
+                            <span style="font-weight:900; font-size:1.5rem;">${item.name}</span>
+                            <span style="font-size:0.7rem; color:var(--accent); font-weight:900; border:1px solid var(--accent); padding:2px 10px; border-radius:10px;">${item.sym}</span>
+                        </div>
+                        <div class="big-price">$${curUSD.toLocaleString(undefined, {maximumFractionDigits:0})}</div>
+                        <div style="color:#64748b; font-weight:700;">≈ ${(curUSD * rate).toLocaleString()} تومان</div>
+                        <div class="prog-track"><div class="prog-fill" style="width:${Math.min(prog, 100)}%"></div></div>
+                        <div style="margin-top:15px; font-size:0.8rem; color:#475569; font-weight:700">هدف: ${item.tqty.toLocaleString()} واحد در قیمت $${item.tprice.toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // محاسبه ریسک بر اساس وزن دارایی‌های Growth
+        const riskPerc = tAct > 0 ? (growthUSD / tAct) * 100 : 0;
+        const riskCursor = document.getElementById('risk-cursor');
+        riskCursor.style.right = riskPerc + '%'; // در RTL، 0% یعنی راست (سبز)
+        
+        document.getElementById('risk-val').innerText = riskPerc.toFixed(0) + '%';
+        const rDesc = document.getElementById('risk-desc');
+        if(riskPerc < 30) { rDesc.innerText = "امن / محافظه‌کارانه"; rDesc.style.color = "var(--success)"; }
+        else if(riskPerc < 70) { rDesc.innerText = "متعادل / منطقی"; rDesc.style.color = "#f59e0b"; }
+        else { rDesc.innerText = "جسورانه / پر ریسک"; rDesc.style.color = "var(--danger)"; }
+
+        document.getElementById('total-usd').innerText = '$' + tAct.toLocaleString(undefined, {maximumFractionDigits:0});
+        document.getElementById('total-irt').innerText = (tAct * rate).toLocaleString() + ' تومان';
+        document.getElementById('target-usd').innerText = '$' + tFut.toLocaleString(undefined, {maximumFractionDigits:0});
+        
+        const totalProg = tFut > 0 ? (tAct / tFut) * 100 : 0;
+        document.getElementById('total-prog').innerText = totalProg.toFixed(1) + '% تکمیل شده تا ثروت نهایی';
+    }
+
+    setInterval(fetchData, 5000);
+    setInterval(updateTime, 1000);
+    fetchData();
+    updateTime();
+</script>
+</body>
+</html>
