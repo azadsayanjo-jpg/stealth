@@ -2,147 +2,79 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital v1 | Nikdad Monitor</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <title>Nikdad v1 | Monitor</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
-        :root {
-            --bg: #010204; --surface: rgba(15, 22, 36, 0.98); --border: rgba(0, 242, 255, 0.3);
-            --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --amber: #ffbf00;
-            --text-main: #ffffff; --text-sub: #cbd5e1; --font: 'Vazirmatn', sans-serif;
-        }
-        * { box-sizing: border-box; font-family: var(--font) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
-
-        #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; justify-content: center; align-items: center; padding: 10px; }
-        .modal-content { width: 98%; height: 92%; background: #000; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; position: relative; }
-
-        header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; padding: 15px 25px; background: var(--surface); border: 2px solid var(--border); border-radius: 25px; margin-bottom: 20px; }
-        .admin-header-note { background: rgba(255, 255, 255, 0.05); border-right: 3px solid var(--accent); padding: 8px 15px; border-radius: 10px; color: #fff; font-size: 0.95rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; border-radius: 22px; }
-        .stat-label { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: block; margin-bottom: 8px; }
-        .stat-value { font-size: 1.6rem; font-weight: 900; color: #fff; }
-        
-        .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
-        .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 25px; padding: 22px; cursor: pointer; transition: 0.3s; }
-        .asset-card:hover { border-color: var(--accent); transform: translateY(-5px); }
-        
-        .ac-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .ac-price { color: var(--success); font-weight: 900; }
-        .ac-main-val .usd { font-size: 2rem; font-weight: 900; color: #fff; display: block; }
-
-        .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .bar-group { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-bg { height: 6px; background: #000; border-radius: 10px; overflow: hidden; margin-top: 8px; }
-        .bar-fill { height: 100%; transition: 1.2s; }
-        .fill-cyan { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-        .fill-gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
-        #live-clock { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+        :root { --bg: #010204; --surface: rgba(15, 22, 36, 0.98); --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --font: 'Vazirmatn', sans-serif; }
+        body { background: var(--bg); color: #fff; padding: 20px; font-family: var(--font); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface); padding: 20px; border-radius: 20px; border: 1px solid rgba(0,242,255,0.2); }
+        .asset-card { background: var(--surface); padding: 20px; border-radius: 20px; border: 1px solid rgba(0,242,255,0.1); margin-bottom: 10px; }
+        .bar-bg { height: 8px; background: #000; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--accent); transition: 1s; }
     </style>
 </head>
 <body>
-
-    <div id="chart-modal">
-        <div class="modal-content">
-            <button style="position:absolute;top:15px;left:15px;z-index:101;background:#ff3366;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:bold;cursor:pointer;" onclick="closeChart()">بستن ×</button>
-            <div id="tradingview-widget" style="height: 100%; width: 100%;"></div>
-        </div>
-    </div>
-
-    <header>
-        <div><h1 style="margin:0; font-size:1rem; font-weight:900;">NIKDAD | SC V1</h1><span id="market-status" style="font-size:0.7rem;">...</span></div>
-        <div class="admin-header-note" id="strat-text">در حال اتصال...</div>
-        <div id="live-clock">00:00:00</div>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="font-size: 1.2rem; color: var(--accent);">NIKDAD MONITOR</h1>
+        <div id="strat-text" style="font-size: 0.9rem; opacity: 0.8;">در حال دریافت...</div>
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card"><span class="stat-label">ارزش پورتفو</span><div id="total-usd" class="stat-value" style="color:var(--success)">$0</div><span id="total-irt" style="font-size:0.8rem">0 تومان</span></div>
-        <div class="stat-card"><span class="stat-label">هدف نهایی</span><div id="target-wealth" class="stat-value" style="color:var(--gold)">$0</div><span id="total-progress" style="font-size:0.8rem">0% تکمیل</span></div>
-        <div class="stat-card"><span class="stat-label">GAP تا هدف</span><div id="target-gap" class="stat-value" style="color:var(--amber)">$0</div><span id="gap-irt" style="font-size:0.8rem">0 تومان مانده</span></div>
-        <div class="stat-card"><span class="stat-label">شاخص ریسک</span><div id="risk-score" class="stat-value">0%</div><div class="bar-bg"><div id="risk-fill" style="height:100%; transition:1s;"></div></div></div>
+        <div class="stat-card"><span>ارزش کل پورتفو</span><div id="total-usd" style="font-size: 1.5rem; color: var(--success); font-weight: 900;">$0</div></div>
+        <div class="stat-card"><span>هدف نهایی</span><div id="target-wealth" style="font-size: 1.5rem; color: var(--gold); font-weight: 900;">$0</div></div>
     </div>
 
-    <div id="asset-root" class="assets-grid"></div>
+    <div id="asset-root"></div>
 
 <script>
-    const firebaseConfig = { /* تنظیمات فایربیس خود را اینجا کپی کنید */ };
-    firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('nikdad_wealth_v1');
-
+    const DB_KEY = 'Nikdad_Assets_V1';
+    const CFG_KEY = 'Nikdad_Config_V1';
     let prices = {};
 
-    function openChart(symbol) {
-        document.getElementById('chart-modal').style.display = 'flex';
-        let clean = symbol.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-        if (clean.endsWith("USDT")) clean = clean.replace("USDT", "");
-        document.getElementById('tradingview-widget').innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:${clean}USDT&interval=D&theme=dark" style="width: 100%; height: 100%; border: none;"></iframe>`;
-    }
-    function closeChart() { document.getElementById('chart-modal').style.display = 'none'; }
+    async function update() {
+        const db = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        const config = JSON.parse(localStorage.getItem(CFG_KEY)) || { toman: 70000, note: '' };
+        document.getElementById('strat-text').innerText = config.note;
 
-    dbRef.on('value', async (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        document.getElementById('strat-text').innerText = data.config.note;
         try {
             const r = await fetch('https://api.binance.com/api/v3/ticker/price');
-            const pData = await r.json();
-            pData.forEach(d => prices[d.symbol] = parseFloat(d.price));
+            const data = await r.json();
+            data.forEach(d => prices[d.symbol] = parseFloat(d.price));
             prices['USDT'] = 1;
-            render(data.assets, data.config.toman, data.config.type);
-        } catch(e) { render(data.assets, data.config.toman, data.config.type); }
-    });
-
-    function render(db, rate, type) {
-        const root = document.getElementById('asset-root');
-        root.innerHTML = '';
-        let tAct = 0, tFut = 0, growthUSD = 0;
-        
-        const statusEl = document.getElementById('market-status');
-        statusEl.innerText = `وضعیت: ${type}`;
-        statusEl.style.color = type === 'صعودی' ? 'var(--success)' : (type === 'نزولی' ? 'var(--amber)' : 'var(--accent)');
-
-        db.forEach(item => {
-            const clean = item.sym.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-            const p = prices[clean + "USDT"] || prices[clean] || 0;
-            const curUSD = item.qty * p;
-            const futUSD = item.tqty * item.tprice;
-            tAct += curUSD; tFut += futUSD;
-            if(item.cat === 'growth') growthUSD += curUSD;
-
-            const qtyP = Math.min((item.qty / item.tqty) * 100 || 0, 100);
-            const prcP = Math.min((p / item.tprice) * 100 || 0, 100);
-
-            root.innerHTML += `
-                <div class="asset-card" onclick="openChart('${item.sym}')">
-                    <div class="ac-header"><b>${item.name}</b> <span class="ac-price">$${p.toLocaleString()}</span></div>
-                    <div class="ac-main-val"><span class="usd">$${curUSD.toLocaleString()}</span><span style="font-size:0.8rem; color:var(--text-sub)">≈ ${(curUSD * rate).toLocaleString()} تومان</span></div>
-                    <div class="dual-bars">
-                        <div class="bar-group"><span>موجودی ${qtyP.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill fill-cyan" style="width:${qtyP}%"></div></div></div>
-                        <div class="bar-group"><span>هدف قیمت ${prcP.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill fill-gold" style="width:${prcP}%"></div></div></div>
-                    </div>
-                </div>`;
-        });
-
-        document.getElementById('total-usd').innerText = '$' + tAct.toLocaleString();
-        document.getElementById('total-irt').innerText = (tAct * rate).toLocaleString() + ' تومان';
-        document.getElementById('target-wealth').innerText = '$' + tFut.toLocaleString();
-        const gap = Math.max(tFut - tAct, 0);
-        document.getElementById('target-gap').innerText = '$' + gap.toLocaleString();
-        document.getElementById('gap-irt').innerText = (gap * rate).toLocaleString() + ' تومان مانده';
-        document.getElementById('total-progress').innerText = ((tAct / tFut) * 100 || 0).toFixed(1) + '% تکمیل شده';
-
-        const risk = tAct > 0 ? (growthUSD / tAct) * 100 : 0;
-        document.getElementById('risk-score').innerText = risk.toFixed(0) + '%';
-        const rf = document.getElementById('risk-fill');
-        rf.style.width = risk + '%';
-        rf.style.backgroundColor = risk < 40 ? 'var(--success)' : (risk < 75 ? 'var(--gold)' : 'var(--amber)');
+            render(db, config.toman);
+        } catch(e) { render(db, config.toman); }
     }
 
-    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
+    function render(db, rate) {
+        const root = document.getElementById('asset-root');
+        root.innerHTML = '';
+        let tAct = 0, tFut = 0;
+
+        db.forEach(item => {
+            const p = prices[item.sym + "USDT"] || prices[item.sym] || 0;
+            const curUSD = item.qty * p;
+            tAct += curUSD;
+            tFut += (item.tqty * item.tprice);
+            const progress = Math.min((item.qty / item.tqty) * 100, 100) || 0;
+
+            root.innerHTML += `
+                <div class="asset-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${item.name} (${item.sym})</b>
+                        <span style="color:var(--success)">$${p.toLocaleString()}</span>
+                    </div>
+                    <div style="font-size:1.5rem; margin:10px 0;">$${curUSD.toLocaleString()}</div>
+                    <div style="font-size:0.8rem;">پیشرفت موجودی: ${progress.toFixed(1)}%</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${progress}%"></div></div>
+                </div>`;
+        });
+        document.getElementById('total-usd').innerText = '$' + tAct.toLocaleString();
+        document.getElementById('target-wealth').innerText = '$' + tFut.toLocaleString();
+    }
+
+    setInterval(update, 5000);
+    update();
 </script>
 </body>
 </html>
