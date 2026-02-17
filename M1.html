@@ -240,9 +240,10 @@
         rf.style.backgroundColor = risk < 40 ? 'var(--success)' : (risk < 75 ? 'var(--gold)' : 'var(--amber)');
     }
 
-    setInterval(update, 5000);
+    setInterval(update, 2500);
     setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
     update();
 </script>
 </body>
 </html>
+
