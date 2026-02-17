@@ -27,17 +27,14 @@
     </style>
 </head>
 <body>
-
     <aside>
         <h2 style="margin-bottom:5px; font-weight: 900; color: var(--primary);">STEALTH<span style="color:#fff">CAPITAL</span></h2>
         <p style="font-size: 0.6rem; color: #64748b; margin-bottom: 30px; letter-spacing: 2px;">V1.0 ADMIN TERMINAL</p>
-        
         <div class="box" style="border: 1px solid var(--primary); background: rgba(0, 242, 255, 0.05);">
             <label style="color: var(--primary);">🧮 محاسبه سریع تخصیص سرمایه ($)</label>
             <input type="number" id="quick-calc" placeholder="مبلغ کل را وارد کنید..." oninput="runQuickCalc()">
             <div id="calc-output"></div>
         </div>
-
         <div class="box">
             <label>نرخ تتر (تومان)</label>
             <input type="number" id="cfg-toman" oninput="saveConfig()">
@@ -48,7 +45,6 @@
                 <option value="نزولی">نزولی (Bearish)</option>
             </select>
         </div>
-
         <div class="box">
             <label>انتخاب استراتژی آماده</label>
             <select class="quick-note-select" onchange="applyQuickNote(this.value)">
@@ -62,7 +58,11 @@
             <label style="margin-top:10px;">متن نهایی پیام (Header)</label>
             <textarea id="cfg-note" rows="3" oninput="saveConfig()" placeholder="متن استراتژی..."></textarea>
         </div>
-
+        <div class="box" style="border: 1px dashed #333;">
+            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem; margin-bottom: 5px;" onclick="exportData()">📥 خروجی بک‌آپ</button>
+            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem;" onclick="document.getElementById('file-input').click()">📤 بارگذاری بک‌آپ</button>
+            <input type="file" id="file-input" style="display:none" onchange="importData(event)">
+        </div>
         <button class="btn" onclick="openModal()">+ افزودن دارایی جدید</button>
         <div id="list-area"></div>
     </aside>
@@ -88,7 +88,7 @@
             </div>
             <label>قیمت هدف (دلار)</label>
             <input type="number" id="in-tprice" step="any">
-            <label>دسته‌بندی</label>
+            <label>دسته‌بندی (شاخص ریسک)</label>
             <select id="in-cat">
                 <option value="safe">🛡️ معمولی (Safe)</option>
                 <option value="growth">🚀 رشد شارپ (Growth/Risk)</option>
@@ -100,16 +100,16 @@
     </div>
 
 <script>
-    // تنظیمات فایربیس شما
+    // تنظیمات فایربیس
     const firebaseConfig = { databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('v1_data');
+    const dbRef = firebase.database().ref('StealthCapital_V1');
 
     let db = [];
     let config = { toman: 70000, type: 'نزولی', note: 'آماده برای شکار فرصت‌ها' };
     let editIdx = null;
 
-    // دریافت لحظه‌ای داده‌ها
+    // دریافت هوشمند داده‌ها
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if(data) {
@@ -119,12 +119,15 @@
         }
     });
 
-    function sync() { dbRef.set({ db, config }); }
+    // تابع جایگزین localStorage برای ذخیره در ابر
+    function syncToFirebase() {
+        dbRef.set({ db, config });
+    }
 
     function runQuickCalc() {
         const val = document.getElementById('quick-calc').value || 0;
         const out = document.getElementById('calc-output');
-        const strategy = [{n:'تتر (25%)',v:0.25},{n:'طلا (25%)',v:0.25},{n:'بیت‌کوین (20%)',v:0.2},{n:'اتریوم (15%)',v:0.15},{n:'زی‌کاش (10%)',v:0.1},{n:'دوج (5%)',v:0.05}];
+        const strategy = [{n: 'تتر (25%)', v: 0.25}, {n: 'طلا (25%)', v: 0.25}, {n: 'بیت‌کوین (20%)', v: 0.20}, {n: 'اتریوم (15%)', v: 0.15}, {n: 'زی‌کاش (10%)', v: 0.10}, {n: 'دوج (5%)', v: 0.05}];
         out.innerHTML = strategy.map(s => `<div class="calc-row"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
     }
 
@@ -132,7 +135,7 @@
         config.toman = document.getElementById('cfg-toman').value;
         config.type = document.getElementById('cfg-type').value;
         config.note = document.getElementById('cfg-note').value;
-        sync();
+        syncToFirebase(); // ذخیره ابری
     }
 
     function applyQuickNote(val) { if(val) { document.getElementById('cfg-note').value = val; saveConfig(); } }
@@ -165,10 +168,10 @@
             cat: document.getElementById('in-cat').value
         };
         if(editIdx !== null) db[editIdx] = obj; else db.push(obj);
-        sync(); closeModal();
+        syncToFirebase(); closeModal();
     }
 
-    function deleteAsset() { if(confirm('حذف شود؟')) { db.splice(editIdx, 1); sync(); closeModal(); } }
+    function deleteAsset() { if(confirm('حذف شود؟')) { db.splice(editIdx, 1); syncToFirebase(); closeModal(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     function render() {
@@ -177,18 +180,37 @@
         area.innerHTML = ''; grid.innerHTML = '';
         db.forEach((item, i) => {
             area.innerHTML += `<div class="card" onclick="openModal(${i})"><span>${item.name}</span><span style="color:var(--primary)">${item.sym}</span></div>`;
-            grid.innerHTML += `<div class="card" style="flex-direction:column; align-items:start; gap:10px;">
-                <b style="color:var(--primary)">${item.name}</b>
-                <div style="font-size:0.8rem; color:#64748b;">موجودی: ${item.qty} / تارگت: ${item.tqty}</div>
+            grid.innerHTML += `<div class="card" onclick="openModal(${i})" style="flex-direction:column; align-items:start; gap:10px;">
+                <div style="display:flex; justify-content:space-between; width:100%;"><b style="color:var(--primary)">${item.name}</b><span>${item.cat=='safe'?'🛡️':'🚀'}</span></div>
+                <div style="font-size:0.8rem; color:#64748b;">موجودی: ${item.qty} / هدف: ${item.tqty}<br>قیمت هدف: $${item.tprice}</div>
             </div>`;
         });
         document.getElementById('cfg-toman').value = config.toman;
         document.getElementById('cfg-type').value = config.type;
         document.getElementById('cfg-note').value = config.note;
-        
-        const preview = document.getElementById('market-preview');
-        preview.innerText = `وضعیت: ${config.type}`;
-        preview.style.color = config.type === 'صعودی' ? 'var(--success)' : (config.type === 'نزولی' ? 'var(--danger)' : 'var(--primary)');
+        updateMarketPreview();
+    }
+
+    function updateMarketPreview() {
+        const p = document.getElementById('market-preview');
+        p.innerText = `وضعیت: ${config.type}`;
+        p.style.color = config.type === 'صعودی' ? 'var(--success)' : (config.type === 'نزولی' ? 'var(--danger)' : 'var(--primary)');
+    }
+
+    // بک‌آپ‌ها هم از دیتای محلی که با فایربیس همگام است استفاده می‌کنند
+    function exportData() {
+        const blob = new Blob([JSON.stringify({db, config})], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = 'StealthCapital_Backup.json'; a.click();
+    }
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const data = JSON.parse(ev.target.result);
+            db = data.db; config = data.config;
+            syncToFirebase();
+        };
+        reader.readAsText(e.target.files[0]);
     }
 </script>
 </body>
