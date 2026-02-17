@@ -2,8 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mehdad-Ex v1 | Monitor</title>
+    <title>Nikdad v1 | Monitor</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
         :root {
@@ -14,54 +13,26 @@
         * { box-sizing: border-box; font-family: var(--font) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
 
-        #chart-modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); 
-            z-index: 10000; justify-content: center; align-items: center; padding: 10px;
-        }
-        .modal-content { width: 98%; height: 92%; background: #000; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; }
+        #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { width: 98%; height: 92%; background: #000; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; position: relative; }
 
         header {
             display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; padding: 15px 25px; 
             background: var(--surface); border: 2px solid var(--border); border-radius: 25px; margin-bottom: 20px;
         }
-
-        .header-brand { display: flex; flex-direction: column; gap: 5px; }
-        .header-brand h1 { margin:0; font-size:1rem; letter-spacing:2px; font-weight:900; color: #fff; }
+        .admin-header-note { background: rgba(255, 255, 255, 0.05); border-right: 3px solid var(--accent); padding: 8px 15px; border-radius: 10px; font-weight: 800; }
         
-        .admin-header-note {
-            background: rgba(255, 255, 255, 0.05); border-right: 3px solid var(--accent);
-            padding: 8px 15px; border-radius: 10px; color: #fff; font-size: 0.95rem;
-            font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; border-radius: 22px; }
-        .stat-label { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: block; margin-bottom: 8px; }
-        .stat-value { font-size: 1.6rem; font-weight: 900; color: #fff; }
-        .stat-sub { font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; display: block; font-weight: bold; }
+        .stat-value { font-size: 1.6rem; font-weight: 900; }
 
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
         .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 25px; padding: 22px; cursor: pointer; }
-        .asset-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 242, 255, 0.15); }
         
-        .ac-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .ac-title b { font-size: 1.3rem; color: var(--accent); }
-        .ac-price { font-family: monospace; color: var(--success); font-size: 1.1rem; font-weight: 900; }
-
-        .ac-main-val .usd { font-size: 2rem; font-weight: 900; color: #fff; display: block; }
-        .ac-main-val .irt { font-size: 0.9rem; color: var(--text-sub); font-weight: bold; }
-
-        .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .bar-group { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-info { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 8px; font-weight: 900; }
-        .bar-numbers { font-family: monospace; font-size: 0.85rem; color: #fff; font-weight: bold; display: block; margin-bottom: 8px; }
-        
-        .bar-bg { height: 6px; background: #000; border-radius: 10px; overflow: hidden; }
+        .bar-bg { height: 6px; background: #000; border-radius: 10px; overflow: hidden; margin-top: 10px; }
         .bar-fill { height: 100%; transition: 1.2s; }
-        .fill-cyan { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-        .fill-gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
-        
-        #market-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 8px; border: 1.5px solid; font-weight: 900; white-space: nowrap; }
+        .fill-cyan { background: var(--accent); }
+        .fill-gold { background: var(--gold); }
         #live-clock { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
     </style>
 </head>
@@ -69,82 +40,41 @@
 
     <div id="chart-modal">
         <div class="modal-content">
-            <button style="position:absolute;top:15px;left:15px;z-index:101;background:#ff3366;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:bold;cursor:pointer;" onclick="closeChart()">بستن ×</button>
+            <button style="position:absolute;top:15px;left:15px;z-index:101;background:#ff3366;color:#fff;border:none;padding:10px;border-radius:10px;" onclick="closeChart()">بستن ×</button>
             <div id="tradingview-widget" style="height: 100%; width: 100%;"></div>
         </div>
     </div>
 
     <header>
-        <div class="header-brand">
-            <h1>MEHDAD-EX V1</h1>
-            <span id="market-status">...</span>
+        <div>
+            <h1 style="margin:0; font-size:1rem; letter-spacing:2px;">NIKDAD CAPITAL V1</h1>
+            <span id="market-status" style="font-size:0.7rem;">...</span>
         </div>
-        <div class="admin-header-note" id="strat-text">در حال دریافت استراتژی...</div>
+        <div class="admin-header-note" id="strat-text">در حال دریافت...</div>
         <div id="live-clock">00:00:00</div>
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-label">ارزش پورتفو</span>
-            <div id="total-usd" class="stat-value" style="color: var(--success);">$0</div>
-            <span id="total-irt" class="stat-sub">0 تومان</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">هدف نهایی</span>
-            <div id="target-wealth" class="stat-value" style="color: var(--gold);">$0</div>
-            <span id="total-progress" class="stat-sub" style="color: #fff;">0% رشد</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">گپ تا هدف (GAP)</span>
-            <div id="target-gap" class="stat-value" style="color: var(--amber);">$0</div>
-            <span id="gap-irt" class="stat-sub">0 تومان مانده</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">شاخص ریسک</span>
-            <div id="risk-score" class="stat-value">0%</div>
-            <div style="height:6px; background:#000; border-radius:10px; margin-top:10px; overflow:hidden;">
-                <div id="risk-fill" style="height:100%; transition:1s;"></div>
-            </div>
-        </div>
+        <div class="stat-card"><span>ارزش پورتفو</span><div id="total-usd" class="stat-value" style="color:var(--success)">$0</div></div>
+        <div class="stat-card"><span>هدف نهایی</span><div id="target-wealth" class="stat-value" style="color:var(--gold)">$0</div></div>
     </div>
 
     <div id="asset-root" class="assets-grid"></div>
 
 <script>
     let prices = {};
-
     function openChart(symbol) {
         const modal = document.getElementById('chart-modal');
-        const container = document.getElementById('tradingview-widget');
         modal.style.display = 'flex';
-        let clean = symbol.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-        if (clean.endsWith("USDT")) clean = clean.replace("USDT", "");
-        const tvSym = `BINANCE:${clean}USDT`;
-        container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=${tvSym}&interval=D&theme=dark&style=1" style="width: 100%; height: 100%; border: none;"></iframe>`;
+        let clean = symbol.replace("USDT", "").toUpperCase();
+        document.getElementById('tradingview-widget').innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:${clean}USDT&interval=D&theme=dark" style="width: 100%; height: 100%; border: none;"></iframe>`;
     }
-
     function closeChart() { document.getElementById('chart-modal').style.display = 'none'; }
 
     async function update() {
-        const cfg = JSON.parse(localStorage.getItem('Wealth_Cfg_V5')) || { toman: 70000, type: 'خنثی', note: 'بدون یادداشت' };
+        const cfg = JSON.parse(localStorage.getItem('Wealth_Cfg_V5')) || { toman: 70000, type: 'خنثی', note: '' };
         const db = JSON.parse(localStorage.getItem('Wealth_DB_V5')) || [];
-        
-        const status = document.getElementById('market-status');
-        
-        if(cfg.type === 'صعودی') {
-            status.innerText = 'وضعیت: BULLISH (در سود)';
-            status.style.color = 'var(--success)';
-        } else if(cfg.type === 'نزولی') {
-            status.innerText = 'وضعیت: BEARISH ( ارزان-تکمیل خرید)';
-            status.style.color = 'var(--amber)';
-        } else {
-            status.innerText = 'وضعیت: NEUTRAL (تکمیل خرید)';
-            status.style.color = 'var(--accent)';
-        }
-        
-        status.style.borderColor = status.style.color;
         document.getElementById('strat-text').innerText = cfg.note;
-        document.getElementById('strat-text').style.borderRightColor = status.style.color;
 
         try {
             const r = await fetch('https://api.binance.com/api/v3/ticker/price');
@@ -158,60 +88,21 @@
     function render(db, rate) {
         const root = document.getElementById('asset-root');
         root.innerHTML = '';
-        let tAct = 0, tFut = 0, growthUSD = 0;
-
+        let tAct = 0, tFut = 0;
         db.forEach(item => {
-            const clean = item.sym.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-            const lookup = clean.endsWith("USDT") ? clean : clean + "USDT";
-            const p = prices[lookup] || 0;
+            const p = prices[item.sym + "USDT"] || prices[item.sym] || 0;
             const curUSD = item.qty * p;
-            const futUSD = item.tqty * item.tprice;
-            tAct += curUSD; tFut += futUSD;
-            if(item.cat === 'growth') growthUSD += curUSD;
-
+            tAct += curUSD; tFut += (item.tqty * item.tprice);
             const qtyP = Math.min((item.qty / item.tqty) * 100 || 0, 100);
-            const prcP = Math.min((p / item.tprice) * 100 || 0, 100);
-
-            root.innerHTML += `
-                <div class="asset-card" onclick="openChart('${item.sym}')">
-                    <div class="ac-header">
-                        <div class="ac-title"><b>${item.name}</b> <small style="color:var(--text-sub)">${item.sym}</small></div>
-                        <div class="ac-price">$${p.toLocaleString()}</div>
-                    </div>
-                    <div class="ac-main-val">
-                        <span class="usd">$${curUSD.toLocaleString()}</span>
-                        <span class="irt">≈ ${(curUSD * rate).toLocaleString()} تومان</span>
-                    </div>
-                    <div class="dual-bars">
-                        <div class="bar-group">
-                            <div class="bar-info"><span>موجودی</span><span>${qtyP.toFixed(0)}%</span></div>
-                            <span class="bar-numbers">${item.qty.toLocaleString()} <span style="color:var(--accent)">/</span> ${item.tqty.toLocaleString()}</span>
-                            <div class="bar-bg"><div class="bar-fill fill-cyan" style="width:${qtyP}%"></div></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar-info"><span>هدف قیمت</span><span>${prcP.toFixed(0)}%</span></div>
-                            <span class="bar-numbers">$${p.toLocaleString()} <span style="color:var(--gold)">/</span> $${item.tprice.toLocaleString()}</span>
-                            <div class="bar-bg"><div class="bar-fill fill-gold" style="width:${prcP}%"></div></div>
-                        </div>
-                    </div>
-                </div>`;
+            root.innerHTML += `<div class="asset-card" onclick="openChart('${item.sym}')">
+                <b>${item.name}</b> <span style="float:left">$${p.toLocaleString()}</span>
+                <div style="font-size:1.8rem; margin:10px 0;">$${curUSD.toLocaleString()}</div>
+                <div class="bar-bg"><div class="bar-fill fill-cyan" style="width:${qtyP}%"></div></div>
+            </div>`;
         });
-
         document.getElementById('total-usd').innerText = '$' + tAct.toLocaleString();
-        document.getElementById('total-irt').innerText = (tAct * rate).toLocaleString() + ' تومان';
         document.getElementById('target-wealth').innerText = '$' + tFut.toLocaleString();
-        const gap = Math.max(tFut - tAct, 0);
-        document.getElementById('target-gap').innerText = '$' + gap.toLocaleString();
-        document.getElementById('gap-irt').innerText = (gap * rate).toLocaleString() + ' تومان مانده';
-        document.getElementById('total-progress').innerText = ((tAct / tFut) * 100 || 0).toFixed(1) + '% تکمیل شده';
-
-        const risk = tAct > 0 ? (growthUSD / tAct) * 100 : 0;
-        document.getElementById('risk-score').innerText = risk.toFixed(0) + '%';
-        const rf = document.getElementById('risk-fill');
-        rf.style.width = risk + '%';
-        rf.style.backgroundColor = risk < 40 ? 'var(--success)' : (risk < 75 ? 'var(--gold)' : 'var(--amber)');
     }
-
     setInterval(update, 5000);
     setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
     update();
