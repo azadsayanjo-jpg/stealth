@@ -8,40 +8,59 @@
     <style>
         :root {
             --bg: #010204; --surface: rgba(15, 22, 36, 0.98); --border: rgba(0, 242, 255, 0.3);
-            --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --amber: #ffbf00;
+            --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --amber: #ffbf00; /* جایگزین قرمز برای حالت ارزان */
             --text-main: #ffffff; --text-sub: #cbd5e1; --font: 'Vazirmatn', sans-serif;
         }
         * { box-sizing: border-box; font-family: var(--font) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
 
-        #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; justify-content: center; align-items: center; padding: 10px; }
+        #chart-modal { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); 
+            z-index: 10000; justify-content: center; align-items: center; padding: 10px;
+        }
         .modal-content { width: 98%; height: 92%; background: #000; border: 2px solid var(--accent); border-radius: 20px; overflow: hidden; }
 
-        header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; padding: 15px 25px; background: var(--surface); border: 2px solid var(--border); border-radius: 25px; margin-bottom: 20px; }
+        header {
+            display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; padding: 15px 25px; 
+            background: var(--surface); border: 2px solid var(--border); border-radius: 25px; margin-bottom: 20px;
+        }
+
         .header-brand { display: flex; flex-direction: column; gap: 5px; }
         .header-brand h1 { margin:0; font-size:1rem; letter-spacing:2px; font-weight:900; color: #fff; }
-        .admin-header-note { background: rgba(255, 255, 255, 0.05); border-right: 3px solid var(--accent); padding: 8px 15px; border-radius: 10px; color: #fff; font-size: 0.95rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .admin-header-note {
+            background: rgba(255, 255, 255, 0.05); border-right: 3px solid var(--accent);
+            padding: 8px 15px; border-radius: 10px; color: #fff; font-size: 0.95rem;
+            font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; border-radius: 22px; }
         .stat-label { font-size: 0.75rem; color: var(--accent); font-weight: bold; display: block; margin-bottom: 8px; }
         .stat-value { font-size: 1.6rem; font-weight: 900; color: #fff; }
         .stat-sub { font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; display: block; font-weight: bold; }
+
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
         .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 25px; padding: 22px; cursor: pointer; }
         .asset-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 242, 255, 0.15); }
+        
         .ac-header { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
         .ac-title b { font-size: 1.3rem; color: var(--accent); }
         .ac-price { font-family: monospace; color: var(--success); font-size: 1.1rem; font-weight: 900; }
+
         .ac-main-val .usd { font-size: 2rem; font-weight: 900; color: #fff; display: block; }
         .ac-main-val .irt { font-size: 0.9rem; color: var(--text-sub); font-weight: bold; }
+
         .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .bar-group { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .bar-info { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 8px; font-weight: 900; }
         .bar-numbers { font-family: monospace; font-size: 0.85rem; color: #fff; font-weight: bold; display: block; margin-bottom: 8px; }
+        
         .bar-bg { height: 6px; background: #000; border-radius: 10px; overflow: hidden; }
         .bar-fill { height: 100%; transition: 1.2s; }
         .fill-cyan { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
         .fill-gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+        
         #market-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 8px; border: 1.5px solid; font-weight: 900; white-space: nowrap; }
         #live-clock { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
     </style>
@@ -60,7 +79,7 @@
             <h1>STEALTH CAPITAL V1</h1>
             <span id="market-status">...</span>
         </div>
-        <div class="admin-header-note" id="strat-text">در حال اتصال به سرور...</div>
+        <div class="admin-header-note" id="strat-text">در حال دریافت استراتژی...</div>
         <div id="live-clock">00:00:00</div>
     </header>
 
@@ -95,82 +114,85 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // --- تنظیمات فایربیس (دقیقاً مشابه فایل ادمین پر شود) ---
+    // --- تنظیمات فایربیس (این قسمت را با اطلاعات خود پر کنید - دقیقاً مشابه ادمین) ---
     const firebaseConfig = {
         databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/",
-        // apiKey: "API_KEY_SHOMA",
-        // authDomain: "PROJECT_ID.firebaseapp.com",
-        // projectId: "PROJECT_ID",
+        // apiKey: "YOUR_API_KEY",
+        // authDomain: "YOUR_PROJECT.firebaseapp.com",
+        // projectId: "YOUR_PROJECT_ID",
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const dbRef = getDatabase(app);
 
-    let dbData = [];
-    let configData = { toman: 70000, type: 'خنثی', note: '...' };
-    let marketPrices = {};
+    let prices = {};
+    let db = []; // دیتابیس لوکال برای رندر
+    let config = { toman: 70000, type: 'خنثی', note: 'بدون یادداشت' };
 
-    // لیسن کردن به دیتابیس برای آپدیت آنی
-    const dbRef = ref(db, 'sc_v1');
-    onValue(dbRef, (snapshot) => {
-        const val = snapshot.val();
-        if(val) {
-            configData = val.config || configData;
-            dbData = [];
-            if(val.assets) {
-                Object.keys(val.assets).forEach(key => {
-                    dbData.push(val.assets[key]);
-                });
-            }
-            updateUI(); // هر وقت دیتابیس تغییر کرد، UI آپدیت شود
+    // --- لیسنر فایربیس ---
+    const mainRef = ref(dbRef, 'sc_v1_data');
+    onValue(mainRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            if(data.db) db = data.db;
+            if(data.config) config = data.config;
+            update(); // به محض تغییر دیتابیس، UI آپدیت شود
         }
     });
 
-    // دریافت قیمت‌ها از بایننس (هر 10 ثانیه)
-    async function fetchPrices() {
-        try {
-            const r = await fetch('https://api.binance.com/api/v3/ticker/price');
-            const data = await r.json();
-            data.forEach(d => marketPrices[d.symbol] = parseFloat(d.price));
-            marketPrices['USDT'] = 1;
-            updateUI();
-        } catch(e) { console.log('Price fetch error'); }
+    window.openChart = function(symbol) {
+        const modal = document.getElementById('chart-modal');
+        const container = document.getElementById('tradingview-widget');
+        modal.style.display = 'flex';
+        let clean = symbol.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        if (clean.endsWith("USDT")) clean = clean.replace("USDT", "");
+        const tvSym = `BINANCE:${clean}USDT`;
+        container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=${tvSym}&interval=D&theme=dark&style=1" style="width: 100%; height: 100%; border: none;"></iframe>`;
     }
-    
-    // اجرای اولیه قیمت
-    fetchPrices();
-    setInterval(fetchPrices, 10000); 
 
-    function updateUI() {
-        // آپدیت هدر و استراتژی
+    window.closeChart = function() { document.getElementById('chart-modal').style.display = 'none'; }
+
+    async function update() {
         const status = document.getElementById('market-status');
-        if(configData.type === 'صعودی') {
+        
+        // منطق جدید نام‌گذاری و رنگ‌بندی بدون قرمز
+        if(config.type === 'صعودی') {
             status.innerText = 'وضعیت: BULLISH (در سود)';
             status.style.color = 'var(--success)';
-        } else if(configData.type === 'نزولی') {
-            status.innerText = 'وضعیت: BEARISH (ارزان)';
-            status.style.color = 'var(--amber)';
+        } else if(config.type === 'نزولی') {
+            status.innerText = 'وضعیت: BEARISH ( ارزان-تکمیل خرید)';
+            status.style.color = 'var(--amber)'; 
         } else {
             status.innerText = 'وضعیت: NEUTRAL (تکمیل خرید)';
             status.style.color = 'var(--accent)';
         }
+        
         status.style.borderColor = status.style.color;
-        document.getElementById('strat-text').innerText = configData.note;
+        document.getElementById('strat-text').innerText = config.note;
         document.getElementById('strat-text').style.borderRightColor = status.style.color;
 
-        // محاسبات دارایی
+        try {
+            const r = await fetch('https://api.binance.com/api/v3/ticker/price');
+            const data = await r.json();
+            data.forEach(d => prices[d.symbol] = parseFloat(d.price));
+            prices['USDT'] = 1;
+            render(db, config.toman);
+        } catch(e) { render(db, config.toman); }
+    }
+
+    function render(db, rate) {
         const root = document.getElementById('asset-root');
         root.innerHTML = '';
         let tAct = 0, tFut = 0, growthUSD = 0;
-        const rate = configData.toman;
 
-        dbData.forEach(item => {
+        // چک کردن خالی بودن دیتابیس
+        if (!db || !Array.isArray(db)) return;
+
+        db.forEach(item => {
             const clean = item.sym.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
             const lookup = clean.endsWith("USDT") ? clean : clean + "USDT";
-            const p = marketPrices[lookup] || 0;
-            
-            // محاسبه ارزش دلاری لحظه‌ای (اگر قیمت نداریم، صفر نشان ندهیم، قیمت تارگت را موقتا بگذاریم یا صفر)
-            const curUSD = item.qty * (p > 0 ? p : 0); 
+            const p = prices[lookup] || 0;
+            const curUSD = item.qty * p;
             const futUSD = item.tqty * item.tprice;
             tAct += curUSD; tFut += futUSD;
             if(item.cat === 'growth') growthUSD += curUSD;
@@ -179,7 +201,7 @@
             const prcP = Math.min((p / item.tprice) * 100 || 0, 100);
 
             root.innerHTML += `
-                <div class="asset-card" onclick="window.openChart('${item.sym}')">
+                <div class="asset-card" onclick="openChart('${item.sym}')">
                     <div class="ac-header">
                         <div class="ac-title"><b>${item.name}</b> <small style="color:var(--text-sub)">${item.sym}</small></div>
                         <div class="ac-price">$${p.toLocaleString()}</div>
@@ -203,11 +225,9 @@
                 </div>`;
         });
 
-        // آپدیت باکس‌های بالای صفحه
         document.getElementById('total-usd').innerText = '$' + tAct.toLocaleString();
         document.getElementById('total-irt').innerText = (tAct * rate).toLocaleString() + ' تومان';
         document.getElementById('target-wealth').innerText = '$' + tFut.toLocaleString();
-        
         const gap = Math.max(tFut - tAct, 0);
         document.getElementById('target-gap').innerText = '$' + gap.toLocaleString();
         document.getElementById('gap-irt').innerText = (gap * rate).toLocaleString() + ' تومان مانده';
@@ -220,19 +240,9 @@
         rf.style.backgroundColor = risk < 40 ? 'var(--success)' : (risk < 75 ? 'var(--gold)' : 'var(--amber)');
     }
 
-    // ساعت و توابع چارت
+    setInterval(update, 5000);
     setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('fa-IR'); }, 1000);
-    
-    window.openChart = function(symbol) {
-        const modal = document.getElementById('chart-modal');
-        const container = document.getElementById('tradingview-widget');
-        modal.style.display = 'flex';
-        let clean = symbol.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-        if (clean.endsWith("USDT")) clean = clean.replace("USDT", "");
-        const tvSym = `BINANCE:${clean}USDT`;
-        container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=${tvSym}&interval=D&theme=dark&style=1" style="width: 100%; height: 100%; border: none;"></iframe>`;
-    }
-    window.closeChart = function() { document.getElementById('chart-modal').style.display = 'none'; }
+    update();
 </script>
 </body>
 </html>
