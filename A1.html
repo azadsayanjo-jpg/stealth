@@ -9,6 +9,7 @@
         * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.3s; }
         body { background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
+        /* Sidebar */
         aside { width: 400px; background: var(--surface); padding: 25px; border-left: 1px solid #222; overflow-y: auto; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
         main { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at top right, #0a101a, #050608); }
         
@@ -35,6 +36,7 @@
         .calc-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid #222; color: var(--success); }
         
         #market-preview { font-weight: 900; letter-spacing: 1px; }
+        .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -86,7 +88,7 @@
 
     <main>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 style="font-weight: 900; margin:0;">مدیریت پورتفوی Nikdad</h1>
+            <h1 style="font-weight: 900; margin:0;">مدیریت پورتفوی فعال</h1>
             <span id="market-preview" style="padding: 8px 20px; border-radius: 12px; font-size: 0.9rem;"></span>
         </div>
         <div id="grid-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;"></div>
@@ -97,22 +99,26 @@
             <h3 id="m-title" style="color:var(--primary); margin-top:0;">ویرایش دارایی</h3>
             <label>نام دارایی</label>
             <input type="text" id="in-name" placeholder="مثلاً بیت‌کوین">
-            <label>نماد (مثلاً BTC)</label>
+            <label>نماد (مثلاً BTC یا BTCUSDT)</label>
             <input type="text" id="in-sym" placeholder="BTC">
+            
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div><label>موجودی فعلی</label><input type="number" id="in-qty" step="any"></div>
                 <div><label>تعداد هدف</label><input type="number" id="in-tqty" step="any"></div>
             </div>
+            
             <label>قیمت هدف (دلار)</label>
             <input type="number" id="in-tprice" step="any">
-            <label>دسته‌بندی</label>
+            
+            <label>دسته‌بندی (شاخص ریسک)</label>
             <select id="in-cat">
                 <option value="safe">🛡️ معمولی (Safe)</option>
-                <option value="growth">🚀 رشد شارپ (Growth)</option>
+                <option value="growth">🚀 رشد شارپ (Growth/Risk)</option>
             </select>
+            
             <button class="btn" onclick="saveAsset()">ذخیره تغییرات</button>
             <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف دائمی</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer;">بستن</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer; font-weight:bold;">بستن پنجره</button>
         </div>
     </div>
 
@@ -173,22 +179,36 @@
             document.getElementById('in-tprice').value = d.tprice;
             document.getElementById('in-cat').value = d.cat;
             document.getElementById('del-btn').style.display = 'block';
+            document.getElementById('m-title').innerText = "ویرایش " + d.name;
         } else {
             document.querySelectorAll('#modal input').forEach(el => el.value = '');
             document.getElementById('del-btn').style.display = 'none';
+            document.getElementById('m-title').innerText = "افزودن دارایی جدید";
         }
     }
 
     function saveAsset() {
-        let sym = document.getElementById('in-sym').value.toUpperCase().trim();
+        let rawSym = document.getElementById('in-sym').value.toUpperCase().trim();
+        let cleanSym = rawSym.replace(/[^A-Z0-9]/g, ""); 
+        
+        if (cleanSym !== "USDT" && cleanSym.endsWith("USDT")) {
+            cleanSym = cleanSym.replace("USDT", "");
+        }
+
         const obj = {
             name: document.getElementById('in-name').value,
-            sym: sym,
+            sym: cleanSym,
             qty: parseFloat(document.getElementById('in-qty').value) || 0,
             tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
             tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
             cat: document.getElementById('in-cat').value
         };
+        
+        if(!obj.name || !obj.sym) { 
+            alert('نام و نماد الزامی است. (برای ثبت تتر بنویسید USDT)'); 
+            return; 
+        }
+        
         if(editIdx !== null) db[editIdx] = obj; else db.push(obj);
         localStorage.setItem('Wealth_DB_V5', JSON.stringify(db));
         closeModal(); render();
@@ -201,7 +221,7 @@
         const blob = new Blob([JSON.stringify({db, config})], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'Nikdad_Backup.json';
+        a.download = 'Nikdad_V1_Backup.json';
         a.click();
     }
 
@@ -220,10 +240,25 @@
         const area = document.getElementById('list-area');
         const grid = document.getElementById('grid-preview');
         area.innerHTML = ''; grid.innerHTML = '';
+        
         db.forEach((item, i) => {
-            area.innerHTML += `<div class="card" onclick="openModal(${i})"><span>${item.name}</span><span style="color:var(--primary)">${item.sym}</span></div>`;
-            grid.innerHTML += `<div class="card" style="flex-direction:column; align-items:start;"><b>${item.name}</b><small>هدف: ${item.tqty}</small></div>`;
+            area.innerHTML += `<div class="card" onclick="openModal(${i})">
+                <span>${item.name}</span>
+                <span style="color:var(--primary); font-family:monospace;">${item.sym}</span>
+            </div>`;
+            
+            grid.innerHTML += `<div class="card" onclick="openModal(${i})" style="flex-direction:column; align-items:start; gap:10px;">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <b style="font-size:1.1rem; color:var(--primary)">${item.name}</b>
+                    <span>${item.cat=='safe'?'🛡️':'🚀'}</span>
+                </div>
+                <div style="font-size:0.8rem; color:#64748b;">
+                    موجودی: <span style="color:#fff">${item.qty}</span> / تارگت: <span style="color:#fff">${item.tqty}</span><br>
+                    تارگت قیمت: <span style="color:var(--gold)">$${item.tprice}</span>
+                </div>
+            </div>`;
         });
+        
         document.getElementById('cfg-toman').value = config.toman;
         document.getElementById('cfg-type').value = config.type;
         document.getElementById('cfg-note').value = config.note;
