@@ -8,20 +8,35 @@
         :root { --bg: #050608; --surface: #0f1115; --primary: #00f2ff; --danger: #ef4444; --success: #00ffa3; --font: 'Vazirmatn', sans-serif; }
         * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.3s; }
         body { background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
         aside { width: 400px; background: var(--surface); padding: 25px; border-left: 1px solid #222; overflow-y: auto; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
         main { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at top right, #0a101a, #050608); }
+        
         .box { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 8px; font-weight: 700; }
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #333; padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 0.9rem; }
+        
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid #333; padding: 12px; 
+            border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 0.9rem; 
+        }
         input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
+
         .btn { background: var(--primary); color: #000; border: none; padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; margin-bottom: 10px; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3); }
         .btn-del { background: var(--danger); color: #fff; }
-        .card { background: var(--surface); border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+
+        .card { 
+            background: var(--surface); border-radius: 20px; padding: 15px; border: 1px solid #222; 
+            margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
+        }
         .card:hover { border-color: var(--primary); background: #16181d; }
+
         .quick-note-select { border-color: #444; background: #1a1d23; color: var(--primary); font-weight: bold; }
         .calc-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid #222; color: var(--success); }
+        
         #market-preview { font-weight: 900; letter-spacing: 1px; }
+        .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -38,14 +53,13 @@
 
         <div class="box">
             <label>نرخ تتر (تومان)</label>
-            <input type="number" id="cfg-toman">
+            <input type="number" id="cfg-toman" oninput="saveConfig()">
             <label>وضعیت بازار</label>
-            <select id="cfg-type">
+            <select id="cfg-type" onchange="saveConfig()">
                 <option value="صعودی">صعودی (Bullish)</option>
                 <option value="خنثی">خنثی (Neutral)</option>
                 <option value="نزولی">نزولی (Bearish)</option>
             </select>
-            <button class="btn" style="margin-top:10px; background:#333; color:#fff" onclick="updateConfig()">💾 ذخیره تنظیمات</button>
         </div>
 
         <div class="box">
@@ -56,10 +70,14 @@
                 <option value="ثروت واقعی، برآیند صبر و انباشت هوشمندانه دارایی است.">صبر و انباشت</option>
                 <option value="در مسیر StealthCapital، نظم از هوش مهم‌تر است.">نظم و هوش</option>
                 <option value="کاهش قیمت‌ها در بازار، فرصتی برای خرید تخفیف‌خورده است.">فرصت خرید</option>
+                <option value="ثروتمند شدن یک اتفاق نیست، یک فرآیند منضبط است.">فرآیند منضبط</option>
             </select>
             <label style="margin-top:10px;">متن نهایی پیام (Header)</label>
-            <textarea id="cfg-note" rows="3" placeholder="متن استراتژی..."></textarea>
-            <button class="btn" style="margin-top:5px; background:#333; color:#fff" onclick="updateConfig()">💾 بروزرسانی پیام</button>
+            <textarea id="cfg-note" rows="3" oninput="saveConfig()" placeholder="متن استراتژی..."></textarea>
+        </div>
+
+        <div class="box" style="border: 1px dashed #333;">
+            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem; margin-bottom: 5px;" onclick="exportData()">📥 خروجی بک‌آپ (Local)</button>
         </div>
 
         <button class="btn" onclick="openModal()">+ افزودن دارایی جدید</button>
@@ -69,7 +87,7 @@
     <main>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <h1 style="font-weight: 900; margin:0;">مدیریت پورتفوی فعال</h1>
-            <span id="market-preview" style="padding: 8px 20px; border-radius: 12px; font-size: 0.9rem;">...</span>
+            <span id="market-preview" style="padding: 8px 20px; border-radius: 12px; font-size: 0.9rem;"></span>
         </div>
         <div id="grid-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;"></div>
     </main>
@@ -81,17 +99,21 @@
             <input type="text" id="in-name" placeholder="مثلاً بیت‌کوین">
             <label>نماد (مثلاً BTC یا BTCUSDT)</label>
             <input type="text" id="in-sym" placeholder="BTC">
+            
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div><label>موجودی فعلی</label><input type="number" id="in-qty" step="any"></div>
                 <div><label>تعداد هدف</label><input type="number" id="in-tqty" step="any"></div>
             </div>
+            
             <label>قیمت هدف (دلار)</label>
             <input type="number" id="in-tprice" step="any">
+            
             <label>دسته‌بندی (شاخص ریسک)</label>
             <select id="in-cat">
                 <option value="safe">🛡️ معمولی (Safe)</option>
                 <option value="growth">🚀 رشد شارپ (Growth/Risk)</option>
             </select>
+            
             <button class="btn" onclick="saveAsset()">ذخیره تغییرات</button>
             <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف دائمی</button>
             <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer; font-weight:bold;">بستن پنجره</button>
@@ -100,98 +122,104 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // --- تنظیمات فایربیس (اینجا را با اطلاعات کنسول خود پر کنید) ---
+    // --- تنظیمات فایربیس (این قسمت را با اطلاعات خود پر کنید) ---
     const firebaseConfig = {
         databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/",
-        // مقادیر زیر را از تنظیمات پروژه در کنسول فایربیس کپی کنید
-        // apiKey: "API_KEY_SHOMA",
-        // authDomain: "PROJECT_ID.firebaseapp.com",
-        // projectId: "PROJECT_ID",
+        // apiKey: "YOUR_API_KEY",
+        // authDomain: "YOUR_PROJECT.firebaseapp.com",
+        // projectId: "YOUR_PROJECT_ID",
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const dbRef = getDatabase(app);
 
-    let localDB = [];
-    let localConfig = { toman: 70000, type: 'خنثی', note: '' };
-    let editKey = null; // استفاده از Key فایربیس به جای ایندکس آرایه
+    // متغیرهای اصلی (دقیقاً مثل کد شما)
+    let db = [];
+    let config = { toman: 70000, type: 'نزولی', note: 'آماده برای شکار فرصت‌ها' };
+    let editIdx = null;
 
-    // خواندن اولیه و لیسن کردن به تغییرات
-    const assetsRef = ref(db, 'sc_v1/assets');
-    const configRef = ref(db, 'sc_v1/config');
+    // اتصال به توابع Global برای استفاده در HTML
+    window.runQuickCalc = runQuickCalc;
+    window.applyQuickNote = applyQuickNote;
+    window.saveConfig = saveConfig;
+    window.openModal = openModal;
+    window.saveAsset = saveAsset;
+    window.deleteAsset = deleteAsset;
+    window.closeModal = closeModal;
+    window.exportData = exportData;
 
-    onValue(configRef, (snapshot) => {
-        const val = snapshot.val();
-        if(val) {
-            localConfig = val;
-            document.getElementById('cfg-toman').value = localConfig.toman;
-            document.getElementById('cfg-type').value = localConfig.type;
-            document.getElementById('cfg-note').value = localConfig.note;
-            updateMarketPreview();
+    // --- دریافت اولیه داده از فایربیس ---
+    const mainRef = ref(dbRef, 'sc_v1_data'); // یک نود کلی برای تمام اطلاعات
+    onValue(mainRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            if(data.db) db = data.db;
+            if(data.config) config = data.config;
+            
+            // آپدیت UI بعد از دریافت داده
+            document.getElementById('cfg-toman').value = config.toman;
+            document.getElementById('cfg-type').value = config.type;
+            document.getElementById('cfg-note').value = config.note;
+            render();
         }
     });
 
-    onValue(assetsRef, (snapshot) => {
-        const val = snapshot.val();
-        localDB = [];
-        if(val) {
-            Object.keys(val).forEach(key => {
-                localDB.push({ id: key, ...val[key] });
-            });
-        }
-        render();
-    });
-
-    window.updateConfig = function() {
-        const newConfig = {
-            toman: document.getElementById('cfg-toman').value,
-            type: document.getElementById('cfg-type').value,
-            note: document.getElementById('cfg-note').value
-        };
-        set(configRef, newConfig).then(() => alert('تنظیمات ذخیره شد!'));
+    // --- تابع کمکی برای ذخیره در فایربیس ---
+    function syncToFirebase() {
+        set(mainRef, {
+            db: db,
+            config: config
+        }).catch((err) => console.error("Firebase Error:", err));
     }
 
-    window.saveAsset = function() {
-        let rawSym = document.getElementById('in-sym').value.toUpperCase().trim();
-        let cleanSym = rawSym.replace(/[^A-Z0-9]/g, ""); 
-        if (cleanSym !== "USDT" && cleanSym.endsWith("USDT")) cleanSym = cleanSym.replace("USDT", "");
+    function runQuickCalc() {
+        const val = document.getElementById('quick-calc').value || 0;
+        const out = document.getElementById('calc-output');
+        const strategy = [
+            {n: 'تتر (25%)', v: 0.25}, {n: 'طلا (25%)', v: 0.25},
+            {n: 'بیت‌کوین (20%)', v: 0.20}, {n: 'اتریوم (15%)', v: 0.15},
+            {n: 'زی‌کاش (10%)', v: 0.10}, {n: 'دوج (5%)', v: 0.05}
+        ];
+        out.innerHTML = strategy.map(s => `<div class="calc-row"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
+    }
 
-        const obj = {
-            name: document.getElementById('in-name').value,
-            sym: cleanSym,
-            qty: parseFloat(document.getElementById('in-qty').value) || 0,
-            tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
-            tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
-            cat: document.getElementById('in-cat').value
-        };
+    function applyQuickNote(val) {
+        if(!val) return;
+        document.getElementById('cfg-note').value = val;
+        saveConfig();
+    }
 
-        if(!obj.name || !obj.sym) { alert('نام و نماد الزامی است.'); return; }
+    function saveConfig() {
+        config.toman = document.getElementById('cfg-toman').value;
+        config.type = document.getElementById('cfg-type').value;
+        config.note = document.getElementById('cfg-note').value;
+        
+        syncToFirebase(); // جایگزین localStorage
+        updateMarketPreview();
+    }
 
-        if(editKey) {
-            // آپدیت
-            set(ref(db, 'sc_v1/assets/' + editKey), obj);
+    function updateMarketPreview() {
+        const preview = document.getElementById('market-preview');
+        const type = config.type;
+        if(type === 'صعودی') {
+            preview.innerText = 'وضعیت: BULLISH (در سود)';
+            preview.style.background = '#00ffa322'; preview.style.color = '#00ffa3'; preview.style.border = '1px solid #00ffa3';
+        } else if(type === 'نزولی') {
+            preview.innerText = 'وضعیت: BEARISH (ارزان)';
+            preview.style.background = '#ef444422'; preview.style.color = '#ef4444'; preview.style.border = '1px solid #ef4444';
         } else {
-            // جدید
-            const newRef = push(assetsRef);
-            set(newRef, obj);
-        }
-        closeModal();
-    }
-
-    window.deleteAsset = function() {
-        if(editKey && confirm('آیا مطمئن هستید؟')) {
-            remove(ref(db, 'sc_v1/assets/' + editKey));
-            closeModal();
+            preview.innerText = 'وضعیت: NEUTRAL (تکمیل خرید)';
+            preview.style.background = '#00f2ff22'; preview.style.color = '#00f2ff'; preview.style.border = '1px solid #00f2ff';
         }
     }
 
-    window.openModal = function(id = null) {
-        editKey = id;
+    function openModal(i = null) {
+        editIdx = i;
         document.getElementById('modal').style.display = 'flex';
-        if(id) {
-            const d = localDB.find(x => x.id === id);
+        if(i !== null) {
+            const d = db[i];
             document.getElementById('in-name').value = d.name;
             document.getElementById('in-sym').value = d.sym;
             document.getElementById('in-qty').value = d.qty;
@@ -207,20 +235,67 @@
         }
     }
 
-    window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
+    function saveAsset() {
+        let rawSym = document.getElementById('in-sym').value.toUpperCase().trim();
+        let cleanSym = rawSym.replace(/[^A-Z0-9]/g, ""); 
+        if (cleanSym !== "USDT" && cleanSym.endsWith("USDT")) {
+            cleanSym = cleanSym.replace("USDT", "");
+        }
+
+        const obj = {
+            name: document.getElementById('in-name').value,
+            sym: cleanSym,
+            qty: parseFloat(document.getElementById('in-qty').value) || 0,
+            tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
+            tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
+            cat: document.getElementById('in-cat').value
+        };
+        
+        if(!obj.name || !obj.sym) { 
+            alert('نام و نماد الزامی است. (برای ثبت تتر بنویسید USDT)'); 
+            return; 
+        }
+        
+        if(editIdx !== null) db[editIdx] = obj; else db.push(obj);
+        
+        syncToFirebase(); // جایگزین localStorage
+        closeModal(); 
+        render();
+    }
     
-    window.render = function() {
+    function deleteAsset() {
+        if (editIdx !== null) {
+            db.splice(editIdx, 1);
+            syncToFirebase();
+            closeModal();
+            render();
+        }
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify({db, config})], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'StealthCapital_V1_Backup.json';
+        a.click();
+    }
+
+    function render() {
         const area = document.getElementById('list-area');
         const grid = document.getElementById('grid-preview');
         area.innerHTML = ''; grid.innerHTML = '';
         
-        localDB.forEach((item) => {
-            area.innerHTML += `<div class="card" onclick="openModal('${item.id}')">
+        if(!db) db = []; // اطمینان از آرایه بودن
+
+        db.forEach((item, i) => {
+            area.innerHTML += `<div class="card" onclick="openModal(${i})">
                 <span>${item.name}</span>
                 <span style="color:var(--primary); font-family:monospace;">${item.sym}</span>
             </div>`;
             
-            grid.innerHTML += `<div class="card" onclick="openModal('${item.id}')" style="flex-direction:column; align-items:start; gap:10px;">
+            grid.innerHTML += `<div class="card" onclick="openModal(${i})" style="flex-direction:column; align-items:start; gap:10px;">
                 <div style="display:flex; justify-content:space-between; width:100%;">
                     <b style="font-size:1.1rem; color:var(--primary)">${item.name}</b>
                     <span>${item.cat=='safe'?'🛡️':'🚀'}</span>
@@ -232,37 +307,6 @@
             </div>`;
         });
         updateMarketPreview();
-    }
-
-    window.updateMarketPreview = function() {
-        const preview = document.getElementById('market-preview');
-        const type = localConfig.type;
-        if(type === 'صعودی') {
-            preview.innerText = 'وضعیت: BULLISH (در سود)';
-            preview.style.background = '#00ffa322'; preview.style.color = '#00ffa3'; preview.style.border = '1px solid #00ffa3';
-        } else if(type === 'نزولی') {
-            preview.innerText = 'وضعیت: BEARISH (ارزان)';
-            preview.style.background = '#ef444422'; preview.style.color = '#ef4444'; preview.style.border = '1px solid #ef4444';
-        } else {
-            preview.innerText = 'وضعیت: NEUTRAL (تکمیل خرید)';
-            preview.style.background = '#00f2ff22'; preview.style.color = '#00f2ff'; preview.style.border = '1px solid #00f2ff';
-        }
-    }
-    
-    // توابع کمکی غیر فایربیسی
-    window.runQuickCalc = function() {
-        const val = document.getElementById('quick-calc').value || 0;
-        const out = document.getElementById('calc-output');
-        const strategy = [
-            {n: 'تتر (25%)', v: 0.25}, {n: 'طلا (25%)', v: 0.25},
-            {n: 'بیت‌کوین (20%)', v: 0.20}, {n: 'اتریوم (15%)', v: 0.15},
-            {n: 'زی‌کاش (10%)', v: 0.10}, {n: 'دوج (5%)', v: 0.05}
-        ];
-        out.innerHTML = strategy.map(s => `<div class="calc-row"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
-    }
-    window.applyQuickNote = function(val) {
-        if(!val) return;
-        document.getElementById('cfg-note').value = val;
     }
 </script>
 </body>
