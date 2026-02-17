@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>StealthCapital v1 | Admin Terminal</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root { --bg: #050608; --surface: #0f1115; --primary: #00f2ff; --danger: #ef4444; --success: #00ffa3; --font: 'Vazirmatn', sans-serif; }
+        * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.3s; }
+        body { background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
+        aside { width: 400px; background: var(--surface); padding: 25px; border-left: 1px solid #222; overflow-y: auto; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        main { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at top right, #0a101a, #050608); }
+        
+        .box { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 8px; font-weight: 700; }
+        
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid #333; padding: 12px; 
+            border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 0.9rem; 
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
+
+        .btn { background: var(--primary); color: #000; border: none; padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; margin-bottom: 10px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3); }
+        .btn-del { background: var(--danger); color: #fff; }
+
+        .card { 
+            background: var(--surface); border-radius: 20px; padding: 15px; border: 1px solid #222; 
+            margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
+        }
+        .card:hover { border-color: var(--primary); background: #16181d; }
+
+        .quick-note-select { border-color: #444; background: #1a1d23; color: var(--primary); font-weight: bold; }
+        .calc-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid #222; color: var(--success); }
+        
+        #market-preview { font-weight: 900; letter-spacing: 1px; }
+        .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h2 style="margin-bottom:5px; font-weight: 900; color: var(--primary);">STEALTH<span style="color:#fff">CAPITAL</span></h2>
+        <p style="font-size: 0.6rem; color: #64748b; margin-bottom: 30px; letter-spacing: 2px;">V1.0 ADMIN TERMINAL</p>
+        
+        <div class="box" style="border: 1px solid var(--primary); background: rgba(0, 242, 255, 0.05);">
+            <label style="color: var(--primary);">🧮 محاسبه سریع تخصیص سرمایه ($)</label>
+            <input type="number" id="quick-calc" placeholder="مبلغ کل را وارد کنید..." oninput="runQuickCalc()">
+            <div id="calc-output"></div>
+        </div>
+
+        <div class="box">
+            <label>نرخ تتر (تومان)</label>
+            <input type="number" id="cfg-toman" oninput="saveConfig()">
+            <label>وضعیت بازار</label>
+            <select id="cfg-type" onchange="saveConfig()">
+                <option value="صعودی">صعودی (Bullish)</option>
+                <option value="خنثی">خنثی (Neutral)</option>
+                <option value="نزولی">نزولی (Bearish)</option>
+            </select>
+        </div>
+
+        <div class="box">
+            <label>انتخاب استراتژی آماده</label>
+            <select class="quick-note-select" onchange="applyQuickNote(this.value)">
+                <option value="">-- انتخاب کنید --</option>
+                <option value="هر نوسان بازار، یک پله برای صعود در بلندمدت است.">نوسان و صعود</option>
+                <option value="ثروت واقعی، برآیند صبر و انباشت هوشمندانه دارایی است.">صبر و انباشت</option>
+                <option value="در مسیر StealthCapital، نظم از هوش مهم‌تر است.">نظم و هوش</option>
+                <option value="کاهش قیمت‌ها در بازار، فرصتی برای خرید تخفیف‌خورده است.">فرصت خرید</option>
+                <option value="ثروتمند شدن یک اتفاق نیست، یک فرآیند منضبط است.">فرآیند منضبط</option>
+            </select>
+            <label style="margin-top:10px;">متن نهایی پیام (Header)</label>
+            <textarea id="cfg-note" rows="3" oninput="saveConfig()" placeholder="متن استراتژی..."></textarea>
+        </div>
+
+        <div class="box" style="border: 1px dashed #333;">
+            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem; margin-bottom: 5px;" onclick="exportData()">📥 خروجی بک‌آپ</button>
+            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem;" onclick="document.getElementById('file-input').click()">📤 بارگذاری بک‌آپ</button>
+            <input type="file" id="file-input" style="display:none" onchange="importData(event)">
+        </div>
+
+        <button class="btn" onclick="openModal()">+ افزودن دارایی جدید</button>
+        <div id="list-area"></div>
+    </aside>
+
+    <main>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 style="font-weight: 900; margin:0;">مدیریت پورتفوی فعال</h1>
+            <span id="market-preview" style="padding: 8px 20px; border-radius: 12px; font-size: 0.9rem;"></span>
+        </div>
+        <div id="grid-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;"></div>
+    </main>
+
+    <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(8px);">
+        <div style="background:#16181d; width:420px; padding:35px; border-radius:30px; border:1px solid var(--primary); box-shadow: 0 0 30px rgba(0,242,255,0.2);">
+            <h3 id="m-title" style="color:var(--primary); margin-top:0;">ویرایش دارایی</h3>
+            <label>نام دارایی</label>
+            <input type="text" id="in-name" placeholder="مثلاً بیت‌کوین">
+            <label>نماد (مثلاً BTC یا BTCUSDT)</label>
+            <input type="text" id="in-sym" placeholder="BTC">
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div><label>موجودی فعلی</label><input type="number" id="in-qty" step="any"></div>
+                <div><label>تعداد هدف</label><input type="number" id="in-tqty" step="any"></div>
+            </div>
+            
+            <label>قیمت هدف (دلار)</label>
+            <input type="number" id="in-tprice" step="any">
+            
+            <label>دسته‌بندی (شاخص ریسک)</label>
+            <select id="in-cat">
+                <option value="safe">🛡️ معمولی (Safe)</option>
+                <option value="growth">🚀 رشد شارپ (Growth/Risk)</option>
+            </select>
+            
+            <button class="btn" onclick="saveAsset()">ذخیره تغییرات</button>
+            <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف دائمی</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer; font-weight:bold;">بستن پنجره</button>
+        </div>
+    </div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('Wealth_DB_V5')) || [];
+    let config = JSON.parse(localStorage.getItem('Wealth_Cfg_V5')) || { toman: 70000, type: 'نزولی', note: 'آماده برای شکار فرصت‌ها' };
+    let editIdx = null;
+
+    function runQuickCalc() {
+        const val = document.getElementById('quick-calc').value || 0;
+        const out = document.getElementById('calc-output');
+        const strategy = [
+            {n: 'تتر (25%)', v: 0.25}, {n: 'طلا (25%)', v: 0.25},
+            {n: 'بیت‌کوین (20%)', v: 0.20}, {n: 'اتریوم (15%)', v: 0.15},
+            {n: 'زی‌کاش (10%)', v: 0.10}, {n: 'دوج (5%)', v: 0.05}
+        ];
+        out.innerHTML = strategy.map(s => `<div class="calc-row"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
+    }
+
+    function applyQuickNote(val) {
+        if(!val) return;
+        document.getElementById('cfg-note').value = val;
+        saveConfig();
+    }
+
+    function saveConfig() {
+        config.toman = document.getElementById('cfg-toman').value;
+        config.type = document.getElementById('cfg-type').value;
+        config.note = document.getElementById('cfg-note').value;
+        localStorage.setItem('Wealth_Cfg_V5', JSON.stringify(config));
+        updateMarketPreview();
+    }
+
+    function updateMarketPreview() {
+        const preview = document.getElementById('market-preview');
+        const type = config.type;
+        if(type === 'صعودی') {
+            preview.innerText = 'وضعیت: BULLISH (در سود)';
+            preview.style.background = '#00ffa322'; preview.style.color = '#00ffa3'; preview.style.border = '1px solid #00ffa3';
+        } else if(type === 'نزولی') {
+            preview.innerText = 'وضعیت: BEARISH (ارزان)';
+            preview.style.background = '#ef444422'; preview.style.color = '#ef4444'; preview.style.border = '1px solid #ef4444';
+        } else {
+            preview.innerText = 'وضعیت: NEUTRAL (تکمیل خرید)';
+            preview.style.background = '#00f2ff22'; preview.style.color = '#00f2ff'; preview.style.border = '1px solid #00f2ff';
+        }
+    }
+
+    function openModal(i = null) {
+        editIdx = i;
+        document.getElementById('modal').style.display = 'flex';
+        if(i !== null) {
+            const d = db[i];
+            document.getElementById('in-name').value = d.name;
+            document.getElementById('in-sym').value = d.sym;
+            document.getElementById('in-qty').value = d.qty;
+            document.getElementById('in-tqty').value = d.tqty;
+            document.getElementById('in-tprice').value = d.tprice;
+            document.getElementById('in-cat').value = d.cat;
+            document.getElementById('del-btn').style.display = 'block';
+            document.getElementById('m-title').innerText = "ویرایش " + d.name;
+        } else {
+            document.querySelectorAll('#modal input').forEach(el => el.value = '');
+            document.getElementById('del-btn').style.display = 'none';
+            document.getElementById('m-title').innerText = "افزودن دارایی جدید";
+        }
+    }
+
+    function saveAsset() {
+        // خواندن مقدار نماد و بزرگ کردن حروف
+        let rawSym = document.getElementById('in-sym').value.toUpperCase().trim();
+        let cleanSym = rawSym.replace(/[^A-Z0-9]/g, ""); 
+        
+        // اگر کلمه دقیقاً USDT بود، آن را قبول کن. 
+        // در غیر این صورت، اگر مثلاً نوشته بود BTCUSDT، بخش USDT را حذف کن.
+        if (cleanSym !== "USDT" && cleanSym.endsWith("USDT")) {
+            cleanSym = cleanSym.replace("USDT", "");
+        }
+
+        const obj = {
+            name: document.getElementById('in-name').value,
+            sym: cleanSym,
+            qty: parseFloat(document.getElementById('in-qty').value) || 0,
+            tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
+            tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
+            cat: document.getElementById('in-cat').value
+        };
+        
+        // چک کردن برای جلوگیری از ثبت خالی
+        if(!obj.name || !obj.sym) { 
+            alert('نام و نماد الزامی است. (برای ثبت تتر بنویسید USDT)'); 
+            return; 
+        }
+        
+        if(editIdx !== null) db[editIdx] = obj; else db.push(obj);
+        localStorage.setItem('Wealth_DB_V5', JSON.stringify(db));
+        closeModal(); render();
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify({db, config})], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'StealthCapital_V1_Backup.json';
+        a.click();
+    }
+
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const data = JSON.parse(event.target.result);
+            localStorage.setItem('Wealth_DB_V5', JSON.stringify(data.db));
+            localStorage.setItem('Wealth_Cfg_V5', JSON.stringify(data.config));
+            location.reload();
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function render() {
+        const area = document.getElementById('list-area');
+        const grid = document.getElementById('grid-preview');
+        area.innerHTML = ''; grid.innerHTML = '';
+        
+        db.forEach((item, i) => {
+            area.innerHTML += `<div class="card" onclick="openModal(${i})">
+                <span>${item.name}</span>
+                <span style="color:var(--primary); font-family:monospace;">${item.sym}</span>
+            </div>`;
+            
+            grid.innerHTML += `<div class="card" onclick="openModal(${i})" style="flex-direction:column; align-items:start; gap:10px;">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <b style="font-size:1.1rem; color:var(--primary)">${item.name}</b>
+                    <span>${item.cat=='safe'?'🛡️':'🚀'}</span>
+                </div>
+                <div style="font-size:0.8rem; color:#64748b;">
+                    موجودی: <span style="color:#fff">${item.qty}</span> / تارگت: <span style="color:#fff">${item.tqty}</span><br>
+                    تارگت قیمت: <span style="color:var(--gold)">$${item.tprice}</span>
+                </div>
+            </div>`;
+        });
+        
+        document.getElementById('cfg-toman').value = config.toman;
+        document.getElementById('cfg-type').value = config.type;
+        document.getElementById('cfg-note').value = config.note;
+        updateMarketPreview();
+    }
+    render();
+</script>
+</body>
+</html>
