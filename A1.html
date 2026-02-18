@@ -2,54 +2,75 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>StealthCapital v1 | Admin Terminal</title>
+    <title>StealthCapital v1.2 | Admin Terminal</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
     <style>
         :root { 
-            --bg: #050608; --surface: #0f1115; --accent: #00f2ff; 
-            --danger: #ef4444; --success: #00ffa3; --gold: #ffcc00;
-            --amber: #ffbf00; --font: 'Vazirmatn', sans-serif; 
+            --bg: #010204; --surface: rgba(15, 22, 36, 0.98); --border: rgba(0, 242, 255, 0.15);
+            --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --danger: #ff4d4d;
+            --warning: #ff9f43; --text-main: #ffffff; --text-sub: #94a3b8; --font: 'Vazirmatn', sans-serif;
         }
-        * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.3s; }
-        body { background: var(--bg); color: #fff; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; font-family: var(--font) !important; transition: 0.2s; }
+        body { background: var(--bg); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        aside { width: 400px; background: var(--surface); padding: 25px; border-left: 1px solid #222; overflow-y: auto; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        aside::-webkit-scrollbar { width: 5px; }
-        aside::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        /* انیمیشن نبض هماهنگ با مانیتور */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+        }
+        .active-pulse { animation: pulse-glow 2s infinite; }
 
-        main { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at top right, #0a101a, #050608); }
-        .box { background: rgba(255,255,255,0.03); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 8px; font-weight: 700; }
+        aside { width: 380px; background: var(--surface); padding: 25px; border-left: 1px solid var(--border); overflow-y: auto; z-index: 10; }
+        aside::-webkit-scrollbar { width: 4px; }
+        aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        main { flex: 1; padding: 30px; overflow-y: auto; background: radial-gradient(circle at top right, #0a101a, #010204); }
         
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #333; padding: 12px; border-radius: 12px; color: #fff; margin-bottom: 15px; outline: none; font-size: 0.9rem; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
+        .box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 20px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 800; letter-spacing: 1px; }
         
-        .btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; margin-bottom: 10px; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3); }
-        .btn-del { background: var(--danger); color: #fff; }
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid var(--border); padding: 12px; 
+            border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; font-size: 0.85rem; 
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 242, 255, 0.1); }
         
-        .card { background: var(--surface); border-radius: 20px; padding: 18px; border: 1px solid #222; margin-bottom: 10px; cursor: pointer; position: relative; }
-        .card:hover { border-color: var(--accent); background: #16181d; }
+        .btn { 
+            background: var(--accent); color: #000; border: none; padding: 14px; 
+            border-radius: 12px; width: 100%; cursor: pointer; font-weight: 900; 
+            margin-bottom: 10px; text-transform: uppercase; font-size: 0.8rem;
+        }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-del { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-del:hover { background: var(--danger); color: #fff; }
         
-        .quick-note-select { border-color: #444; background: #1a1d23; color: var(--accent); font-weight: bold; }
-        .calc-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid #222; color: var(--success); }
+        .card { 
+            background: rgba(15, 22, 36, 0.5); border-radius: 20px; padding: 18px; 
+            border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; 
+        }
+        .card:hover { border-color: var(--accent); background: var(--surface); }
         
-        .badge-cat { font-size: 0.65rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+        .calc-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        
+        .badge-cat { font-size: 0.6rem; padding: 3px 10px; border-radius: 6px; font-weight: 900; }
         .cat-safe { background: rgba(0, 255, 163, 0.1); color: var(--success); }
-        .cat-growth { background: rgba(255, 191, 0, 0.1); color: var(--amber); }
+        .cat-growth { background: rgba(255, 204, 0, 0.1); color: var(--gold); }
     </style>
 </head>
 <body>
     <aside>
-        <h2 style="margin-bottom:5px; font-weight: 900; color: var(--accent);">STEALTH<span style="color:#fff">CAPITAL</span></h2>
-        <p style="font-size: 0.6rem; color: #64748b; margin-bottom: 30px; letter-spacing: 2px;">V1.0 ADMIN TERMINAL</p>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:25px;">
+            <div style="width:12px; height:12px; background:var(--accent); border-radius:3px;"></div>
+            <h2 style="margin:0; font-weight: 900; font-size: 1.2rem; letter-spacing: 1px;">STEALTH<span style="color:var(--text-sub)">CAPITAL</span></h2>
+        </div>
         
-        <div class="box" style="border: 1px solid var(--accent); background: rgba(0, 242, 255, 0.05);">
-            <label style="color: var(--accent);">🧮 محاسبه سریع تخصیص سرمایه ($)</label>
-            <input type="number" id="quick-calc" placeholder="مبلغ کل را وارد کنید..." oninput="runQuickCalc()">
-            <div id="calc-output"></div>
+        <div class="box" style="border-color: var(--accent); background: rgba(0, 242, 255, 0.03);">
+            <label style="color: var(--accent);">🧮 تخصیص سرمایه پیشنهادی ($)</label>
+            <input type="number" id="quick-calc" placeholder="مبلغ نقدینگی..." oninput="runQuickCalc()">
+            <div id="calc-output" style="color: var(--text-main);"></div>
         </div>
 
         <div class="box">
@@ -57,65 +78,66 @@
             <input type="number" id="cfg-toman" oninput="saveConfig()">
             <label>وضعیت استراتژیک بازار</label>
             <select id="cfg-type" onchange="saveConfig()">
-                <option value="خرید تکمیل شد — صبوری تا رسیدن به هدف">خرید تکمیل شد — صبوری تا رسیدن به هدف</option>
-                <option value="در حال تکمیل موقعیت خرید">در حال تکمیل موقعیت خرید</option>
-                <option value="قیمت‌ها در محدوده فرصت — ادامه تکمیل خرید">قیمت‌ها در محدوده فرصت — ادامه تکمیل خرید</option>
+                <option value="خرید تکمیل شد — صبوری تا رسیدن به هدف">خرید تکمیل شد (HOLDING)</option>
+                <option value="در حال تکمیل موقعیت خرید">در حال تکمیل خرید (ACTIVE)</option>
+                <option value="قیمت‌ها در محدوده فرصت — ادامه تکمیل خرید">فرصت ورود (ACTIVE)</option>
             </select>
-        </div>
-
-        <div class="box">
-            <label>پیام انگیزشی / استراتژی فرعی</label>
-            <select class="quick-note-select" onchange="applyQuickNote(this.value)">
-                <option value="">-- انتخاب پیام --</option>
+            <label>پیام انگیزشی زیرهدر</label>
+            <select style="background:#1a1d23; color:var(--accent); font-weight:bold;" onchange="applyQuickNote(this.value)">
+                <option value="">-- الگوهای سریع --</option>
                 <option value="هر نوسان بازار، یک پله برای صعود در بلندمدت است.">نوسان و صعود</option>
                 <option value="ثروت واقعی، برآیند صبر و انباشت هوشمندانه دارایی است.">صبر و انباشت</option>
                 <option value="در مسیر StealthCapital، نظم از هوش مهم‌تر است.">نظم و هوش</option>
                 <option value="کاهش قیمت‌ها در بازار، فرصتی برای خرید تخفیف‌خورده است.">فرصت خرید</option>
-                <option value="ثروتمند شدن یک اتفاق نیست، یک فرآیند منضبط است.">فرآیند منضبط</option>
             </select>
-            <label style="margin-top:10px;">متن نهایی زیرهدر (Note)</label>
-            <textarea id="cfg-note" rows="3" oninput="saveConfig()" placeholder="پیام مدیریت..."></textarea>
+            <textarea id="cfg-note" rows="3" oninput="saveConfig()" placeholder="متن سفارشی مدیریت..." style="margin-top:10px;"></textarea>
         </div>
 
-        <div class="box" style="border: 1px dashed #333;">
-            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem; margin-bottom: 5px;" onclick="exportData()">📥 خروجی بک‌آپ (JSON)</button>
-            <button class="btn" style="background:#222; color:#fff; font-size: 0.75rem;" onclick="document.getElementById('file-input').click()">📤 بارگذاری بک‌آپ</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <button class="btn" style="background:#1a1d23; color:#fff; font-size:0.65rem;" onclick="exportData()">📥 BACKUP</button>
+            <button class="btn" style="background:#1a1d23; color:#fff; font-size:0.65rem;" onclick="document.getElementById('file-input').click()">📤 RESTORE</button>
             <input type="file" id="file-input" style="display:none" onchange="importData(event)">
         </div>
 
         <button class="btn" onclick="openModal()">+ افزودن دارایی جدید</button>
-        <div id="list-area"></div>
+        <div id="list-area" style="margin-top:20px;"></div>
     </aside>
 
     <main>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 style="font-weight: 900; margin:0;">مدیریت پورتفوی فعال</h1>
-            <span id="market-preview" style="padding: 8px 20px; border-radius: 12px; font-size: 0.8rem; border: 1px solid; font-weight: bold;"></span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div>
+                <h1 style="font-weight: 900; margin:0; font-size: 1.8rem;">TERMINAL <span style="color:var(--accent)">CORE</span></h1>
+                <p style="color:var(--text-sub); margin:5px 0 0 0; font-size:0.8rem;">مدیریت متمرکز دیتابیس StealthCapital v1.2</p>
+            </div>
+            <div id="market-preview-pill" class="active-pulse" style="padding: 10px 25px; border-radius: 12px; font-size: 0.75rem; border: 1px solid; font-weight: 900; letter-spacing: 1px;">
+                STATUS PREVIEW
+            </div>
         </div>
+        
         <div id="grid-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
     </main>
 
-    <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(8px);">
-        <div style="background:#16181d; width:420px; padding:35px; border-radius:30px; border:1px solid var(--accent); box-shadow: 0 0 30px rgba(0,242,255,0.2);">
-            <h3 id="m-title" style="color:var(--accent); margin-top:0;">ویرایش دارایی</h3>
-            <label>نام دارایی (مثلاً اتریوم)</label>
-            <input type="text" id="in-name">
-            <label>نماد (مثلاً ETH)</label>
-            <input type="text" id="in-sym">
+    <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(10px);">
+        <div style="background:var(--surface); width:400px; padding:30px; border-radius:25px; border:1px solid var(--accent);">
+            <h3 id="m-title" style="color:var(--accent); margin-top:0; font-weight:900;">تنظیمات دارایی</h3>
+            <label>نام پروژه</label>
+            <input type="text" id="in-name" placeholder="مثلاً Bitcoin">
+            <label>نماد (SYMBOL)</label>
+            <input type="text" id="in-sym" placeholder="BTC">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div><label>موجودی فعلی</label><input type="number" id="in-qty" step="any"></div>
                 <div><label>تعداد هدف</label><input type="number" id="in-tqty" step="any"></div>
             </div>
-            <label>قیمت هدف نهایی (USD)</label>
+            <label>تارگت قیمت خروج (USD)</label>
             <input type="number" id="in-tprice" step="any">
-            <label>دسته‌بندی</label>
+            <label>طبقه‌بندی پورتفو</label>
             <select id="in-cat">
-                <option value="safe">🛡️ معمولی (Safe)</option>
-                <option value="growth">🚀 رشد شارپ (Growth)</option>
+                <option value="safe">🛡️ استراتژیک (Safe)</option>
+                <option value="growth">🚀 پتانسیل رشد (Growth)</option>
             </select>
-            <button class="btn" onclick="saveAsset()">ذخیره تغییرات</button>
-            <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف دارایی</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#64748b; width:100%; cursor:pointer;">انصراف</button>
+            <button class="btn" onclick="saveAsset()">ذخیره و انتشار</button>
+            <button id="del-btn" class="btn btn-del" onclick="deleteAsset()">حذف از لیست</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:var(--text-sub); width:100%; cursor:pointer; font-size:0.8rem; margin-top:10px;">انصراف</button>
         </div>
     </div>
 
@@ -137,24 +159,21 @@
         }
     });
 
-    // تابع اصلی برای همگام‌سازی با فایربیس
     function syncToFirebase() { 
-        dbRef.set({ db, config }).then(() => {
-            console.log("همگام‌سازی با موفقیت انجام شد.");
-        }).catch(err => {
-            alert("خطا در نوشتن روی دیتابیس. قوانین (Rules) را چک کنید.");
-        });
+        dbRef.set({ db, config });
     }
 
     function runQuickCalc() {
         const val = document.getElementById('quick-calc').value || 0;
         const out = document.getElementById('calc-output');
         const strategy = [
-            {n: 'تتر (25%)', v: 0.25}, {n: 'طلا/PAXG (25%)', v: 0.25}, 
-            {n: 'بیت‌کوین (20%)', v: 0.20}, {n: 'اتریوم (15%)', v: 0.15}, 
-            {n: 'آلت‌کوین High (10%)', v: 0.10}, {n: 'میم‌کوین (5%)', v: 0.05}
+            {n: 'تتر/نقدینگی (25%)', v: 0.25, c: 'var(--text-sub)'}, 
+            {n: 'طلا/PAXG (25%)', v: 0.25, c: 'var(--gold)'}, 
+            {n: 'بیت‌کوین (20%)', v: 0.20, c: 'var(--accent)'}, 
+            {n: 'اتریوم (15%)', v: 0.15, c: '#a5a5a5'}, 
+            {n: 'آلت‌کوین High (15%)', v: 0.15, c: 'var(--success)'}
         ];
-        out.innerHTML = strategy.map(s => `<div class="calc-row"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
+        out.innerHTML = strategy.map(s => `<div class="calc-row" style="color:${s.c}"><span>${s.n}</span><b>$${(val*s.v).toLocaleString()}</b></div>`).join('');
     }
 
     function saveConfig() {
@@ -187,7 +206,7 @@
     function saveAsset() {
         const obj = {
             name: document.getElementById('in-name').value, 
-            sym: document.getElementById('in-sym').value.toUpperCase().replace("USDT", "").trim(),
+            sym: document.getElementById('in-sym').value.toUpperCase().trim(),
             qty: parseFloat(document.getElementById('in-qty').value) || 0,
             tqty: parseFloat(document.getElementById('in-tqty').value) || 0,
             tprice: parseFloat(document.getElementById('in-tprice').value) || 0,
@@ -197,7 +216,7 @@
         syncToFirebase(); closeModal();
     }
 
-    function deleteAsset() { if(confirm('حذف شود؟')) { db.splice(editIdx, 1); syncToFirebase(); closeModal(); } }
+    function deleteAsset() { if(confirm('از حذف این دارایی اطمینان دارید؟')) { db.splice(editIdx, 1); syncToFirebase(); closeModal(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     function render() {
@@ -206,21 +225,21 @@
         area.innerHTML = ''; grid.innerHTML = '';
         
         db.forEach((item, i) => {
-            area.innerHTML += `<div class="card" onclick="openModal(${i})" style="padding:12px; font-size:0.85rem;">
+            area.innerHTML += `<div class="card" onclick="openModal(${i})" style="padding:10px 15px; font-size:0.8rem; display:flex; justify-content:space-between;">
                 <b>${item.name}</b> <span style="color:var(--accent)">${item.sym}</span>
             </div>`;
             
             grid.innerHTML += `
                 <div class="card" onclick="openModal(${i})">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <b style="color:var(--accent); font-size:1.1rem;">${item.name}</b>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <b style="color:var(--accent); font-size:1rem;">${item.name}</b>
                         <span class="badge-cat ${item.cat=='safe'?'cat-safe':'cat-growth'}">${item.cat=='safe'?'🛡️ SAFE':'🚀 GROWTH'}</span>
                     </div>
-                    <div style="font-size:0.75rem; color:#64748b; line-height:1.6;">
-                        <div>موجودی: <b style="color:#fff">${item.qty.toLocaleString()}</b></div>
-                        <div>هدف: <b style="color:#fff">${item.tqty.toLocaleString()}</b></div>
-                        <div style="margin-top:5px; border-top:1px solid #222; padding-top:5px;">
-                            ارزش هدف: <b style="color:var(--gold)">$${(item.tqty * item.tprice).toLocaleString()}</b>
+                    <div style="font-size:0.7rem; color:var(--text-sub); line-height:1.8;">
+                        <div style="display:flex; justify-content:space-between;"><span>موجودی:</span><b style="color:#fff">${item.qty.toLocaleString()}</b></div>
+                        <div style="display:flex; justify-content:space-between;"><span>تارگت انباشت:</span><b style="color:#fff">${item.tqty.toLocaleString()}</b></div>
+                        <div style="margin-top:8px; border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between;">
+                            <span>ارزش هدف:</span><b style="color:var(--gold)">$${(item.tqty * item.tprice).toLocaleString()}</b>
                         </div>
                     </div>
                 </div>`;
@@ -233,13 +252,18 @@
     }
 
     function updateMarketPreview() {
-        const p = document.getElementById('market-preview');
-        const type = config.type;
-        p.innerText = type || 'بدون وضعیت';
+        const p = document.getElementById('market-preview-pill');
+        const type = config.type || "";
+        p.innerText = type.includes("تکمیل شد") ? "HOLDING MODE" : "ACTIVE SPRINT";
         
         let color = 'var(--accent)';
-        if (type.includes("تکمیل شد")) color = 'var(--success)';
-        else if (type.includes("در حال تکمیل")) color = 'var(--gold)';
+        if (type.includes("تکمیل شد")) {
+            color = 'var(--success)';
+            p.classList.remove('active-pulse');
+        } else {
+            color = 'var(--warning)';
+            p.classList.add('active-pulse');
+        }
         
         p.style.color = color;
         p.style.borderColor = color;
@@ -248,7 +272,7 @@
     function exportData() {
         const blob = new Blob([JSON.stringify({db, config})], {type: 'application/json'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `StealthCapital_Backup.json`; a.click();
+        a.download = `StealthCapital_v1.2_Backup.json`; a.click();
     }
 
     function importData(e) {
@@ -258,11 +282,10 @@
                 const data = JSON.parse(ev.target.result);
                 db = data.db; config = data.config;
                 syncToFirebase();
-            } catch(err) { alert('خطا در بارگذاری'); }
+            } catch(err) { alert('خطا در بارگذاری فایل!'); }
         };
         reader.readAsText(e.target.files[0]);
     }
-    runQuickCalc();
 </script>
 </body>
 </html>
