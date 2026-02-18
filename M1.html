@@ -252,7 +252,7 @@
         // بروزرسانی نمودار
         if(myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR');
-            if(chartData.labels.length > 2000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
+            if(chartData.labels.length > 20000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
             chartData.labels.push(now);
             chartData.datasets[0].data.push(tAct);
             myChart.update();
@@ -297,4 +297,5 @@
 </script>
 </body>
 </html>
+
 
