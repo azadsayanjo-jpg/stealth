@@ -18,16 +18,40 @@
         * { box-sizing: border-box; font-family: var(--font) !important; outline: none; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; overflow-x: hidden; }
 
-        /* اصلاح هدر برای مرکزیت عنوان */
         header {
             display: grid;
-            grid-template-columns: 1fr auto 1fr; /* سه ستون: راست، وسط، چپ */
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             padding: 15px 25px; 
-            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 20px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
+        /* --- بخش جدید: استایل نوار متحرک برای Note ادمین --- */
+        .ticker-wrap {
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-move {
+            display: inline-block;
+            padding-right: 100%;
+            animation: marquee 40s linear infinite;
+            color: var(--accent);
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        /* ----------------------------------------------- */
+
         .active-pulse { animation: pulse-glow 2s infinite; }
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.2); }
@@ -70,7 +94,6 @@
         .bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
         #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        
         .sparkline { display: inline-block; width: 60px; height: 20px; margin-right: 10px; vertical-align: middle; }
 
         @media (max-width: 768px) { 
@@ -90,20 +113,22 @@
 
     <header>
         <div style="text-align: right;">
-            <div id="strat-text" style="font-size: 1.2rem; color: var(--success); font-weight: 900; text-shadow: 0 0 10px rgba(0, 255, 163, 0.3);">در حال همگام‌سازی...</div>
+            <div id="strat-text" style="font-size: 0.9rem; color: var(--success); font-weight: 900;">Terminal Active</div>
         </div>
-
         <div style="text-align: center;">
             <h1 style="color: var(--accent); font-size: 1.3rem; margin: 0; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0,242,255,0.6); font-weight: 900;">
                 SMB - STEALTHCAPITAL | <span style="color:var(--gold)">PHOENIX PROTOCOL</span>
             </h1>
         </div>
-
         <div style="text-align: left;">
             <div id="live-clock" style="font-size: 1.4rem; font-weight: 900; font-family: monospace; color: var(--accent); line-height:1;">00:00:00</div>
             <div id="jalali-date" style="font-size: 0.6rem; color: var(--text-sub); font-weight: bold;">---</div>
         </div>
     </header>
+
+    <div class="ticker-wrap">
+        <div id="marquee-note" class="ticker-move">در حال دریافت آخرین فرامین استراتژیک از مرکز فرماندهی...</div>
+    </div>
 
     <div id="rebalance-area"></div>
 
@@ -199,7 +224,6 @@
 
     function initCharts() {
         const ctx = document.getElementById('balanceChart').getContext('2d');
-        
         const shadowPlugin = {
             beforeDraw: (chart) => {
                 const {ctx} = chart;
@@ -221,21 +245,11 @@
                 animation: { duration: 2000, easing: 'linear' },
                 plugins: { legend: { display: false } },
                 scales: { 
-                    x: { 
-                        display: true, 
-                        grid: { display: false },
-                        ticks: { color: '#4b5563', font: {size: 9}, maxTicksLimit: 6 }
-                    }, 
+                    x: { display: true, grid: { display: false }, ticks: { color: '#4b5563', font: {size: 9}, maxTicksLimit: 6 } }, 
                     y: { 
                         beginAtZero: false,
                         grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-                        ticks: { 
-                            color: '#4b5563', 
-                            font: {size: 9},
-                            callback: function(value) {
-                                return value >= 1000000 ? (value/1000000).toFixed(1) + 'M' : value.toLocaleString('fa-IR');
-                            }
-                        },
+                        ticks: { color: '#4b5563', font: {size: 9}, callback: function(value) { return value >= 1000000 ? (value/1000000).toFixed(1) + 'M' : value.toLocaleString('fa-IR'); } },
                         position: 'right'
                     } 
                 }
@@ -248,9 +262,7 @@
             data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#00ffa3', '#ffcc00', '#ff4d4d', '#a29bfe', '#ff9f43', '#ff9ff3'], borderWidth: 0, hoverOffset: 10 }] },
             options: { 
                 responsive: true, maintainAspectRatio: false, cutout: '75%', 
-                plugins: { 
-                    legend: { display: true, position: 'left', labels: { color: '#8b949e', font: {family: 'Vazirmatn', size: 10}, boxWidth: 12 } } 
-                }, 
+                plugins: { legend: { display: true, position: 'left', labels: { color: '#8b949e', font: {family: 'Vazirmatn', size: 10}, boxWidth: 12 } } }, 
                 animation: { animateRotate: true, duration: 1500 } 
             }
         });
@@ -269,13 +281,12 @@
         if(data) {
             localDB = data.db || [];
             localCfg = data.config || localCfg;
-            document.getElementById('strat-text').innerText = localCfg.note || 'سیستم مدیریت سرمایه هوشمند';
-            updatePrices();
             
-            if(!sparklinesLoaded && localDB.length > 0) {
-                fetchSparklines();
-                sparklinesLoaded = true;
-            }
+            // نمایش Note در نوار متحرک
+            document.getElementById('marquee-note').innerText = "📢 فرامین استراتژیک: " + (localCfg.note || "در انتظار تحلیل بازار...");
+            
+            updatePrices();
+            if(!sparklinesLoaded && localDB.length > 0) { fetchSparklines(); sparklinesLoaded = true; }
         }
     });
 
@@ -318,8 +329,7 @@
                 } catch { return { sym: sym, price: prices[sym] || 0 }; }
             }));
             res.forEach(r => prices[r.sym] = r.price);
-            prices['USDT'] = 1;
-            prices['CASH'] = 1;
+            prices['USDT'] = 1; prices['CASH'] = 1;
             render();
         } catch(e) { console.error(e); }
     }
@@ -345,23 +355,17 @@
             const bPrice = (item.buyPrice && item.buyPrice > 0) ? parseFloat(item.buyPrice) : p;
             const investedUSD = (parseFloat(item.qty) || 0) * bPrice;
             
-            tAct += curUSD; 
-            tFut += targetUSD;
-            tInvestedUSD += investedUSD;
-            
+            tAct += curUSD; tFut += targetUSD; tInvestedUSD += investedUSD;
             catTotals[item.cat || 'safe'] += curUSD;
             if (sym === 'USDT' || sym === 'CASH') usdtAmount += curUSD;
-            
             if (curUSD > 0) { pieLabels.push(item.name); pieShares.push(curUSD); }
 
             const acc = (item.tqty > 0) ? (item.qty / item.tqty) * 100 : 0;
             const tai = (targetUSD > 0) ? (curUSD / targetUSD) * 100 : 0;
-            
             const itemPnlUSD = curUSD - investedUSD;
             const itemPnlIRT = Math.floor(itemPnlUSD * rate);
             const itemPnlColor = itemPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
             const itemPnlSign = itemPnlUSD >= 0 ? '+' : '';
-            
             const sparkSVG = createSparklineSVG(sparklineData[sym], itemPnlUSD >= 0 ? '#00ffa3' : '#ff4d4d');
 
             if (acc < 99 && p > 0) candidates.push({ name: item.name, sym: sym, acc: acc, price: p });
@@ -369,10 +373,7 @@
             root.innerHTML += `
                 <div class="asset-card" onclick="openChart('${sym}')">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <div style="display:flex; align-items:center;">
-                            ${sparkSVG}
-                            <b style="color:var(--accent); font-size:1.1rem;">${item.name}</b>
-                        </div>
+                        <div style="display:flex; align-items:center;">${sparkSVG}<b style="color:var(--accent); font-size:1.1rem;">${item.name}</b></div>
                         <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace;">${Math.floor(p * rate).toLocaleString()} ت</b>
                     </div>
                     <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
@@ -387,6 +388,7 @@
                 </div>`;
         });
 
+        // منطق‌های هشدار Rebalance کد اصلی شما
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
         if (usdtRatio > 30) {
@@ -406,30 +408,26 @@
         }
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
+        // محاسبات سود و پیشرفت کد اصلی شما
         const pnlUSD = tAct - tInvestedUSD;
         const pnlIRT = Math.floor(pnlUSD * rate);
         const pnlPercent = tInvestedUSD > 0 ? (pnlUSD / tInvestedUSD) * 100 : 0;
-        const pnlColor = pnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
-        const pnlSign = pnlUSD >= 0 ? '+' : '';
-
         const progress = tFut > 0 ? (tAct / tFut) * 100 : 0;
         const gapUSD = Math.max(0, tFut - tAct);
         const sprintUSD = tFut / 100;
-        const tActIRT = Math.floor(tAct * rate);
-
         const weeksLeft = (sprintUSD * 2) > 0 ? gapUSD / (sprintUSD * 2) : 0;
         const daysLeft = Math.ceil(weeksLeft * 7);
+
         if (daysLeft > 0 && daysLeft < 5000) {
             const targetD = new Date(); targetD.setDate(targetD.getDate() + daysLeft);
             const fmt = new Intl.DateTimeFormat('fa-IR', {month:'long', year:'numeric'}).format(targetD);
             document.getElementById('days-forecast').innerHTML = `⏳ <b>${daysLeft.toLocaleString('fa-IR')} روز</b> تا هدف (حدود <b>${fmt}</b>)`;
         }
 
-        document.getElementById('total-irt').innerText = tActIRT.toLocaleString() + ' تومان';
+        document.getElementById('total-irt').innerText = Math.floor(tAct * rate).toLocaleString() + ' تومان';
         document.getElementById('total-usd').innerText = '$' + Math.floor(tAct).toLocaleString();
-        document.getElementById('total-pnl').innerHTML = `<span style="color:${pnlColor}">${pnlSign}${pnlIRT.toLocaleString()} ت (${pnlSign}${pnlPercent.toFixed(2)}%)</span>`;
+        document.getElementById('total-pnl').innerHTML = `<span style="color:${pnlUSD >= 0 ? 'var(--success)' : 'var(--danger)'}">${pnlUSD >= 0 ? '+' : ''}${pnlIRT.toLocaleString()} ت (${pnlUSD >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
         document.getElementById('total-progress').innerText = progress.toFixed(2) + '%';
-        
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
@@ -447,13 +445,11 @@
         pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "انباشت (خرید)";
         pPill.style.color = (localCfg.type || "").includes("تکمیل") ? "var(--success)" : "var(--warning)";
 
-        if (myChart && tActIRT > 0) {
+        if (myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
             if (chartData.labels.length > 10000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
             if(chartData.labels[chartData.labels.length - 1] !== now) {
-                chartData.labels.push(now); 
-                chartData.datasets[0].data.push(tActIRT); 
-                myChart.update(); 
+                chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); myChart.update(); 
             }
             pieChart.data.labels = pieLabels; pieChart.data.datasets[0].data = pieShares; pieChart.update();
         }
