@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital | Ultra v1.7 - IRT</title>
+    <title>StealthCapital | Ultra v2.0 - IRT</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
@@ -38,7 +38,7 @@
         .charts-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
         .chart-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; height: 250px; position: relative; }
 
-        .stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: bold; display: block; margin-bottom: 8px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; display: block; margin-bottom: 8px; }
         .stat-value-toman { font-size: 1.6rem; font-weight: 900; line-height: 1.2; color: var(--success); text-shadow: 0 0 15px rgba(0, 255, 163, 0.2); }
         .stat-sub-usd { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; font-family: monospace; }
 
@@ -49,11 +49,15 @@
 
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
         .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; cursor: pointer; transition: 0.3s; }
-        .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); }
+        .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); border-color: var(--accent); }
         
         .rebalance-box {
             background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.2);
             border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--danger);
+        }
+        .warning-box {
+            background: rgba(255, 159, 67, 0.05); border: 1px solid rgba(255, 159, 67, 0.2);
+            border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--warning);
         }
 
         .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -63,6 +67,8 @@
 
         #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         
+        .sparkline { display: inline-block; width: 60px; height: 20px; margin-right: 10px; vertical-align: middle; }
+
         @media (max-width: 768px) { .charts-wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -77,7 +83,7 @@
 
     <header>
         <div>
-            <h1 style="color: var(--accent); font-size: 1.2rem; margin: 0; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,242,255,0.3);">StealthCapital v1.7</h1>
+            <h1 style="color: var(--accent); font-size: 1.2rem; margin: 0; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0,242,255,0.3);">مدیریت سرمایه (StealthCapital)</h1>
             <div id="strat-text" style="font-size: 0.8rem; color: var(--success); font-weight: bold; margin-top: 5px; opacity: 0.8;">در حال همگام‌سازی...</div>
         </div>
         <div style="text-align: left;">
@@ -92,7 +98,10 @@
         <div class="stat-card">
             <span class="stat-label">💰 موجودی کل (تومان)</span>
             <div id="total-irt" class="stat-value-toman">0 تومان</div>
-            <div id="total-usd" class="stat-sub-usd">$0</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div id="total-usd" class="stat-sub-usd">$0</div>
+                <div id="total-pnl" style="font-size:0.8rem; font-weight:bold; font-family:monospace;">---</div>
+            </div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
                 <span class="stat-label">پیشرفت کل سبد <span id="total-progress" style="color: var(--gold); float:left; font-weight:900;">0%</span></span>
                 <div id="days-forecast" style="font-size: 0.7rem; color: var(--accent); font-weight: bold; margin-top:5px;">تحلیل ریتم رشد...</div>
@@ -110,7 +119,7 @@
         </div>
 
         <div class="stat-card">
-            <span class="stat-label">🚀 پله پیشنهادی (Sprint)</span>
+            <span class="stat-label">🚀 پله پیشنهادی خرید</span>
             <div id="sprint-irt" class="stat-value-toman" style="color: #fff;">0 تومان</div>
             <div id="sprint-usd" class="stat-sub-usd">$0</div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
@@ -118,18 +127,18 @@
                     <div id="mission-text" style="color: var(--gold); font-weight: 900; font-size: 0.85rem;">---</div>
                     <div id="purchase-power" style="font-size: 0.65rem; color: var(--success); font-weight: bold;">0 واحد</div>
                 </div>
-                <div id="market-status-pill" class="market-status-pill">STATUS</div>
+                <div id="market-status-pill" class="market-status-pill">وضعیت</div>
             </div>
         </div>
     </div>
 
     <div class="charts-wrapper">
         <div class="chart-card">
-            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--accent); z-index:1; letter-spacing:1px;">IRT EQUITY FLOW</div>
+            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--accent); z-index:1; letter-spacing:1px;">روند تغییرات ارزش (تومان)</div>
             <canvas id="balanceChart"></canvas>
         </div>
         <div class="chart-card">
-            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--text-sub); z-index:1;">ALLOCATION</div>
+            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--text-sub); z-index:1;">پراکندگی دارایی‌ها</div>
             <canvas id="allocationChart"></canvas>
         </div>
     </div>
@@ -142,13 +151,15 @@
     const dbRef = firebase.database().ref('StealthCapital_V1');
 
     let prices = {};
+    let sparklineData = {};
     let localDB = [];
     let localCfg = { toman: 70000, capacity: 500000000, type: '', note: '' };
+    let sparklinesLoaded = false;
     
     let chartData = { 
         labels: [], 
         datasets: [{ 
-            label: 'IRT Value', 
+            label: 'ارزش (تومان)', 
             data: [], 
             borderColor: '#00f2ff', 
             borderWidth: 3,
@@ -197,8 +208,13 @@
                 animation: { duration: 2000, easing: 'linear' },
                 plugins: { legend: { display: false } },
                 scales: { 
-                    x: { display: false }, 
+                    x: { 
+                        display: true, 
+                        grid: { display: false },
+                        ticks: { color: '#4b5563', font: {size: 9}, maxTicksLimit: 6 }
+                    }, 
                     y: { 
+                        beginAtZero: false,
                         grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
                         ticks: { 
                             color: '#4b5563', 
@@ -216,14 +232,21 @@
         const ctxPie = document.getElementById('allocationChart').getContext('2d');
         pieChart = new Chart(ctxPie, {
             type: 'doughnut',
-            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#00ffa3', '#ffcc00', '#ff4d4d', '#a29bfe'], borderWidth: 0, hoverOffset: 10 }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '82%', plugins: { legend: { display: false } }, animation: { animateRotate: true, duration: 1500 } }
+            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#00ffa3', '#ffcc00', '#ff4d4d', '#a29bfe', '#ff9f43', '#ff9ff3'], borderWidth: 0, hoverOffset: 10 }] },
+            options: { 
+                responsive: true, maintainAspectRatio: false, cutout: '75%', 
+                plugins: { 
+                    legend: { display: true, position: 'left', labels: { color: '#8b949e', font: {family: 'Vazirmatn', size: 10}, boxWidth: 12 } } 
+                }, 
+                animation: { animateRotate: true, duration: 1500 } 
+            }
         });
     }
 
     function openChart(symbol) {
         document.getElementById('chart-modal').style.display = 'flex';
         let clean = symbol.replace("USDT", "").toUpperCase();
+        if(clean === 'CASH') clean = 'USDT';
         document.getElementById('tradingview-widget').innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:${clean}USDT&interval=D&theme=dark" style="width: 100%; height: 100%; border: none;"></iframe>`;
     }
     function closeChart() { document.getElementById('chart-modal').style.display = 'none'; }
@@ -233,10 +256,41 @@
         if(data) {
             localDB = data.db || [];
             localCfg = data.config || localCfg;
-            document.getElementById('strat-text').innerText = localCfg.note || 'Stealth Capital Management';
+            document.getElementById('strat-text').innerText = localCfg.note || 'سیستم مدیریت سرمایه هوشمند';
             updatePrices();
+            
+            if(!sparklinesLoaded && localDB.length > 0) {
+                fetchSparklines();
+                sparklinesLoaded = true;
+            }
         }
     });
+
+    async function fetchSparklines() {
+        for (const item of localDB) {
+            const sym = item.sym.toUpperCase();
+            if(sym === 'USDT' || sym === 'CASH') continue;
+            try {
+                const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1d&limit=7`);
+                const d = await r.json();
+                sparklineData[sym] = d.map(k => parseFloat(k[4]));
+            } catch(e) { console.error("Sparkline Error", e); }
+        }
+        render();
+    }
+
+    function createSparklineSVG(data, color) {
+        if(!data || data.length === 0) return '';
+        const min = Math.min(...data); const max = Math.max(...data);
+        const range = max - min || 1;
+        const width = 60; const height = 20;
+        const points = data.map((d, i) => {
+            const x = (i / (data.length - 1)) * width;
+            const y = height - ((d - min) / range) * height;
+            return `${x},${y}`;
+        }).join(' ');
+        return `<svg class="sparkline" viewBox="0 -2 ${width} ${height+4}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${points}"></polyline></svg>`;
+    }
 
     async function updatePrices() {
         if (!localDB.length) return;
@@ -252,6 +306,7 @@
             }));
             res.forEach(r => prices[r.sym] = r.price);
             prices['USDT'] = 1;
+            prices['CASH'] = 1;
             render();
         } catch(e) { console.error(e); }
     }
@@ -260,9 +315,12 @@
     function render() {
         const root = document.getElementById('asset-root');
         const rate = parseFloat(localCfg.toman) || 70000;
-        let tAct = 0, tFut = 0, candidates = [];
+        let tAct = 0, tFut = 0, tInvestedUSD = 0, candidates = [];
         let catTotals = { safe: 0, growth: 0, risk: 0 };
+        let usdtAmount = 0;
         let pieLabels = [], pieShares = [];
+
+        const categoryNames = { safe: 'ایمن (تتر/استیبل)', growth: 'رشد (آلت‌کوین مستعد)', risk: 'پرریسک' };
 
         root.innerHTML = '';
         localDB.forEach(item => {
@@ -271,40 +329,79 @@
             const curUSD = (parseFloat(item.qty) || 0) * p;
             const targetUSD = (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0);
             
-            tAct += curUSD; tFut += targetUSD;
+            const bPrice = (item.buyPrice && item.buyPrice > 0) ? parseFloat(item.buyPrice) : p;
+            const investedUSD = (parseFloat(item.qty) || 0) * bPrice;
+            
+            tAct += curUSD; 
+            tFut += targetUSD;
+            tInvestedUSD += investedUSD;
+            
             catTotals[item.cat || 'safe'] += curUSD;
-            if (curUSD > 0) { pieLabels.push(sym); pieShares.push(curUSD); }
+            if (sym === 'USDT' || sym === 'CASH') usdtAmount += curUSD;
+            
+            if (curUSD > 0) { pieLabels.push(item.name); pieShares.push(curUSD); }
 
             const acc = (item.tqty > 0) ? (item.qty / item.tqty) * 100 : 0;
             const tai = (targetUSD > 0) ? (curUSD / targetUSD) * 100 : 0;
+            
+            // PNL for item
+            const itemPnlUSD = curUSD - investedUSD;
+            const itemPnlIRT = Math.floor(itemPnlUSD * rate);
+            const itemPnlColor = itemPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
+            const itemPnlSign = itemPnlUSD >= 0 ? '+' : '';
+            
+            const sparkSVG = createSparklineSVG(sparklineData[sym], itemPnlUSD >= 0 ? '#00ffa3' : '#ff4d4d');
+
             if (acc < 99 && p > 0) candidates.push({ name: item.name, sym: sym, acc: acc, price: p });
 
             root.innerHTML += `
                 <div class="asset-card" onclick="openChart('${sym}')">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <b style="color:var(--accent); font-size:1rem;">${item.name}</b>
-                        <b style="color:var(--success); font-size:0.85rem; font-family:monospace;">${Math.floor(p * rate).toLocaleString()} ت</b>
+                        <div style="display:flex; align-items:center;">
+                            ${sparkSVG}
+                            <b style="color:var(--accent); font-size:1.1rem;">${item.name}</b>
+                        </div>
+                        <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace;">${Math.floor(p * rate).toLocaleString()} ت</b>
                     </div>
-                    <div class="stat-value-toman" style="font-size:1.3rem;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
-                    <div style="color:var(--text-sub); font-family:monospace; font-size:0.75rem; margin-bottom:12px;">$${curUSD.toLocaleString()}</div>
-                    <div style="font-size:0.7rem; margin-bottom:5px;">پتانسیل: <b style="color:var(--success)">+${Math.floor(Math.max(0, targetUSD - curUSD) * rate).toLocaleString()} ت</b></div>
+                    <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
+                    <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:0.8rem; margin-bottom:12px; color:var(--text-sub);">
+                        <span>$${curUSD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                        <span style="color:${itemPnlColor}; font-weight:bold;">${itemPnlSign}${itemPnlIRT.toLocaleString()} ت</span>
+                    </div>
                     <div class="dual-bars">
-                        <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">انباشت ${acc.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(acc,100)}%; background:var(--accent)"></div></div></div>
-                        <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">TAI ${tai.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(tai,100)}%; background:var(--gold)"></div></div></div>
+                        <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">انباشت دارایی ${acc.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(acc,100)}%; background:var(--accent)"></div></div></div>
+                        <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">شاخص هدف ${tai.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(tai,100)}%; background:var(--gold)"></div></div></div>
                     </div>
                 </div>`;
         });
 
         let reHTML = '';
+        
+        // هشدار نقدینگی (Cash Drag)
+        const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
+        if (usdtRatio > 30) {
+            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">حدود <b style="color:var(--accent)">${usdtRatio.toFixed(1)}%</b> از سبد شما نقد (تتر) است. در صورت تایید شرایط بازار، بخشی از آن را طبق استراتژی سرمایه‌گذاری کنید.</div></div>`;
+        } else if (usdtRatio < 5 && tAct > 0) {
+            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است (${usdtRatio.toFixed(1)}%). برای پوشش ریسک و شکار فرصت‌ها در ریزش‌های احتمالی، نقدینگی ایجاد کنید.</div></div>`;
+        }
+
         const rules = { safe: 0.5, growth: 0.35, risk: 0.15 };
         for (let c in rules) {
             const limitUSD = tAct * rules[c];
             if (catTotals[c] > limitUSD && c !== 'safe') {
                 const exIRT = Math.floor((catTotals[c] - limitUSD) * rate);
-                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار ریسک ${c.toUpperCase()}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> را به تتر (Safe) تبدیل کنید.</div></div>`;
+                const catPersianName = categoryNames[c] || c;
+                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار مدیریت سبد: دسته ${catPersianName}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز است. پیشنهاد: سیو سود و انتقال به دارایی ایمن.</div></div>`;
             }
         }
         document.getElementById('rebalance-area').innerHTML = reHTML;
+
+        // PNL Calculations
+        const pnlUSD = tAct - tInvestedUSD;
+        const pnlIRT = Math.floor(pnlUSD * rate);
+        const pnlPercent = tInvestedUSD > 0 ? (pnlUSD / tInvestedUSD) * 100 : 0;
+        const pnlColor = pnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
+        const pnlSign = pnlUSD >= 0 ? '+' : '';
 
         const progress = tFut > 0 ? (tAct / tFut) * 100 : 0;
         const gapUSD = Math.max(0, tFut - tAct);
@@ -321,7 +418,9 @@
 
         document.getElementById('total-irt').innerText = tActIRT.toLocaleString() + ' تومان';
         document.getElementById('total-usd').innerText = '$' + Math.floor(tAct).toLocaleString();
+        document.getElementById('total-pnl').innerHTML = `<span style="color:${pnlColor}">${pnlSign}${pnlIRT.toLocaleString()} ت (${pnlSign}${pnlPercent.toFixed(2)}%)</span>`;
         document.getElementById('total-progress').innerText = progress.toFixed(2) + '%';
+        
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
@@ -336,15 +435,18 @@
         }
 
         const pPill = document.getElementById('market-status-pill');
-        pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "HOLDING" : "ACCUMULATING";
+        pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "انباشت (خرید)";
         pPill.style.color = (localCfg.type || "").includes("تکمیل") ? "var(--success)" : "var(--warning)";
 
         if (myChart && tActIRT > 0) {
-            const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-            if (chartData.labels.length > 20000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
-            chartData.labels.push(now); 
-            chartData.datasets[0].data.push(tActIRT); // آپدیت مقدار تومانی در نمودار
-            myChart.update(); 
+            const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
+            if (chartData.labels.length > 2000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
+            // Only add label if it's different from the last one (avoid too many points per minute)
+            if(chartData.labels[chartData.labels.length - 1] !== now) {
+                chartData.labels.push(now); 
+                chartData.datasets[0].data.push(tActIRT); 
+                myChart.update(); 
+            }
             pieChart.data.labels = pieLabels; pieChart.data.datasets[0].data = pieShares; pieChart.update();
         }
     }
