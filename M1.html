@@ -27,7 +27,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
-        /* --- بخش جدید: استایل نوار متحرک برای Note ادمین --- */
         .ticker-wrap {
             background: rgba(0, 242, 255, 0.05);
             border: 1px solid var(--border);
@@ -46,11 +45,7 @@
             font-weight: 800;
             text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
         }
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        /* ----------------------------------------------- */
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         .active-pulse { animation: pulse-glow 2s infinite; }
         @keyframes pulse-glow {
@@ -79,14 +74,8 @@
         .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; cursor: pointer; transition: 0.3s; }
         .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); border-color: var(--accent); }
         
-        .rebalance-box {
-            background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.2);
-            border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--danger);
-        }
-        .warning-box {
-            background: rgba(255, 159, 67, 0.05); border: 1px solid rgba(255, 159, 67, 0.2);
-            border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--warning);
-        }
+        .rebalance-box { background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--danger); }
+        .warning-box { background: rgba(255, 159, 67, 0.05); border: 1px solid rgba(255, 159, 67, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--warning); }
 
         .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .bar-group { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 12px; }
@@ -102,7 +91,7 @@
         }
     </style>
 </head>
-<body onload="initCharts()">
+<body onload="initApp()">
 
     <div id="chart-modal">
         <div style="width: 95%; height: 85%; background: #000; border-radius: 25px; position: relative; border: 1px solid var(--border); overflow: hidden;">
@@ -112,14 +101,17 @@
     </div>
 
     <header>
-        <div style="text-align: right;">
-            <div id="strat-text" style="font-size: 0.9rem; color: var(--success); font-weight: 900;">Terminal Active</div>
+        <div style="text-align: right; display:flex; align-items:center; gap:5px;">
+            <input type="text" id="search-user" placeholder="شناسه کاربری..." style="background:#000; border:1px solid var(--accent); color:#fff; padding:6px 10px; border-radius:8px; font-size:0.8rem; outline:none; width: 150px;">
+            <button onclick="loadUserMonitor()" style="background:var(--accent); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:900; font-size:0.8rem;">ورود</button>
         </div>
+        
         <div style="text-align: center;">
             <h1 style="color: var(--accent); font-size: 1.3rem; margin: 0; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0,242,255,0.6); font-weight: 900;">
-                SMB - STEALTHCAPITAL | <span style="color:var(--gold)">PHOENIX PROTOCOL</span>
+                SMB - STEALTHCAPITAL | <span style="color:var(--gold)">PHOENIX</span>
             </h1>
         </div>
+        
         <div style="text-align: left;">
             <div id="live-clock" style="font-size: 1.4rem; font-weight: 900; font-family: monospace; color: var(--accent); line-height:1;">00:00:00</div>
             <div id="jalali-date" style="font-size: 0.6rem; color: var(--text-sub); font-weight: bold;">---</div>
@@ -127,7 +119,7 @@
     </header>
 
     <div class="ticker-wrap">
-        <div id="marquee-note" class="ticker-move">در حال دریافت آخرین فرامین استراتژیک از مرکز فرماندهی...</div>
+        <div id="marquee-note" class="ticker-move">لطفاً شناسه کاربری خود را وارد کنید یا از طریق لینک اختصاصی وارد شوید...</div>
     </div>
 
     <div id="rebalance-area"></div>
@@ -186,12 +178,12 @@
 <script>
     const firebaseConfig = { databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
-    const dbRef = firebase.database().ref('StealthCapital_V1');
 
+    let currentOrderRef = null;
     let prices = {};
     let sparklineData = {};
     let localDB = [];
-    let localCfg = { toman: 70000, capacity: 500000000, type: '', note: '' };
+    let localCfg = { toman: 70000, type: '', note: '' };
     let sparklinesLoaded = false;
     
     let chartData = { 
@@ -221,6 +213,36 @@
         document.getElementById('live-clock').innerText = now.toLocaleTimeString('fa-IR');
         document.getElementById('jalali-date').innerText = new Intl.DateTimeFormat('fa-IR', {year:'numeric', month:'long', day:'numeric'}).format(now).toUpperCase();
     }, 1000);
+
+    function initApp() {
+        initCharts();
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('user');
+        if(userParam) {
+            document.getElementById('search-user').value = userParam;
+            loadUserMonitor();
+        }
+    }
+
+    function loadUserMonitor() {
+        const userId = document.getElementById('search-user').value.trim();
+        if(!userId) return alert("لطفاً شناسه کاربری را وارد کنید");
+        if(currentOrderRef) currentOrderRef.off();
+        currentOrderRef = firebase.database().ref(`StealthCapital_V1/Users/${userId}`);
+        
+        currentOrderRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                localDB = data.db || [];
+                localCfg = data.config || localCfg;
+                document.getElementById('marquee-note').innerText = `👤 متصل به پورتفوی ${userId} | 📢 فرامین فرماندهی: ` + (localCfg.note || "در انتظار تحلیل بازار...");
+                updatePrices();
+                if(!sparklinesLoaded && localDB.length > 0) { fetchSparklines(); sparklinesLoaded = true; }
+            } else {
+                alert("پورتفویی برای این کاربر یافت نشد!");
+            }
+        });
+    }
 
     function initCharts() {
         const ctx = document.getElementById('balanceChart').getContext('2d');
@@ -271,24 +293,10 @@
     function openChart(symbol) {
         document.getElementById('chart-modal').style.display = 'flex';
         let clean = symbol.replace("USDT", "").toUpperCase();
-        if(clean === 'CASH') clean = 'USDT';
+        if(clean === 'CASH' || clean === 'USDT') clean = 'BTC'; 
         document.getElementById('tradingview-widget').innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:${clean}USDT&interval=D&theme=dark" style="width: 100%; height: 100%; border: none;"></iframe>`;
     }
     function closeChart() { document.getElementById('chart-modal').style.display = 'none'; }
-
-    dbRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if(data) {
-            localDB = data.db || [];
-            localCfg = data.config || localCfg;
-            
-            // نمایش Note در نوار متحرک
-            document.getElementById('marquee-note').innerText = "📢 فرامین استراتژیک: " + (localCfg.note || "در انتظار تحلیل بازار...");
-            
-            updatePrices();
-            if(!sparklinesLoaded && localDB.length > 0) { fetchSparklines(); sparklinesLoaded = true; }
-        }
-    });
 
     async function fetchSparklines() {
         for (const item of localDB) {
@@ -297,14 +305,14 @@
             try {
                 const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1d&limit=7`);
                 const d = await r.json();
-                sparklineData[sym] = d.map(k => parseFloat(k[4]));
+                if(Array.isArray(d)) sparklineData[sym] = d.map(k => parseFloat(k[4]));
             } catch(e) { console.error("Sparkline Error", e); }
         }
         render();
     }
 
     function createSparklineSVG(data, color) {
-        if(!data || data.length === 0) return '';
+        if(!data || data.length < 2) return `<div class="sparkline"></div>`;
         const min = Math.min(...data); const max = Math.max(...data);
         const range = max - min || 1;
         const width = 60; const height = 20;
@@ -325,10 +333,10 @@
                 try {
                     const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}USDT`);
                     const d = await r.json();
-                    return { sym: sym, price: parseFloat(d.price) || 0 };
+                    return { sym: sym, price: parseFloat(d.price) || prices[sym] || 0 };
                 } catch { return { sym: sym, price: prices[sym] || 0 }; }
             }));
-            res.forEach(r => prices[r.sym] = r.price);
+            res.forEach(r => { if(r.price > 0) prices[r.sym] = r.price; });
             prices['USDT'] = 1; prices['CASH'] = 1;
             render();
         } catch(e) { console.error(e); }
@@ -342,17 +350,21 @@
         let catTotals = { safe: 0, growth: 0, risk: 0 };
         let usdtAmount = 0;
         let pieLabels = [], pieShares = [];
-
         const categoryNames = { safe: 'ایمن (تتر/استیبل)', growth: 'رشد (آلت‌کوین مستعد)', risk: 'پرریسک' };
 
-        root.innerHTML = '';
+        let tempHTML = '';
         localDB.forEach(item => {
             const sym = item.sym.toUpperCase();
-            const p = prices[sym] || 0;
-            const curUSD = (parseFloat(item.qty) || 0) * p;
-            const targetUSD = (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0);
+            const baseBuyPrice = (item.buyPrice && parseFloat(item.buyPrice) > 0) ? parseFloat(item.buyPrice) : 0;
+            const currentPrice = (prices[sym] && prices[sym] > 0) ? prices[sym] : 0;
             
-            const bPrice = (item.buyPrice && item.buyPrice > 0) ? parseFloat(item.buyPrice) : p;
+            // نمایش قیمت لحظه‌ای یا قیمت خرید اگر لحظه‌ای نبود
+            const displayPrice = currentPrice > 0 ? currentPrice : (baseBuyPrice > 0 ? baseBuyPrice : 0);
+            
+            const curUSD = (parseFloat(item.qty) || 0) * displayPrice;
+            const targetUSD = (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0);
+            const bPrice = baseBuyPrice > 0 ? baseBuyPrice : displayPrice;
+            const tank = parseFloat(item.tank) || 0;
             const investedUSD = (parseFloat(item.qty) || 0) * bPrice;
             
             tAct += curUSD; tFut += targetUSD; tInvestedUSD += investedUSD;
@@ -360,26 +372,41 @@
             if (sym === 'USDT' || sym === 'CASH') usdtAmount += curUSD;
             if (curUSD > 0) { pieLabels.push(item.name); pieShares.push(curUSD); }
 
-            const acc = (item.tqty > 0) ? (item.qty / item.tqty) * 100 : 0;
+            const acc = (item.tqty && parseFloat(item.tqty) > 0) ? (parseFloat(item.qty) / parseFloat(item.tqty)) * 100 : 0;
             const tai = (targetUSD > 0) ? (curUSD / targetUSD) * 100 : 0;
-            const itemPnlUSD = curUSD - investedUSD;
+            
+            // اصلاح سود و زیان: فقط اگر قیمت لحظه‌ای داریم محاسبه واقعی انجام شود
+            let itemPnlUSD = 0;
+            let itemPnlPercent = 0;
+            if (currentPrice > 0 && bPrice > 0) {
+                itemPnlUSD = curUSD - investedUSD;
+                itemPnlPercent = ((currentPrice - bPrice) / bPrice) * 100;
+            }
+
             const itemPnlIRT = Math.floor(itemPnlUSD * rate);
             const itemPnlColor = itemPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
-            const itemPnlSign = itemPnlUSD >= 0 ? '+' : '';
+            const itemPnlSign = itemPnlUSD >= 0 ? '+' : ''; // علامت منفی توسط عدد خودکار تولید می‌شود
             const sparkSVG = createSparklineSVG(sparklineData[sym], itemPnlUSD >= 0 ? '#00ffa3' : '#ff4d4d');
 
-            if (acc < 99 && p > 0) candidates.push({ name: item.name, sym: sym, acc: acc, price: p });
+            if (acc < 99 && displayPrice > 0) candidates.push({ name: item.name, sym: sym, acc: acc, price: displayPrice });
 
-            root.innerHTML += `
+            tempHTML += `
                 <div class="asset-card" onclick="openChart('${sym}')">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <div style="display:flex; align-items:center;">${sparkSVG}<b style="color:var(--accent); font-size:1.1rem;">${item.name}</b></div>
-                        <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace;">${Math.floor(p * rate).toLocaleString()} ت</b>
+                        <div style="text-align: left;">
+                            <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace; display:block;">${Math.floor(displayPrice * rate).toLocaleString()} ت</b>
+                            <span style="font-size:0.65rem; color:var(--text-sub);">$${displayPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub); margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;">
+                        <span>میانگین ورود: <b style="color:#fff;">$${bPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
+                        <span>حجم مخزن: <b style="color:var(--gold);">$${tank > 0 ? tank.toLocaleString() : '---'}</b></span>
                     </div>
                     <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:0.8rem; margin-bottom:12px; color:var(--text-sub);">
                         <span>$${curUSD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
-                        <span style="color:${itemPnlColor}; font-weight:bold;">${itemPnlSign}${itemPnlIRT.toLocaleString()} ت</span>
+                        <span style="color:${itemPnlColor}; font-weight:bold; direction: ltr; display: inline-block;">${itemPnlSign}${itemPnlIRT.toLocaleString()} ت (${itemPnlSign}${itemPnlPercent.toFixed(1)}%)</span>
                     </div>
                     <div class="dual-bars">
                         <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">انباشت دارایی ${acc.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(acc,100)}%; background:var(--accent)"></div></div></div>
@@ -387,8 +414,9 @@
                     </div>
                 </div>`;
         });
+        root.innerHTML = tempHTML;
 
-        // منطق‌های هشدار Rebalance کد اصلی شما
+        // بخش محاسبات کلی (Rebalance و Progress)
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
         if (usdtRatio > 30) {
@@ -408,17 +436,17 @@
         }
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
-        // محاسبات سود و پیشرفت کد اصلی شما
-        const pnlUSD = tAct - tInvestedUSD;
-        const pnlIRT = Math.floor(pnlUSD * rate);
-        const pnlPercent = tInvestedUSD > 0 ? (pnlUSD / tInvestedUSD) * 100 : 0;
+        // آمار نهایی پورتفوی
+        const totalPnlUSD = tAct - tInvestedUSD;
+        const totalPnlIRT = Math.floor(totalPnlUSD * rate);
+        const totalPnlPercent = tInvestedUSD > 0 ? (totalPnlUSD / tInvestedUSD) * 100 : 0;
         const progress = tFut > 0 ? (tAct / tFut) * 100 : 0;
         const gapUSD = Math.max(0, tFut - tAct);
         const sprintUSD = tFut / 100;
         const weeksLeft = (sprintUSD * 2) > 0 ? gapUSD / (sprintUSD * 2) : 0;
         const daysLeft = Math.ceil(weeksLeft * 7);
 
-        if (daysLeft > 0 && daysLeft < 5000) {
+        if (daysLeft > 0 && daysLeft < 10000) {
             const targetD = new Date(); targetD.setDate(targetD.getDate() + daysLeft);
             const fmt = new Intl.DateTimeFormat('fa-IR', {month:'long', year:'numeric'}).format(targetD);
             document.getElementById('days-forecast').innerHTML = `⏳ <b>${daysLeft.toLocaleString('fa-IR')} روز</b> تا هدف (حدود <b>${fmt}</b>)`;
@@ -426,7 +454,7 @@
 
         document.getElementById('total-irt').innerText = Math.floor(tAct * rate).toLocaleString() + ' تومان';
         document.getElementById('total-usd').innerText = '$' + Math.floor(tAct).toLocaleString();
-        document.getElementById('total-pnl').innerHTML = `<span style="color:${pnlUSD >= 0 ? 'var(--success)' : 'var(--danger)'}">${pnlUSD >= 0 ? '+' : ''}${pnlIRT.toLocaleString()} ت (${pnlUSD >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
+        document.getElementById('total-pnl').innerHTML = `<span style="color:${totalPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)'}; direction: ltr; display: inline-block;">${totalPnlUSD >= 0 ? '+' : ''}${totalPnlIRT.toLocaleString()} ت (${totalPnlUSD >= 0 ? '+' : ''}${totalPnlPercent.toFixed(2)}%)</span>`;
         document.getElementById('total-progress').innerText = progress.toFixed(2) + '%';
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
@@ -447,9 +475,9 @@
 
         if (myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
-            if (chartData.labels.length > 10000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
+            if (chartData.labels.length > 500) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
             if(chartData.labels[chartData.labels.length - 1] !== now) {
-                chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); myChart.update(); 
+                chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); myChart.update('none'); 
             }
             pieChart.data.labels = pieLabels; pieChart.data.datasets[0].data = pieShares; pieChart.update();
         }
