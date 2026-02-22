@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital | Ultra v2.0 - IRT</title>
+    <title>StealthCapital | Ultra v3.0 - Pro Analytics</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
@@ -13,7 +13,7 @@
         :root {
             --bg: #010409; --surface: rgba(13, 17, 23, 0.95); --border: rgba(0, 242, 255, 0.1);
             --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --danger: #ff4d4d;
-            --warning: #ff9f43; --text-main: #e6edf3; --text-sub: #8b949e; --font: 'Vazirmatn', sans-serif;
+            --warning: #ff9f43; --purple: #a29bfe; --text-main: #e6edf3; --text-sub: #8b949e; --font: 'Vazirmatn', sans-serif;
         }
         * { box-sizing: border-box; font-family: var(--font) !important; outline: none; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; overflow-x: hidden; }
@@ -55,11 +55,12 @@
         }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .stats-grid-small { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; transition: 0.3s ease; }
         .stat-card:hover { border-color: var(--accent); }
         
         .charts-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .chart-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; height: 250px; position: relative; }
+        .chart-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; height: 280px; position: relative; }
 
         .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; display: block; margin-bottom: 8px; }
         .stat-value-toman { font-size: 1.6rem; font-weight: 900; line-height: 1.2; color: var(--success); text-shadow: 0 0 15px rgba(0, 255, 163, 0.2); }
@@ -162,9 +163,27 @@
         </div>
     </div>
 
+    <div class="stats-grid-small">
+        <div class="stat-card">
+            <span class="stat-label">📊 درگیری سرمایه (Exposure)</span>
+            <div id="exposure-val" class="stat-value-toman" style="color: var(--purple); font-size: 1.3rem;">0%</div>
+            <div class="stat-sub-usd">سرمایه در جریان نوسان</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">⚡ بهره‌وری سرمایه (ROIC)</span>
+            <div id="efficiency-val" class="stat-value-toman" style="font-size: 1.3rem;">0%</div>
+            <div class="stat-sub-usd">بازدهی سرمایه درگیر شده</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">📉 حداکثر افت نشست (Session MDD)</span>
+            <div id="mdd-val" class="stat-value-toman" style="color: var(--danger); font-size: 1.3rem;">0%</div>
+            <div class="stat-sub-usd">از سقف: <span id="peak-val">0</span> ت</div>
+        </div>
+    </div>
+
     <div class="charts-wrapper">
         <div class="chart-card">
-            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--accent); z-index:1; letter-spacing:1px;">روند تغییرات ارزش (تومان)</div>
+            <div style="position:absolute; top:10px; right:15px; font-size:0.6rem; color:var(--accent); z-index:1; letter-spacing:1px;">Equity Curve & Injected Capital</div>
             <canvas id="balanceChart"></canvas>
         </div>
         <div class="chart-card">
@@ -185,28 +204,54 @@
     let localDB = [];
     let localCfg = { toman: 70000, type: '', note: '' };
     let sparklinesLoaded = false;
+    let sessionPeak = 0; // برای محاسبه افت در نشست جاری
     
+    // تعریف ساختار داده‌های چارت چندگانه
     let chartData = { 
         labels: [], 
-        datasets: [{ 
-            label: 'ارزش (تومان)', 
-            data: [], 
-            borderColor: '#00f2ff', 
-            borderWidth: 3,
-            cubicInterpolationMode: 'monotone',
-            tension: 0.45, 
-            fill: true, 
-            backgroundColor: (context) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                gradient.addColorStop(0, 'rgba(0, 242, 255, 0.2)');
-                gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
-                return gradient;
+        datasets: [
+            { 
+                label: 'ارزش کل (تومان)', 
+                data: [], 
+                borderColor: '#00f2ff', 
+                borderWidth: 3,
+                cubicInterpolationMode: 'monotone',
+                tension: 0.45, 
+                fill: true, 
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradient.addColorStop(0, 'rgba(0, 242, 255, 0.2)');
+                    gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
+                    return gradient;
+                },
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#00f2ff',
+                yAxisID: 'y'
             },
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointBackgroundColor: '#00f2ff'
-        }] 
+            {
+                label: 'سرمایه تزریق شده',
+                data: [],
+                borderColor: 'rgba(255, 204, 0, 0.6)', // رنگ طلایی
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.1,
+                fill: false,
+                pointRadius: 0,
+                yAxisID: 'y'
+            },
+            {
+                label: 'سود/زیان (Unrealized)',
+                data: [],
+                type: 'bar',
+                backgroundColor: (context) => {
+                    const val = context.dataset.data[context.dataIndex];
+                    return val >= 0 ? 'rgba(0, 255, 163, 0.2)' : 'rgba(255, 77, 77, 0.2)';
+                },
+                yAxisID: 'y1'
+            }
+        ] 
     };
     
     let myChart, pieChart;
@@ -253,10 +298,10 @@
             beforeDraw: (chart) => {
                 const {ctx} = chart;
                 ctx.save();
-                ctx.shadowColor = 'rgba(0, 242, 255, 0.4)';
-                ctx.shadowBlur = 12;
+                ctx.shadowColor = 'rgba(0, 242, 255, 0.2)';
+                ctx.shadowBlur = 10;
                 ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 6;
+                ctx.shadowOffsetY = 4;
             },
             afterDraw: (chart) => { chart.ctx.restore(); }
         };
@@ -272,11 +317,19 @@
                 scales: { 
                     x: { display: true, grid: { display: false }, ticks: { color: '#4b5563', font: {size: 9}, maxTicksLimit: 6 } }, 
                     y: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
                         beginAtZero: false,
                         grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-                        ticks: { color: '#4b5563', font: {size: 9}, callback: function(value) { return value >= 1000000 ? (value/1000000).toFixed(1) + 'M' : value.toLocaleString('fa-IR'); } },
-                        position: 'right'
-                    } 
+                        ticks: { color: '#4b5563', font: {size: 9}, callback: function(value) { return value >= 1000000 ? (value/1000000).toFixed(1) + 'M' : value.toLocaleString('fa-IR'); } }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: false, // پنهان کردن محور y1 برای جلوگیری از شلوغی، اما دیتا روی آن رندر می‌شود
+                        position: 'left',
+                        grid: { drawOnChartArea: false }
+                    }
                 }
             }
         });
@@ -440,6 +493,7 @@
         }
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
+        // محاسبات اصلی PnL
         const totalPnlUSD = tAct - tInvestedUSD;
         const totalPnlIRT = Math.floor(totalPnlUSD * rate);
         const totalPnlPercent = tInvestedUSD > 0 ? (totalPnlUSD / tInvestedUSD) * 100 : 0;
@@ -449,22 +503,39 @@
         const weeksLeft = (sprintUSD * 2) > 0 ? gapUSD / (sprintUSD * 2) : 0;
         const daysLeft = Math.ceil(weeksLeft * 7);
 
+        // محاسبات شاخص‌های پیشرفته (Institutional)
+        const tActIRT = Math.floor(tAct * rate);
+        if (tActIRT > sessionPeak) sessionPeak = tActIRT;
+        const currentDrawdown = sessionPeak > 0 ? ((sessionPeak - tActIRT) / sessionPeak) * 100 : 0;
+        const exposurePercent = tAct > 0 ? ((tAct - usdtAmount) / tAct) * 100 : 0;
+        const capitalEfficiency = tInvestedUSD > 0 ? (totalPnlUSD / tInvestedUSD) * 100 : 0;
+
+        // آپدیت HTML مقادیر
         if (daysLeft > 0 && daysLeft < 10000) {
             const targetD = new Date(); targetD.setDate(targetD.getDate() + daysLeft);
             const fmt = new Intl.DateTimeFormat('fa-IR', {month:'long', year:'numeric'}).format(targetD);
             document.getElementById('days-forecast').innerHTML = `⏳ <b>${daysLeft.toLocaleString('fa-IR')} روز</b> تا هدف (حدود <b>${fmt}</b>)`;
         }
 
-        document.getElementById('total-irt').innerText = Math.floor(tAct * rate).toLocaleString() + ' تومان';
+        document.getElementById('total-irt').innerText = tActIRT.toLocaleString() + ' تومان';
         document.getElementById('total-usd').innerText = '$' + Math.floor(tAct).toLocaleString();
         document.getElementById('total-pnl').innerHTML = `<span style="color:${totalPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)'}; direction: ltr; display: inline-block;">${totalPnlUSD >= 0 ? '+' : ''}${totalPnlIRT.toLocaleString()} ت (${totalPnlUSD >= 0 ? '+' : ''}${totalPnlPercent.toFixed(2)}%)</span>`;
         document.getElementById('total-progress').innerText = progress.toFixed(2) + '%';
+        
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% مانده تا پیروزی';
+        
         document.getElementById('sprint-irt').innerText = Math.floor(sprintUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('sprint-usd').innerText = '$' + sprintUSD.toFixed(1);
+
+        // آپدیت کارت‌های Institutional Metrics
+        document.getElementById('exposure-val').innerText = exposurePercent.toFixed(1) + '%';
+        document.getElementById('efficiency-val').innerText = (totalPnlUSD >= 0 ? '+' : '') + capitalEfficiency.toFixed(2) + '%';
+        document.getElementById('efficiency-val').style.color = totalPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('mdd-val').innerText = '-' + currentDrawdown.toFixed(2) + '%';
+        document.getElementById('peak-val').innerText = sessionPeak >= 1000000 ? (sessionPeak/1000000).toFixed(1) + 'M' : sessionPeak.toLocaleString();
 
         if (candidates.length) {
             const top = candidates.sort((a,b) => a.acc - b.acc)[0];
@@ -476,11 +547,20 @@
         pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "انباشت (خرید)";
         pPill.style.color = (localCfg.type || "").includes("تکمیل") ? "var(--success)" : "var(--warning)";
 
+        // آپدیت چارت با دیتاست‌های جدید
         if (myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
-            if (chartData.labels.length > 500) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
+            if (chartData.labels.length > 500) { 
+                chartData.labels.shift(); 
+                chartData.datasets[0].data.shift(); 
+                chartData.datasets[1].data.shift();
+                chartData.datasets[2].data.shift();
+            }
             if(chartData.labels[chartData.labels.length - 1] !== now) {
-                chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); 
+                chartData.labels.push(now); 
+                chartData.datasets[0].data.push(tActIRT); // ارزش کل
+                chartData.datasets[1].data.push(Math.floor(tInvestedUSD * rate)); // سرمایه تزریق شده
+                chartData.datasets[2].data.push(totalPnlIRT); // سود/زیان
                 myChart.update(); 
             }
             pieChart.data.labels = pieLabels; pieChart.data.datasets[0].data = pieShares; pieChart.update();
