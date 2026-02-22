@@ -149,16 +149,17 @@
         </div>
 
 	<div class="stat-card" style="border-right: 4px solid var(--accent);">
-    		<span class="stat-label">📊 شاخص ترس و طمع بازار</span>
-    		<div id="fng-value" class="stat-value-toman" style="color: var(--accent);">--</div>
-    		<div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
-    		<div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
-        	<div class="bar-bg" style="height: 8px; background: #222;">
-            	<div id="fng-bar" class="bar-fill" style="width:0%; background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3);"></div>
-        	</div>
-        	<div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
-    		</div>
-	</div>
+    <span class="stat-label">📊 شاخص ترس و طمع بازار</span>
+    <div id="fng-value" class="stat-value-toman" style="color: var(--accent);">--</div>
+    <div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
+    <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
+        <div class="bar-bg" style="height: 8px; background: #222; border-radius: 10px; overflow: hidden;">
+            <div id="fng-bar" class="bar-fill" style="width:0%; height: 100%; transition: 1s ease-in-out;"></div>
+        </div>
+
+        <div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
+    </div>
+</div>
 
         <div class="stat-card">
             <span class="stat-label">🚀 پله پیشنهادی خرید</span>
@@ -509,11 +510,11 @@
         
         // ترجمه وضعیت به فارسی
         const translations = {
-            'Extreme Fear': 'ترس شدید (فرصت خرید؟)',
+            'Extreme Fear': 'ترس شدید (فرصت خرید!!!)',
             'Fear': 'ترس',
             'Neutral': 'خنثی',
             'Greed': 'طمع',
-            'Extreme Greed': 'طمع شدید (احتیاط!)'
+            'Extreme Greed': 'طمع شدید (نقد کردن به تتر!!!)'
         };
 
         const fngElement = document.getElementById('fng-value');
@@ -530,16 +531,16 @@
         else if (value < 60) fngElement.style.color = 'var(--gold)';
         else fngElement.style.color = 'var(--success)';
 
-    	} catch (error) {
+    } catch (error) {
         console.error("خطا در دریافت شاخص ترس و طمع:", error);
-    	}
-	}
+    }
+}
 
-	// اجرای تابع در هنگام شروع برنامه
-	// این را داخل تابع initApp یا در انتهای کدها اضافه کن
-	updateFearAndGreed();
-	// به‌روزرسانی هر 30 دقیقه یکبار
-	setInterval(updateFearAndGreed, 3600);
+// اجرای تابع در هنگام شروع برنامه
+// این را داخل تابع initApp یا در انتهای کدها اضافه کن
+updateFearAndGreed();
+// به‌روزرسانی هر 30 دقیقه یکبار
+setInterval(updateFearAndGreed, 1800000);
 </script>
 </body>
 </html>
