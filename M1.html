@@ -153,10 +153,9 @@
     <div id="fng-value" class="stat-value-toman" style="color: var(--accent);">--</div>
     <div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
     <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
-        <div class="bar-bg" style="height: 8px; background: #222; border-radius: 10px; overflow: hidden;">
-            <div id="fng-bar" class="bar-fill" style="width:0%; height: 100%; transition: 1s ease-in-out;"></div>
+        <div class="bar-bg" style="height: 8px; background: #222;">
+            <div id="fng-bar" class="bar-fill" style="width:0%; background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3);"></div>
         </div>
-
         <div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
     </div>
 </div>
@@ -500,7 +499,7 @@
         }
     }
 	async function updateFearAndGreed() {
-    try {
+    	try {
         const response = await fetch('https://api.alternative.me/fng/');
         const data = await response.json();
         const fng = data.data[0];
@@ -510,11 +509,11 @@
         
         // ترجمه وضعیت به فارسی
         const translations = {
-            'Extreme Fear': 'ترس شدید (فرصت خرید!!!)',
+            'Extreme Fear': 'ترس شدید (فرصت خرید؟)',
             'Fear': 'ترس',
             'Neutral': 'خنثی',
             'Greed': 'طمع',
-            'Extreme Greed': 'طمع شدید (نقد کردن به تتر!!!)'
+            'Extreme Greed': 'طمع شدید (احتیاط!)'
         };
 
         const fngElement = document.getElementById('fng-value');
@@ -540,8 +539,7 @@
 // این را داخل تابع initApp یا در انتهای کدها اضافه کن
 updateFearAndGreed();
 // به‌روزرسانی هر 30 دقیقه یکبار
-setInterval(updateFearAndGreed, 3600);
+setInterval(updateFearAndGreed, 1800000);
 </script>
 </body>
 </html>
-
