@@ -490,7 +490,7 @@
 
         if (myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
-            if (chartData.labels.length > 500) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
+            if (chartData.labels.length > 5000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
             if(chartData.labels[chartData.labels.length - 1] !== now) {
                 chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); 
                 myChart.update(); 
@@ -543,4 +543,5 @@ setInterval(updateFearAndGreed, 1800000);
 </script>
 </body>
 </html>
+
 
