@@ -473,7 +473,7 @@
                     const aiTrend = predictedPrice >= displayPrice ? 'var(--success)' : 'var(--danger)';
                     aiPredictionBox = `
                     <div class="ai-box">
-                        <span style="font-size:0.65rem; color:var(--ai-color); font-weight:bold;">🤖 پیش‌بینی AI (فردا):</span>
+                        <span style="font-size:0.65rem; color:var(--ai-color); font-weight:bold;">🤖 پیش‌بینی قیمت فردا :</span>
                         <b style="color:${aiTrend}; font-family:monospace; font-size:0.85rem;">$${predictedPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b>
                     </div>`;
                 }
