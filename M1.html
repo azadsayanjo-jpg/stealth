@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital | Ultra v2.0 - IRT + AI Forecast</title>
+    <title>StealthCapital | Ultra v2.5 - AI Powered Dashboard</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
@@ -13,7 +13,7 @@
         :root {
             --bg: #010409; --surface: rgba(13, 17, 23, 0.95); --border: rgba(0, 242, 255, 0.1);
             --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --danger: #ff4d4d;
-            --warning: #ff9f43; --ai-color: #a29bfe; --text-main: #e6edf3; --text-sub: #8b949e; --font: 'Vazirmatn', sans-serif;
+            --warning: #ff9f43; --ai-color: #a29bfe; --ai-dark: #6c5ce7; --text-main: #e6edf3; --text-sub: #8b949e; --font: 'Vazirmatn', sans-serif;
         }
         * { box-sizing: border-box; font-family: var(--font) !important; outline: none; }
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; overflow-x: hidden; }
@@ -71,18 +71,35 @@
         }
 
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
-        .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; cursor: pointer; transition: 0.3s; }
+        .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; cursor: pointer; transition: 0.3s; position: relative; }
         .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); border-color: var(--accent); }
         
         .rebalance-box { background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--danger); }
         .warning-box { background: rgba(255, 159, 67, 0.05); border: 1px solid rgba(255, 159, 67, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--warning); }
+        .ai-rebalance-box { background: rgba(162, 155, 254, 0.05); border: 1px solid rgba(162, 155, 254, 0.3); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--ai-color); }
 
         .dual-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .bar-group { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 12px; }
         .bar-bg { height: 4px; background: #000; border-radius: 10px; margin-top: 6px; overflow: hidden; }
         .bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .ai-box { background: rgba(162, 155, 254, 0.1); border: 1px solid rgba(162, 155, 254, 0.3); border-radius: 10px; padding: 8px 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .ai-box { background: rgba(162, 155, 254, 0.1); border: 1px solid rgba(162, 155, 254, 0.3); border-radius: 10px; padding: 8px 12px; margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .sentiment-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
+        .anomaly-alert { font-size: 0.7rem; color: var(--danger); font-weight: bold; background: rgba(255, 77, 77, 0.1); padding: 3px 8px; border-radius: 6px; margin-top: 5px; display: inline-block; border: 1px solid var(--danger); animation: pulse-glow 1.5s infinite;}
+
+        /* AI Chatbot Styles */
+        .ai-chat-btn { position: fixed; bottom: 25px; left: 25px; background: linear-gradient(135deg, var(--ai-color), var(--ai-dark)); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(162, 155, 254, 0.5); z-index: 1000; font-size: 1.8rem; transition: 0.3s; border: 2px solid rgba(255,255,255,0.2); }
+        .ai-chat-btn:hover { transform: scale(1.1) rotate(5deg); }
+        .ai-chat-window { display: none; flex-direction: column; position: fixed; bottom: 100px; left: 25px; width: 320px; background: var(--surface); border: 1px solid var(--ai-color); border-radius: 20px; z-index: 1000; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .ai-chat-header { background: rgba(162, 155, 254, 0.15); padding: 15px; font-weight: 900; color: var(--ai-color); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(162, 155, 254, 0.3); }
+        .ai-chat-body { padding: 15px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; }
+        .msg-ai { background: rgba(162, 155, 254, 0.1); border-right: 3px solid var(--ai-color); color: var(--text-main); align-self: flex-start; border-bottom-right-radius: 2px; }
+        .msg-user { background: rgba(0, 242, 255, 0.1); border-left: 3px solid var(--accent); color: var(--text-main); align-self: flex-end; border-bottom-left-radius: 2px; }
+        .ai-chat-input-area { display: flex; border-top: 1px solid var(--border); background: rgba(0,0,0,0.5); padding: 10px; }
+        .ai-chat-input-area input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 10px; font-size: 0.8rem; margin-left: 10px; }
+        .ai-chat-input-area button { background: var(--ai-color); color: #000; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 900; transition: 0.2s; }
+        .ai-chat-input-area button:hover { background: #fff; }
 
         #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .sparkline { display: inline-block; width: 60px; height: 20px; margin-right: 10px; vertical-align: middle; }
@@ -90,6 +107,7 @@
         @media (max-width: 768px) { 
             header { grid-template-columns: 1fr; text-align: center; gap: 10px; }
             .charts-wrapper { grid-template-columns: 1fr; } 
+            .ai-chat-window { width: calc(100% - 40px); left: 20px; bottom: 90px; }
         }
     </style>
 </head>
@@ -189,6 +207,21 @@
 
     <div id="asset-root" class="assets-grid"></div>
 
+    <div class="ai-chat-btn" onclick="toggleChat()">🤖</div>
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <span>دستیار هوشمند Phoenix</span>
+            <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
+        </div>
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="msg-bubble msg-ai">سلام! من هوش مصنوعی تحلیل‌گر سبد شما هستم. می‌تونی درباره وضعیت بازار، پیشنهاد خرید/فروش یا بالانس نقدینگی از من سوال بپرسی.</div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" placeholder="مثلاً: اوضاع سبدم چطوره؟" onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendChatMessage()">ارسال</button>
+        </div>
+    </div>
+
 <script>
     const firebaseConfig = { databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
@@ -196,12 +229,15 @@
     let currentOrderRef = null;
     let prices = {};
     let sparklineData = {};
-    let volumeData = {}; // متغیر جدید برای ذخیره دیتای حجم معاملات
+    let volumeData = {}; 
     let localDB = [];
     let localCfg = { toman: 70000, type: '', note: '' };
     let sparklinesLoaded = false;
     let currentFngValue = 50; 
     
+    // Global Portfolio Vars for AI Chatbot Context
+    let global_tAct = 0, global_usdtAmount = 0, global_pnlUSD = 0;
+
     let chartData = { 
         labels: [], 
         datasets: [{ 
@@ -244,44 +280,40 @@
         }
     }
 
-    // الگوریتم ارتقا یافته پیش‌بینی (رگرسیون خطی + احساسات بازار + تحلیل حجم معاملات)
+    // AI Feature 1: Predictive Analytics with Confidence Score
     function calculateAIForecast(pricesArray, volumeArray, fngValue) {
         if (!pricesArray || pricesArray.length < 5 || !volumeArray || volumeArray.length < 5) return null;
         
         let n = pricesArray.length;
         let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-        let sumVolY = 0, sumVolXY = 0; // برای محاسبه روند حجم
+        let sumVolY = 0, sumVolXY = 0; 
+        
+        let minPrice = Math.min(...pricesArray);
+        let maxPrice = Math.max(...pricesArray);
+        let volatility = (maxPrice - minPrice) / minPrice; // Calculate simple volatility
         
         for (let i = 0; i < n; i++) {
             sumX += i;
-            
-            // محاسبات قیمت
             sumY += pricesArray[i];
             sumXY += i * pricesArray[i];
             sumXX += i * i;
-            
-            // محاسبات حجم
             sumVolY += volumeArray[i];
             sumVolXY += i * volumeArray[i];
         }
         
-        // محاسبه شیب و پیش‌بینی پایه قیمت
         let slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
         let intercept = (sumY - slope * sumX) / n;
         let basePrediction = slope * n + intercept;
         
-        // بررسی روند حجم معاملات
         let volSlope = (n * sumVolXY - sumX * sumVolY) / (n * sumXX - sumX * sumX);
         let avgVol = sumVolY / n;
-        let volTrendModifier = 1; // ضریب خنثی
+        let volTrendModifier = 1; 
         
         if (avgVol > 0) {
             let volChangePercent = (volSlope * n) / avgVol; 
-            // تأثیر حجم روی پیش‌بینی را به بازه مثبت/منفی 3 درصد محدود می‌کنیم تا منطقی بماند
             volTrendModifier = 1 + Math.max(-0.03, Math.min(0.03, volChangePercent));
         }
         
-        // تنظیم وزن پیش‌بینی بر اساس ترس و طمع
         let fngWeight = 1;
         if (fngValue) {
             let fngDiff = 50 - fngValue; 
@@ -289,9 +321,35 @@
             fngWeight = 1 + modifier;
         }
         
-        // ترکیب نهایی: پیش‌بینی پایه × ضریب احساسات × ضریب تاییدیه حجم
         let finalPrediction = basePrediction * fngWeight * volTrendModifier;
-        return Math.max(finalPrediction, pricesArray[n-1] * 0.5); 
+        finalPrediction = Math.max(finalPrediction, pricesArray[n-1] * 0.5); 
+        
+        // Calculate Confidence (higher volatility = lower confidence)
+        let confidenceScore = Math.min(98, Math.max(45, 100 - (volatility * 100)));
+
+        return { price: finalPrediction, confidence: confidenceScore.toFixed(0) }; 
+    }
+
+    // AI Feature 2: Sentiment Analysis logic
+    function getAssetSentiment(sparkData, currentPrice) {
+        if (!sparkData || sparkData.length < 2) return null;
+        const lastClose = sparkData[sparkData.length - 1];
+        const change = ((currentPrice - lastClose) / lastClose) * 100;
+        
+        if (change >= 2.5) return { text: 'جو مثبت 🚀', color: 'var(--success)', bg: 'rgba(0, 255, 163, 0.1)' };
+        if (change <= -2.5) return { text: 'جو منفی 📉', color: 'var(--danger)', bg: 'rgba(255, 77, 77, 0.1)' };
+        return { text: 'خنثی ⚖️', color: 'var(--text-sub)', bg: 'rgba(255, 255, 255, 0.05)' };
+    }
+
+    // AI Feature 4: Anomaly Detection logic
+    function checkAnomaly(sparkData, currentPrice) {
+        if (!sparkData || sparkData.length < 2) return null;
+        const lastClose = sparkData[sparkData.length - 1];
+        const change = ((currentPrice - lastClose) / lastClose) * 100;
+        
+        if (change >= 10) return '⚠️ هشدار پامپ ناگهانی!';
+        if (change <= -10) return '⚠️ هشدار افت شدید (دامپ)!';
+        return null;
     }
 
     function loadUserMonitor() {
@@ -376,8 +434,8 @@
                 const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1d&limit=30`);
                 const d = await r.json();
                 if(Array.isArray(d)) {
-                    sparklineData[sym] = d.map(k => parseFloat(k[4])); // استخراج قیمت بسته شدن
-                    volumeData[sym] = d.map(k => parseFloat(k[5]));    // استخراج حجم معاملات
+                    sparklineData[sym] = d.map(k => parseFloat(k[4])); 
+                    volumeData[sym] = d.map(k => parseFloat(k[5]));    
                 }
             } catch(e) { console.error("Sparkline/Volume Error", e); }
         }
@@ -463,19 +521,41 @@
             const itemPnlSign = itemPnlUSD >= 0 ? '+' : ''; 
             
             const sparkData = sparklineData[sym] ? sparklineData[sym].slice(-10) : null;
+            const fullSparkData = sparklineData[sym] ? sparklineData[sym] : null;
             const sparkSVG = createSparklineSVG(sparkData, itemPnlUSD >= 0 ? '#00ffa3' : '#ff4d4d');
 
-            // فراخوانی الگوریتم ارتقا یافته با ارسال دیتای حجم معاملات
             let aiPredictionBox = '';
+            let sentimentHtml = '';
+            let anomalyHtml = '';
+
             if(sym !== 'USDT' && sym !== 'CASH') {
-                const predictedPrice = calculateAIForecast(sparklineData[sym], volumeData[sym], currentFngValue);
-                if (predictedPrice) {
-                    const aiTrend = predictedPrice >= displayPrice ? 'var(--success)' : 'var(--danger)';
+                // Predictive & Confidence
+                const aiResult = calculateAIForecast(sparklineData[sym], volumeData[sym], currentFngValue);
+                if (aiResult) {
+                    const aiTrend = aiResult.price >= displayPrice ? 'var(--success)' : 'var(--danger)';
                     aiPredictionBox = `
                     <div class="ai-box">
-                        <span style="font-size:0.65rem; color:var(--ai-color); font-weight:bold;">🤖 پیش‌بینی قیمت فردا :</span>
-                        <b style="color:${aiTrend}; font-family:monospace; font-size:0.85rem;">$${predictedPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="font-size:0.65rem; color:var(--ai-color); font-weight:bold;">🤖 پیش‌بینی AI:</span>
+                            <b style="color:${aiTrend}; font-family:monospace; font-size:0.85rem;">$${aiResult.price.toLocaleString(undefined, {maximumFractionDigits:4})}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed rgba(162, 155, 254, 0.3); padding-top:4px;">
+                            <span style="font-size:0.55rem; color:var(--text-sub);">دقت تخمینی الگوریتم:</span>
+                            <span style="font-size:0.6rem; color:var(--gold); font-weight:bold;">${aiResult.confidence}%</span>
+                        </div>
                     </div>`;
+                }
+
+                // Sentiment
+                const sentiment = getAssetSentiment(fullSparkData, displayPrice);
+                if (sentiment) {
+                    sentimentHtml = `<span class="sentiment-badge" style="background:${sentiment.bg}; color:${sentiment.color}">${sentiment.text}</span>`;
+                }
+
+                // Anomaly
+                const anomaly = checkAnomaly(fullSparkData, displayPrice);
+                if (anomaly) {
+                    anomalyHtml = `<div class="anomaly-alert">${anomaly}</div>`;
                 }
             }
 
@@ -483,16 +563,23 @@
 
             tempHTML += `
                 <div class="asset-card" onclick="openChart('${sym}')">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <div style="display:flex; align-items:center;">${sparkSVG}<b style="color:var(--accent); font-size:1.1rem;">${item.name}</b></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <div style="display:flex; align-items:center; gap: 5px;">
+                            ${sparkSVG}
+                            <div>
+                                <b style="color:var(--accent); font-size:1.1rem; display:block;">${item.name}</b>
+                                ${sentimentHtml}
+                            </div>
+                        </div>
                         <div style="text-align: left;">
                             <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace; display:block;">${Math.floor(displayPrice * rate).toLocaleString()} ت</b>
                             <span style="font-size:0.65rem; color:var(--text-sub);">$${displayPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</span>
                         </div>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub); margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;">
-                        <span>میانگین ورود: <b style="color:#fff;">$${bPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
-                        <span>حجم مخزن: <b style="color:var(--gold);">$${tank > 0 ? tank.toLocaleString() : '---'}</b></span>
+                    ${anomalyHtml}
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub); margin-top: 10px; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;">
+                        <span>میانگین: <b style="color:#fff;">$${bPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
+                        <span>مخزن: <b style="color:var(--gold);">$${tank > 0 ? tank.toLocaleString() : '---'}</b></span>
                     </div>
                     <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
                     <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:0.8rem; margin-bottom:12px; color:var(--text-sub);">
@@ -508,12 +595,21 @@
         });
         root.innerHTML = tempHTML;
 
+        // Update Globals for AI Chatbot
+        global_tAct = tAct;
+        global_usdtAmount = usdtAmount;
+        global_pnlUSD = tAct - tInvestedUSD;
+
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
+        
+        // AI Feature 5: Smart Portfolio Rebalancing Advice
         if (usdtRatio > 30) {
-            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">حدود <b style="color:var(--accent)">${usdtRatio.toFixed(1)}%</b> از سبد شما نقد (تتر) است.</div></div>`;
+            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">حدود <b style="color:var(--accent)">${usdtRatio.toFixed(1)}%</b> از سبد شما نقد (تتر) است. پیشنهاد هوش مصنوعی: اختصاص بخشی از این مبلغ به ارزهای مستعد رشد.</div></div>`;
         } else if (usdtRatio < 5 && tAct > 0) {
-            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است (${usdtRatio.toFixed(1)}%).</div></div>`;
+            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است (${usdtRatio.toFixed(1)}%). در صورت ریزش بازار قدرت خرید ندارید.</div></div>`;
+        } else if (usdtRatio >= 5 && usdtRatio <= 30 && tAct > 0) {
+            reHTML += `<div class="ai-rebalance-box"><b style="color:var(--ai-color)">🤖 تاییدیه هوش مصنوعی (بالانس نقدینگی)</b><div style="font-size:0.8rem; margin-top:3px;">وضعیت تتر شما ایده آل است (${usdtRatio.toFixed(1)}%). ریسک سیستم کنترل شده است.</div></div>`;
         }
 
         const rules = { safe: 0.5, growth: 0.35, risk: 0.15 };
@@ -522,7 +618,7 @@
             if (catTotals[c] > limitUSD && c !== 'safe') {
                 const exIRT = Math.floor((catTotals[c] - limitUSD) * rate);
                 const catPersianName = categoryNames[c] || c;
-                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار مدیریت سبد: دسته ${catPersianName}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز است.</div></div>`;
+                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار مدیریت ریسک: دسته ${catPersianName}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز است. هوش مصنوعی پیشنهاد می‌دهد سیو سود کنید.</div></div>`;
             }
         }
         document.getElementById('rebalance-area').innerHTML = reHTML;
@@ -610,6 +706,64 @@
     }
 
     setInterval(updateFearAndGreed, 1800000);
+
+    // AI Chatbot Logic
+    function toggleChat() {
+        const chatWindow = document.getElementById('aiChatWindow');
+        chatWindow.style.display = (chatWindow.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function handleChatKeyPress(event) {
+        if (event.key === 'Enter') sendChatMessage();
+    }
+
+    function sendChatMessage() {
+        const inputField = document.getElementById('aiChatInput');
+        const userText = inputField.value.trim();
+        if(!userText) return;
+
+        appendMessage('msg-user', userText);
+        inputField.value = '';
+
+        // Simulate AI "thinking" delay
+        setTimeout(() => {
+            const aiResponse = generateAIResponse(userText);
+            appendMessage('msg-ai', aiResponse);
+        }, 800);
+    }
+
+    function appendMessage(className, text) {
+        const chatBody = document.getElementById('aiChatBody');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg-bubble ${className}`;
+        msgDiv.innerText = text;
+        chatBody.appendChild(msgDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function generateAIResponse(query) {
+        const q = query.toLowerCase();
+        const usdtRatio = global_tAct > 0 ? (global_usdtAmount / global_tAct) * 100 : 0;
+        
+        if (q.includes("سلام")) return "سلام دوست من! آماده‌ام تا وضعیت بازار و سبدت رو برات تحلیل کنم.";
+        if (q.includes("چطوره") || q.includes("اوضاع") || q.includes("وضعیت")) {
+            let status = global_pnlUSD >= 0 ? "توی سود هستی 🎉" : "فعلاً در ضرر هستی، اما استراتژی بلندمدت مهمه.";
+            return `کل ارزش سبدت الان حدود $${Math.floor(global_tAct).toLocaleString()} هست و ${status} شاخص ترس و طمع هم روی ${currentFngValue} قرار داره.`;
+        }
+        if (q.includes("خرید") || q.includes("پیشنهاد")) {
+            if (currentFngValue < 30) return "بازار به شدت در ترسه! معمولاً در این مواقع، خرید پله‌ای ارزهای مستعد (طبق استراتژی) پیشنهاد میشه. البته مراقب باش تمام نقدینگی رو وارد نکنی.";
+            if (currentFngValue > 70) return "بازار خیلی طمع‌کار شده! مراقب فومو (FOMO) باش. بهتره فعلاً دست نگه داری یا حتی روی ارزهایی که پامپ شدن، کمی سیو سود کنی.";
+            return "بازار الان در حالت خنثی است. بهترین کار پایبندی به برنامه «پله پیشنهادی خرید» در داشبوردت هست.";
+        }
+        if (q.includes("نقدینگی") || q.includes("تتر")) {
+            if (usdtRatio < 10) return `نقدینگی تو خیلی کمه (فقط ${usdtRatio.toFixed(1)}%). اگر بازار بریزه فرصت‌های خوب رو از دست میدی!`;
+            if (usdtRatio > 40) return `پول نقد زیادی تو دستته (${usdtRatio.toFixed(1)}%). این یعنی پولت داره هدر میره (Cash Drag). بهتره توی کف‌های قیمتی، پله‌ای وارد شی.`;
+            return `وضعیت نقدینگی‌ات عالیه (${usdtRatio.toFixed(1)}%). هم آمادگی خرید داری و هم سرمایه‌گذاری مناسبی انجام دادی.`;
+        }
+        
+        return "متوجه منظورت نشدم. می‌تونی درباره «وضعیت سبد»، «پیشنهاد خرید» یا «نقدینگی» ازم بپرسی.";
+    }
+
 </script>
 </body>
 </html>
