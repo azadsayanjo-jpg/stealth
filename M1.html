@@ -595,32 +595,44 @@
         });
         root.innerHTML = tempHTML;
 
-        // Update Globals for AI Chatbot
-        global_tAct = tAct;
-        global_usdtAmount = usdtAmount;
-        global_pnlUSD = tAct - tInvestedUSD;
+	// Update Globals for AI Chatbot
+	global_tAct = tAct;
+	global_usdtAmount = usdtAmount;
+	global_pnlUSD = tAct - tInvestedUSD;
 
-        let reHTML = '';
-        const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
-        
-        // AI Feature 5: Smart Portfolio Rebalancing Advice
-        if (usdtRatio > 30) {
-            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">حدود <b style="color:var(--accent)">${usdtRatio.toFixed(1)}%</b> از سبد شما نقد (تتر) است. پیشنهاد هوش مصنوعی: اختصاص بخشی از این مبلغ به ارزهای مستعد رشد.</div></div>`;
-        } else if (usdtRatio < 5 && tAct > 0) {
-            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است (${usdtRatio.toFixed(1)}%). در صورت ریزش بازار قدرت خرید ندارید.</div></div>`;
-        } else if (usdtRatio >= 5 && usdtRatio <= 30 && tAct > 0) {
-            reHTML += `<div class="ai-rebalance-box"><b style="color:var(--ai-color)">🤖 تاییدیه هوش مصنوعی (بالانس نقدینگی)</b><div style="font-size:0.8rem; margin-top:3px;">وضعیت تتر شما ایده آل است (${usdtRatio.toFixed(1)}%). ریسک سیستم کنترل شده است.</div></div>`;
-        }
+	let reHTML = '';
+	const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
 
-        const rules = { safe: 0.5, growth: 0.35, risk: 0.15 };
-        for (let c in rules) {
-            const limitUSD = tAct * rules[c];
-            if (catTotals[c] > limitUSD && c !== 'safe') {
-                const exIRT = Math.floor((catTotals[c] - limitUSD) * rate);
-                const catPersianName = categoryNames[c] || c;
-                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار مدیریت ریسک: دسته ${catPersianName}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز است. هوش مصنوعی پیشنهاد می‌دهد سیو سود کنید.</div></div>`;
-            }
-        }
+	// AI Feature 5: Smart Portfolio Rebalancing Advice (بدون نمایش درصد)
+	if (usdtRatio > 30) {
+    		reHTML += `<div class="warning-box">
+                	<b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b>
+                	<div style="font-size:0.8rem; margin-top:3px;">بخش بزرگی از سبد شما نقد (تتر) است. پیشنهاد هوش مصنوعی: اختصاص بخشی از این مبلغ به ارزهای مستعد رشد.</div>
+               		</div>`;
+	} else if (usdtRatio < 5 && tAct > 0) {
+    		reHTML += `<div class="rebalance-box">
+                	<b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b>
+                	<div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است. در صورت ریزش بازار قدرت خرید ندارید.</div>
+             		</div>`;
+	} else if (usdtRatio >= 5 && usdtRatio <= 30 && tAct > 0) {
+    		reHTML += `<div class="ai-rebalance-box">
+                	<b style="color:var(--ai-color)">🤖 تاییدیه هوش مصنوعی (بالانس نقدینگی)</b>
+                	<div style="font-size:0.8rem; margin-top:3px;">وضعیت تتر شما ایده آل است. ریسک سیستم کنترل شده است.</div>
+               		</div>`;
+	}
+
+	const rules = { safe: 0.5, growth: 0.35, risk: 0.15 };
+	for (let c in rules) {
+    		const limitUSD = tAct * rules[c];
+    		if (catTotals[c] > limitUSD && c !== 'safe') {
+        		const exIRT = Math.floor((catTotals[c] - limitUSD) * rate);
+        	const catPersianName = categoryNames[c] || c;
+        	reHTML += `<div class="rebalance-box active-pulse">
+                    	<b style="color:var(--danger)">⚠️ هشدار مدیریت ریسک: دسته ${catPersianName}</b>
+                    	<div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز است. هوش مصنوعی پیشنهاد می‌دهد سیو سود کنید.</div>
+                   	</div>`;
+    		}
+	}
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
         const totalPnlUSD = tAct - tInvestedUSD;
@@ -741,28 +753,82 @@
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+
     function generateAIResponse(query) {
         const q = query.toLowerCase();
+        const rate = parseFloat(localCfg.toman) || 70000;
         const usdtRatio = global_tAct > 0 ? (global_usdtAmount / global_tAct) * 100 : 0;
-        
-        if (q.includes("سلام")) return "سلام دوست من! آماده‌ام تا وضعیت بازار و سبدت رو برات تحلیل کنم.";
-        if (q.includes("چطوره") || q.includes("اوضاع") || q.includes("وضعیت")) {
-            let status = global_pnlUSD >= 0 ? "توی سود هستی 🎉" : "فعلاً در ضرر هستی، اما استراتژی بلندمدت مهمه.";
-            return `کل ارزش سبدت الان حدود $${Math.floor(global_tAct).toLocaleString()} هست و ${status} شاخص ترس و طمع هم روی ${currentFngValue} قرار داره.`;
-        }
-        if (q.includes("خرید") || q.includes("پیشنهاد")) {
-            if (currentFngValue < 30) return "بازار به شدت در ترسه! معمولاً در این مواقع، خرید پله‌ای ارزهای مستعد (طبق استراتژی) پیشنهاد میشه. البته مراقب باش تمام نقدینگی رو وارد نکنی.";
-            if (currentFngValue > 70) return "بازار خیلی طمع‌کار شده! مراقب فومو (FOMO) باش. بهتره فعلاً دست نگه داری یا حتی روی ارزهایی که پامپ شدن، کمی سیو سود کنی.";
-            return "بازار الان در حالت خنثی است. بهترین کار پایبندی به برنامه «پله پیشنهادی خرید» در داشبوردت هست.";
-        }
-        if (q.includes("نقدینگی") || q.includes("تتر")) {
-            if (usdtRatio < 10) return `نقدینگی تو خیلی کمه (فقط ${usdtRatio.toFixed(1)}%). اگر بازار بریزه فرصت‌های خوب رو از دست میدی!`;
-            if (usdtRatio > 40) return `پول نقد زیادی تو دستته (${usdtRatio.toFixed(1)}%). این یعنی پولت داره هدر میره (Cash Drag). بهتره توی کف‌های قیمتی، پله‌ای وارد شی.`;
-            return `وضعیت نقدینگی‌ات عالیه (${usdtRatio.toFixed(1)}%). هم آمادگی خرید داری و هم سرمایه‌گذاری مناسبی انجام دادی.`;
-        }
-        
-        return "متوجه منظورت نشدم. می‌تونی درباره «وضعیت سبد»، «پیشنهاد خرید» یا «نقدینگی» ازم بپرسی.";
+
+    // محاسبه مقدار هدف نهایی (Target) برای پاسخ هوشمند
+    let totalTargetUSD = 0;
+    localDB.forEach(item => {
+        totalTargetUSD += (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0);
+    });
+    const progress = totalTargetUSD > 0 ? (global_tAct / totalTargetUSD) * 100 : 0;
+
+    // ۱. سلام و خوش‌آمدگویی
+    if (q.includes("سلام") || q.includes("درود")) {
+        return "سلام! من هسته هوشمند Phoenix هستم. آماده‌ام تا دیتای پورتفوی شما را کالبدشکافی کنم. چه بخشی را بررسی کنیم؟";
     }
+
+    // ۲. تحلیل وضعیت کلی و پیشرفت تا هدف
+    if (q.includes("وضعیت") || q.includes("چطوره") || q.includes("هدف") || q.includes("چقدر مانده")) {
+        let status = global_pnlUSD >= 0 ? "در سود هستی 💹" : "فعلاً در اصلاح (ضرر) هستی ⚠️";
+        let progressMsg = `تا این لحظه **${progress.toFixed(2)}%** از مسیر هدف نهایی رو طی کردی.`;
+        return `ارزش پورتفوی شما $${Math.floor(global_tAct).toLocaleString()} (معادل ${Math.floor(global_tAct * rate).toLocaleString()} تومان) است. ${status} \n\n ${progressMsg} \n شاخص ترس و طمع بازار هم روی عدد ${currentFngValue} قرار دارد.`;
+    }
+
+    // ۳. تحلیل تخصصی ارزهای موجود در سبد (مثلاً: وضعیت اتریوم چیه؟)
+    for (let item of localDB) {
+        if (q.includes(item.name.toLowerCase()) || q.includes(item.sym.toLowerCase())) {
+            const sym = item.sym.toUpperCase();
+            const currentPrice = prices[sym] || 0;
+            const aiForecast = calculateAIForecast(sparklineData[sym], volumeData[sym], currentFngValue);
+            const acc = (item.tqty && parseFloat(item.tqty) > 0) ? (parseFloat(item.qty) / parseFloat(item.tqty)) * 100 : 0;
+
+            let response = `تحلیل اختصاصی **${item.name}**: \n`;
+            response += `• انباشت: شما ${acc.toFixed(1)}% از مقدار هدفت رو برای این ارز خریداری کردی. \n`;
+            
+            if (aiForecast) {
+                response += `• پیش‌بینی هوش مصنوعی: قیمت احتمالی بعدی حدود **$${aiForecast.price.toLocaleString()}** با دقت **${aiForecast.confidence}%** تخمین زده می‌شود. \n`;
+            }
+            
+            if (currentFngValue < 30) {
+                response += `• پیشنهاد: با توجه به ترس بازار، این ناحیه برای سنگین کردن پله‌های ${item.sym} جذاب است.`;
+            }
+            return response;
+        }
+    }
+
+    // ۴. پیشنهاد خرید (بر اساس Sprint و نقدینگی)
+    if (q.includes("خرید") || q.includes("چی بخرم") || q.includes("پیشنهاد")) {
+        // پیدا کردن ارزی که کمترین میزان انباشت (Accumulation) را دارد
+        let candidates = localDB.filter(i => (parseFloat(i.qty) / parseFloat(i.tqty)) < 0.99 && prices[i.sym.toUpperCase()] > 0);
+        if (candidates.length > 0) {
+            let top = candidates.sort((a,b) => (parseFloat(a.qty)/parseFloat(a.tqty)) - (parseFloat(b.qty)/parseFloat(b.tqty)))[0];
+            return `بر اساس استراتژی فعلی، اولویت خرید با **${top.name}** است. طبق بالانس سبد، شما هنوز جای انباشت زیادی در این ارز دارید. پیشنهاد می‌شود نقدینگی جدید را به این سمت هدایت کنید.`;
+        }
+        return "در حال حاضر تمام پله‌های خرید شما طبق برنامه تکمیل شده. پیشنهاد می‌کنم منتظر سیگنال‌های فروش یا ریبالانس بمانید.";
+    }
+
+    // ۵. تحلیل نقدینگی و تتر
+    if (q.includes("نقدینگی") || q.includes("تتر") || q.includes("پول نقد")) {
+        if (usdtRatio < 5) {
+            return `⚠️ هشدار: نقدینگی شما بسیار پایین است (${usdtRatio.toFixed(1)}%). در صورت ریزش بازار، توان خرید در کف را ندارید. پیشنهاد می‌شود در اولین رشد، کمی سیو سود کنید.`;
+        } else if (usdtRatio > 30) {
+            return `میزان نقدینگی شما (${usdtRatio.toFixed(1)}%) بالاست. این یعنی "Cash Drag" یا خواب سرمایه دارید. بهتر است در اصلاح‌های بازار، پله‌های خرید را فعال کنید.`;
+        } else {
+            return `وضعیت نقدینگی شما عالی است (${usdtRatio.toFixed(1)}%). تعادل خوبی بین ریسک و امنیت برقرار کرده‌اید.`;
+        }
+    }
+
+    // ۶. استراتژی ادمین (Admin Note)
+    if (q.includes("نکته") || q.includes("فرمان") || q.includes("استراتژی")) {
+        return `فرمان فعلی سیستم: **${localCfg.note || "صبر و پایبندی به برنامه خرید پله‌ای."}** \n وضعیت پورتفوی شما در حال حاضر روی حالت **${localCfg.type}** تنظیم شده است.`;
+    }
+
+    return "متوجه سوالت نشدم دوست من. می‌تونی درباره «وضعیت پورتفو»، «تحلیل یک ارز خاص مثل سولانا»، «میزان نقدینگی» یا «پیشنهاد خرید» ازم بپرسی.";
+}
 
 </script>
 </body>
