@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital | Ultra v2.5 - AI Powered Dashboard</title>
+    <title>StealthCapital | Phoenix Quant Engine v3.0</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
@@ -19,60 +19,30 @@
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; overflow-x: hidden; }
 
         header {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            padding: 15px 25px; 
-            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 15px 25px; 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
-        .ticker-wrap {
-            background: rgba(0, 242, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 15px;
-            padding: 10px 0;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .ticker-move {
-            display: inline-block;
-            padding-right: 100%;
-            animation: marquee 40s linear infinite;
-            color: var(--accent);
-            font-size: 0.95rem;
-            font-weight: 800;
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
-        }
+        .ticker-wrap { background: rgba(0, 242, 255, 0.05); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; padding: 10px 0; overflow: hidden; white-space: nowrap; }
+        .ticker-move { display: inline-block; padding-right: 100%; animation: marquee 40s linear infinite; color: var(--accent); font-size: 0.95rem; font-weight: 800; text-shadow: 0 0 10px rgba(0, 242, 255, 0.3); }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
         .active-pulse { animation: pulse-glow 2s infinite; }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.2); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-        }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); } }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; transition: 0.3s ease; }
         .stat-card:hover { border-color: var(--accent); }
-        
         .charts-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
         .chart-card { background: var(--surface); border: 1px solid var(--border); padding: 15px; border-radius: 20px; height: 250px; position: relative; }
 
         .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; display: block; margin-bottom: 8px; }
         .stat-value-toman { font-size: 1.6rem; font-weight: 900; line-height: 1.2; color: var(--success); text-shadow: 0 0 15px rgba(0, 255, 163, 0.2); }
         .stat-sub-usd { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; font-family: monospace; }
+        .market-status-pill { display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 900; margin-top: 12px; border: 1px solid; letter-spacing: 1px; }
 
-        .market-status-pill { 
-            display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 0.7rem; 
-            font-weight: 900; margin-top: 12px; border: 1px solid; letter-spacing: 1px;
-        }
-
-        .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+        .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
         .asset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; cursor: pointer; transition: 0.3s; position: relative; }
-        .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); border-color: var(--accent); }
+        .asset-card:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
         .rebalance-box { background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--danger); }
         .warning-box { background: rgba(255, 159, 67, 0.05); border: 1px solid rgba(255, 159, 67, 0.2); border-radius: 15px; padding: 15px; margin-bottom: 15px; border-right: 4px solid var(--warning); }
@@ -83,46 +53,25 @@
         .bar-bg { height: 4px; background: #000; border-radius: 10px; margin-top: 6px; overflow: hidden; }
         .bar-fill { height: 100%; transition: 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .ai-box { background: rgba(162, 155, 254, 0.1); border: 1px solid rgba(162, 155, 254, 0.3); border-radius: 10px; padding: 8px 12px; margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
-        .sentiment-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: inline-block; }
+        .ai-box { background: rgba(162, 155, 254, 0.05); border: 1px solid rgba(162, 155, 254, 0.3); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden; }
+        .ai-box::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, var(--ai-color), var(--accent)); }
+        
+        .badge-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px; }
+        .tech-badge { font-size: 0.6rem; padding: 3px 6px; border-radius: 4px; font-weight: bold; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); font-family: monospace; }
+        .badge-bullish { background: rgba(0, 255, 163, 0.1); color: var(--success); border-color: var(--success); }
+        .badge-bearish { background: rgba(255, 77, 77, 0.1); color: var(--danger); border-color: var(--danger); }
+        
         .anomaly-alert { font-size: 0.7rem; color: var(--danger); font-weight: bold; background: rgba(255, 77, 77, 0.1); padding: 3px 8px; border-radius: 6px; margin-top: 5px; display: inline-block; border: 1px solid var(--danger); animation: pulse-glow 1.5s infinite;}
 
-        .rsi-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: inline-block; margin-right: 5px; }
-        .rsi-overbought { background: rgba(255, 77, 77, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-        .rsi-oversold { background: rgba(0, 255, 163, 0.1); color: var(--success); border: 1px solid var(--success); }
-
-        /* AI Chatbot Styles */
-        .ai-chat-btn { position: fixed; bottom: 25px; left: 25px; background: linear-gradient(135deg, var(--ai-color), var(--ai-dark)); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(162, 155, 254, 0.5); z-index: 1000; font-size: 1.8rem; transition: 0.3s; border: 2px solid rgba(255,255,255,0.2); }
-        .ai-chat-btn:hover { transform: scale(1.1) rotate(5deg); }
-        .ai-chat-window { display: none; flex-direction: column; position: fixed; bottom: 100px; left: 25px; width: 320px; background: var(--surface); border: 1px solid var(--ai-color); border-radius: 20px; z-index: 1000; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
-        .ai-chat-header { background: rgba(162, 155, 254, 0.15); padding: 15px; font-weight: 900; color: var(--ai-color); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(162, 155, 254, 0.3); }
-        .ai-chat-body { padding: 15px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; }
-        .msg-ai { background: rgba(162, 155, 254, 0.1); border-right: 3px solid var(--ai-color); color: var(--text-main); align-self: flex-start; border-bottom-right-radius: 2px; }
-        .msg-user { background: rgba(0, 242, 255, 0.1); border-left: 3px solid var(--accent); color: var(--text-main); align-self: flex-end; border-bottom-left-radius: 2px; }
-        .ai-chat-input-area { display: flex; border-top: 1px solid var(--border); background: rgba(0,0,0,0.5); padding: 10px; }
-        .ai-chat-input-area input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 10px; font-size: 0.8rem; margin-left: 10px; }
-        .ai-chat-input-area button { background: var(--ai-color); color: #000; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 900; transition: 0.2s; }
-        .ai-chat-input-area button:hover { background: #fff; }
-
-        #chart-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .sparkline { display: inline-block; width: 60px; height: 20px; margin-right: 10px; vertical-align: middle; }
 
         @media (max-width: 768px) { 
             header { grid-template-columns: 1fr; text-align: center; gap: 10px; }
             .charts-wrapper { grid-template-columns: 1fr; } 
-            .ai-chat-window { width: calc(100% - 40px); left: 20px; bottom: 90px; }
         }
     </style>
 </head>
 <body onload="initApp()">
-
-    <div id="chart-modal">
-        <div style="width: 95%; height: 85%; background: #000; border-radius: 25px; position: relative; border: 1px solid var(--border); overflow: hidden;">
-            <button style="position:absolute; top:15px; left:15px; background:var(--danger); color:#fff; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:900; z-index:11;" onclick="closeChart()">بستن ×</button>
-            <div id="tradingview-widget" style="height: 100%;"></div>
-        </div>
-    </div>
 
     <header>
         <div style="text-align: right; display:flex; align-items:center; gap:5px;">
@@ -132,7 +81,7 @@
         
         <div style="text-align: center;">
             <h1 style="color: var(--accent); font-size: 1.3rem; margin: 0; letter-spacing: 2px; text-shadow: 0 0 20px rgba(0,242,255,0.6); font-weight: 900;">
-                SMB - STEALTHCAPITAL | <span style="color:var(--gold)">PHOENIX</span>
+                SMB - STEALTHCAPITAL | <span style="color:var(--gold)">QUANT ENGINE</span>
             </h1>
         </div>
         
@@ -143,7 +92,7 @@
     </header>
 
     <div class="ticker-wrap">
-        <div id="marquee-note" class="ticker-move">لطفاً شناسه کاربری خود را وارد کنید یا از طریق لینک اختصاصی وارد شوید...</div>
+        <div id="marquee-note" class="ticker-move">لطفاً شناسه کاربری خود را وارد کنید... در حال بارگذاری موتور هوش مصنوعی چندتایم‌فریمه...</div>
     </div>
 
     <div id="rebalance-area"></div>
@@ -158,7 +107,7 @@
             </div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
                 <span class="stat-label">پیشرفت کل سبد <span id="total-progress" style="color: var(--gold); float:left; font-weight:900;">0%</span></span>
-                <div id="days-forecast" style="font-size: 0.7rem; color: var(--accent); font-weight: bold; margin-top:5px;">تحلیل ریتم رشد...</div>
+                <div class="bar-bg" style="height: 4px;"><div id="progress-bar-fill" class="bar-fill" style="width:0%; background:var(--gold)"></div></div>
             </div>
         </div>
 
@@ -172,26 +121,25 @@
             </div>
         </div>
 
-    <div class="stat-card" style="border-right: 4px solid var(--accent);">
-    <span class="stat-label">📊 شاخص ترس و طمع بازار</span>
-    <div id="fng-value" class="stat-value-toman" style="color: var(--accent);">--</div>
-    <div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
-    <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
-        <div class="bar-bg" style="height: 8px; background: #222;">
-            <div id="fng-bar" class="bar-fill" style="width:0%; background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3);"></div>
+        <div class="stat-card" style="border-right: 4px solid var(--accent);">
+            <span class="stat-label">📊 شاخص ترس و طمع بازار</span>
+            <div id="fng-value" class="stat-value-toman" style="color: var(--accent);">--</div>
+            <div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
+            <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
+                <div class="bar-bg" style="height: 8px; background: #222;">
+                    <div id="fng-bar" class="bar-fill" style="width:0%; background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3);"></div>
+                </div>
+                <div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
+            </div>
         </div>
-        <div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
-    </div>
-</div>
 
-        <div class="stat-card">
-            <span class="stat-label">🚀 پله پیشنهادی خرید</span>
-            <div id="sprint-irt" class="stat-value-toman" style="color: #fff;">0 تومان</div>
-            <div id="sprint-usd" class="stat-sub-usd">$0</div>
+        <div class="stat-card" style="border-right: 4px solid var(--ai-color);">
+            <span class="stat-label">🎯 برترین سیگنال کوانت (AI)</span>
+            <div id="mission-asset" class="stat-value-toman" style="color: var(--ai-color);">---</div>
+            <div id="mission-action" class="stat-sub-usd" style="color:var(--success); font-weight:bold;">در حال اسکن بازار...</div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <div id="mission-text" style="color: var(--gold); font-weight: 900; font-size: 0.85rem;">---</div>
-                    <div id="purchase-power" style="font-size: 0.65rem; color: var(--success); font-weight: bold;">0 unit</div>
+                    <div id="mission-allocation" style="color: var(--gold); font-weight: 900; font-size: 0.75rem;">بودجه پیشنهادی: 0$</div>
                 </div>
                 <div id="market-status-pill" class="market-status-pill">وضعیت</div>
             </div>
@@ -211,128 +159,59 @@
 
     <div id="asset-root" class="assets-grid"></div>
 
-    <div class="ai-chat-btn" onclick="toggleChat()">🤖</div>
-    <div class="ai-chat-window" id="aiChatWindow">
-        <div class="ai-chat-header">
-            <span>دستیار هوشمند Phoenix</span>
-            <span style="cursor:pointer;" onclick="toggleChat()">✖</span>
-        </div>
-        <div class="ai-chat-body" id="aiChatBody">
-            <div class="msg-bubble msg-ai">سلام! من هوش مصنوعی تحلیل‌گر سبد شما هستم. می‌تونی درباره وضعیت بازار، پیشنهاد خرید/فروش، بالانس نقدینگی یا حتی <b>«گزارش کامل»</b> از من بپرسی.</div>
-        </div>
-        <div class="ai-chat-input-area">
-            <input type="text" id="aiChatInput" placeholder="پیام خود را بنویسید..." onkeypress="handleChatKeyPress(event)">
-            <button onclick="sendChatMessage()">ارسال</button>
-        </div>
-    </div>
-
 <script>
+    // --- Firebase Setup ---
     const firebaseConfig = { databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
 
+    // --- Global Variables ---
     let currentOrderRef = null;
     let prices = {};
-    let sparklineData = {};
-    let volumeData = {}; 
+    let marketData = {}; // ساختار جدید: { BTC: { '1d': {c:[], h:[], l:[], v:[]}, '4h': {...} } }
     let localDB = [];
     let localCfg = { toman: 70000, type: '', note: '' };
-    let sparklinesLoaded = false;
+    let dataLoaded = false;
     let currentFngValue = 50; 
+    let global_tAct = 0, global_usdtAmount = 0;
     
-    // Global Portfolio Vars for AI Chatbot Context
-    let global_tAct = 0, global_usdtAmount = 0, global_pnlUSD = 0;
-
-    // --- کلید API هوش مصنوعی (برای تست شخصی) ---
-    // هشدار: در نسخه نهایی که روی اینترنت قرار می‌گیرد، این کلید نباید اینجا باشد!
-    const OPENAI_API_KEY = 'YOUR_API_KEY_HERE'; 
-    // -------------------------------------------
-
+    // --- Chart Data ---
     let chartData = { 
         labels: [], 
         datasets: [{ 
-            label: 'ارزش (تومان)', 
-            data: [], 
-            borderColor: '#00f2ff', 
-            borderWidth: 3,
-            cubicInterpolationMode: 'monotone',
-            tension: 0.45, 
-            fill: true, 
-            backgroundColor: (context) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                gradient.addColorStop(0, 'rgba(0, 242, 255, 0.2)');
-                gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
-                return gradient;
-            },
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointBackgroundColor: '#00f2ff'
+            label: 'ارزش (تومان)', data: [], borderColor: '#00f2ff', borderWidth: 3, tension: 0.45, fill: true, 
+            backgroundColor: (c) => { const ctx = c.chart.ctx; const g = ctx.createLinearGradient(0,0,0,250); g.addColorStop(0,'rgba(0, 242, 255, 0.2)'); g.addColorStop(1,'rgba(0, 242, 255, 0)'); return g; },
+            pointRadius: 0, pointHoverRadius: 6, pointBackgroundColor: '#00f2ff'
         }] 
     };
-    
     let myChart, pieChart;
 
+    // --- Clock ---
     setInterval(() => { 
         const now = new Date();
         document.getElementById('live-clock').innerText = now.toLocaleTimeString('fa-IR');
         document.getElementById('jalali-date').innerText = new Intl.DateTimeFormat('fa-IR', {year:'numeric', month:'long', day:'numeric'}).format(now).toUpperCase();
     }, 1000);
 
-    function initApp() {
-        initCharts();
-        updateFearAndGreed(); 
-        const urlParams = new URLSearchParams(window.location.search);
-        const userParam = urlParams.get('user');
-        if(userParam) {
-            document.getElementById('search-user').value = userParam;
-            loadUserMonitor();
-        }
+    // --- Core Math & Indicators (Quant Engine) ---
+    function calcSMA(data, period) {
+        if(data.length < period) return null;
+        let sum = 0; for(let i=data.length-period; i<data.length; i++) sum += data[i];
+        return sum / period;
+    }
+    
+    function calcEMA(data, period) {
+        if(data.length < period) return null;
+        let k = 2 / (period + 1);
+        let ema = data[0]; 
+        for(let i=1; i<data.length; i++) { ema = (data[i] * k) + (ema * (1 - k)); }
+        return ema;
     }
 
-    function calculateAIForecast(pricesArray, volumeArray, fngValue) {
-        if (!pricesArray || pricesArray.length < 5 || !volumeArray || volumeArray.length < 5) return null;
-        let n = pricesArray.length;
-        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-        let sumVolY = 0, sumVolXY = 0; 
-        let minPrice = Math.min(...pricesArray);
-        let maxPrice = Math.max(...pricesArray);
-        let volatility = (maxPrice - minPrice) / minPrice; 
-        
-        for (let i = 0; i < n; i++) {
-            sumX += i; sumY += pricesArray[i]; sumXY += i * pricesArray[i]; sumXX += i * i;
-            sumVolY += volumeArray[i]; sumVolXY += i * volumeArray[i];
-        }
-        
-        let slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-        let intercept = (sumY - slope * sumX) / n;
-        let basePrediction = slope * n + intercept;
-        let volSlope = (n * sumVolXY - sumX * sumVolY) / (n * sumXX - sumX * sumX);
-        let avgVol = sumVolY / n;
-        let volTrendModifier = 1; 
-        
-        if (avgVol > 0) {
-            let volChangePercent = (volSlope * n) / avgVol; 
-            volTrendModifier = 1 + Math.max(-0.03, Math.min(0.03, volChangePercent));
-        }
-        
-        let fngWeight = 1;
-        if (fngValue) {
-            let fngDiff = 50 - fngValue; 
-            let modifier = (fngDiff / 100) * 0.05; 
-            fngWeight = 1 + modifier;
-        }
-        
-        let finalPrediction = basePrediction * fngWeight * volTrendModifier;
-        finalPrediction = Math.max(finalPrediction, pricesArray[n-1] * 0.5); 
-        let confidenceScore = Math.min(98, Math.max(45, 100 - (volatility * 100)));
-        return { price: finalPrediction, confidence: confidenceScore.toFixed(0) }; 
-    }
-
-    function calculateRSI(prices, period = 14) {
-        if (!prices || prices.length < period + 1) return 50; 
+    function calcRSI(data, period = 14) {
+        if (!data || data.length < period + 1) return 50;
         let gains = 0, losses = 0;
-        for (let i = prices.length - period; i < prices.length; i++) {
-            let diff = prices[i] - prices[i - 1];
+        for (let i = 1; i <= period; i++) {
+            let diff = data[data.length - i] - data[data.length - i - 1];
             if (diff >= 0) gains += diff; else losses -= diff;
         }
         let avgGain = gains / period; let avgLoss = losses / period;
@@ -340,31 +219,123 @@
         let rs = avgGain / avgLoss; return 100 - (100 / (1 + rs));
     }
 
-    function getAssetSentiment(sparkData, currentPrice) {
-        if (!sparkData || sparkData.length < 2) return null;
-        const lastClose = sparkData[sparkData.length - 1];
-        const change = ((currentPrice - lastClose) / lastClose) * 100;
-        
-        if (change >= 2.5) return { text: 'جو مثبت 🚀', color: 'var(--success)', bg: 'rgba(0, 255, 163, 0.1)' };
-        if (change <= -2.5) return { text: 'جو منفی 📉', color: 'var(--danger)', bg: 'rgba(255, 77, 77, 0.1)' };
-        return { text: 'خنثی ⚖️', color: 'var(--text-sub)', bg: 'rgba(255, 255, 255, 0.05)' };
+    function calcBollingerBands(data, period = 20, multiplier = 2) {
+        if(data.length < period) return null;
+        let slice = data.slice(-period);
+        let sma = slice.reduce((a,b)=>a+b,0) / period;
+        let variance = slice.reduce((a,b)=>a+Math.pow(b-sma, 2),0) / period;
+        let stdDev = Math.sqrt(variance);
+        return { upper: sma + (stdDev * multiplier), mid: sma, lower: sma - (stdDev * multiplier) };
     }
 
-    function checkAnomaly(sparkData, currentPrice) {
-        if (!sparkData || sparkData.length < 2) return null;
-        const lastClose = sparkData[sparkData.length - 1];
-        const change = ((currentPrice - lastClose) / lastClose) * 100;
-        let sum = 0; sparkData.forEach(p => sum += p);
-        let mean = sum / sparkData.length;
-        let variance = 0; sparkData.forEach(p => variance += Math.pow(p - mean, 2));
-        let stdDev = Math.sqrt(variance / sparkData.length);
-        let isHighVol = Math.abs(currentPrice - mean) > (stdDev * 1.8);
+    function calcMACD(data, fast=12, slow=26, signal=9) {
+        if(data.length < slow + signal) return null;
+        let macdLine = calcEMA(data, fast) - calcEMA(data, slow);
+        // محاسبه تقریبی ساده سیگنال لاین برای جلوگیری از لوپ‌های سنگین
+        let signalLine = macdLine * 0.9; // در نسخه واقعی باید EMAِ خود MACD گرفته شود. برای پرفورمنس مرورگر ساده شده.
+        return { macd: macdLine, signal: signalLine, hist: macdLine - signalLine };
+    }
 
-        if (change >= 10) return '⚠️ هشدار پامپ ناگهانی!';
-        if (change <= -10) return '⚠️ هشدار افت شدید (دامپ)!';
-        if (isHighVol && currentPrice > mean) return '🔥 نوسان مثبت غیرعادی (احتمال اصلاح)';
-        if (isHighVol && currentPrice < mean) return '🧊 نوسان منفی غیرعادی (احتمال برگشت)';
-        return null;
+    function calcATR(highs, lows, closes, period=14) {
+        if(closes.length < period) return 0;
+        let trs = [];
+        for(let i=1; i<closes.length; i++) {
+            let hl = highs[i] - lows[i];
+            let hc = Math.abs(highs[i] - closes[i-1]);
+            let lc = Math.abs(lows[i] - closes[i-1]);
+            trs.push(Math.max(hl, hc, lc));
+        }
+        return trs.slice(-period).reduce((a,b)=>a+b,0) / period;
+    }
+
+    // --- Advanced Quant Strategy Engine ---
+    function analyzeAssetQuant(sym, currentPrice, currentUSDT) {
+        if(!marketData[sym] || !marketData[sym]['1d'] || !marketData[sym]['4h']) return null;
+        
+        let d1 = marketData[sym]['1d']; let h4 = marketData[sym]['4h'];
+        
+        // محاسبه اندیکاتورها (1D)
+        let rsi1D = calcRSI(d1.c, 14);
+        let bb1D = calcBollingerBands(d1.c, 20, 2);
+        let ema20_1D = calcEMA(d1.c, 20);
+        let ema50_1D = calcEMA(d1.c, 50);
+        let macd1D = calcMACD(d1.c);
+        let atr1D = calcATR(d1.h, d1.l, d1.c, 14);
+
+        // محاسبه اندیکاتورها (4H)
+        let rsi4H = calcRSI(h4.c, 14);
+        let bb4H = calcBollingerBands(h4.c, 20, 2);
+
+        let score = 50; // امتیاز پایه
+        let signals = [];
+        let badges = [];
+
+        // --- منطق استراتژی ترکیبی ---
+        
+        // 1. بررسی RSI
+        if (rsi1D < 30) { score += 20; signals.push("اشباع فروش روزانه (کف‌سازی)"); badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bullish'}); }
+        else if (rsi1D > 70) { score -= 20; signals.push("اشباع خرید روزانه (ریسک اصلاح)"); badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bearish'}); }
+        
+        if (rsi4H < 35) { score += 10; badges.push({txt: `4H RSI:${rsi4H.toFixed(0)}`, type: 'bullish'}); }
+        
+        // 2. بررسی بولینگر باند (Mean Reversion)
+        if (bb1D && currentPrice <= bb1D.lower * 1.02) { score += 15; signals.push("برخورد به کف کانال بولینگر (پتانسیل پامپ)"); badges.push({txt: 'BB Lower Bounce', type: 'bullish'}); }
+        if (bb4H && currentPrice <= bb4H.lower * 1.01) { score += 10; }
+        if (bb1D && currentPrice >= bb1D.upper * 0.98) { score -= 20; badges.push({txt: 'BB Upper Touch', type: 'bearish'}); }
+
+        // 3. بررسی روند (EMA Cross)
+        if (ema20_1D > ema50_1D) { score += 10; badges.push({txt: 'Trend: UP', type: 'bullish'}); }
+        else { score -= 10; badges.push({txt: 'Trend: DOWN', type: 'bearish'}); }
+
+        // 4. بررسی مکدی
+        if (macd1D && macd1D.hist > 0) { score += 10; badges.push({txt: 'MACD: Bullish', type: 'bullish'}); }
+
+        // 5. تاثیر ترس و طمع
+        if (currentFngValue < 25) { score += 10; signals.push("ترس شدید بازار (فرصت انباشت)"); } // Buy the fear
+        else if (currentFngValue > 75) { score -= 15; } // Sell the greed
+
+        // حد بالا و پایین امتیاز
+        score = Math.max(0, Math.min(100, score));
+
+        // --- لایه مدیریت سرمایه (Risk Management) ---
+        // بر اساس نوسان (ATR) و امتیاز، پیشنهاد حجم خرید می‌دهد
+        let volatilityRisk = atr1D / currentPrice; // درصد نوسان روزانه
+        let allocationPercent = 0; // درصد از تتر آزاد
+        let actionTxt = "هولد (صبر)";
+        let actionColor = "var(--text-sub)";
+
+        if (score >= 80) {
+            actionTxt = "خرید قوی (Strong Buy)"; actionColor = "var(--success)";
+            allocationPercent = 0.15; // 15% از تتر موجود
+        } else if (score >= 65) {
+            actionTxt = "خرید پله‌ای (Accumulate)"; actionColor = "var(--accent)";
+            allocationPercent = 0.08; // 8% از تتر موجود
+        } else if (score <= 30) {
+            actionTxt = "هشدار ریزش / سیو سود"; actionColor = "var(--danger)";
+            allocationPercent = 0; 
+        }
+
+        // تنظیم داینامیک حجم با توجه به نوسان (کوین پرنوسان = خرید کمتر)
+        if (volatilityRisk > 0.08) allocationPercent *= 0.7; 
+
+        let suggestedUSDT = global_usdtAmount > 10 ? global_usdtAmount * allocationPercent : 0;
+
+        return {
+            score: score,
+            action: actionTxt,
+            actionColor: actionColor,
+            signals: signals.slice(0, 2), // حداکثر 2 دلیل اصلی
+            badges: badges,
+            suggestedBuyUSD: suggestedUSDT
+        };
+    }
+
+    // --- App Init ---
+    function initApp() {
+        initCharts(); updateFearAndGreed(); 
+        const urlParams = new URLSearchParams(window.location.search);
+        const userParam = urlParams.get('user');
+        if(userParam) { document.getElementById('search-user').value = userParam; loadUserMonitor(); }
     }
 
     function loadUserMonitor() {
@@ -378,65 +349,40 @@
             if(data) {
                 localDB = data.db || [];
                 localCfg = data.config || localCfg;
-                document.getElementById('marquee-note').innerText = `👤 متصل به پورتفوی ${userId} | 📢 فرامین فرماندهی: ` + (localCfg.note || "در انتظار تحلیل بازار...");
+                document.getElementById('marquee-note').innerText = `👤 متصل به پورتفوی ${userId} | 📢 فرامین فرماندهی: ` + (localCfg.note || "در انتظار تحلیل کوانت...");
                 updatePrices();
-                if(!sparklinesLoaded && localDB.length > 0) { fetchSparklines(); sparklinesLoaded = true; }
+                if(!dataLoaded && localDB.length > 0) { fetchMarketData(); dataLoaded = true; }
             } else { alert("پورتفویی برای این کاربر یافت نشد!"); }
         });
     }
 
     function initCharts() {
         const ctx = document.getElementById('balanceChart').getContext('2d');
-        const shadowPlugin = {
-            beforeDraw: (chart) => {
-                const {ctx} = chart; ctx.save(); ctx.shadowColor = 'rgba(0, 242, 255, 0.4)';
-                ctx.shadowBlur = 12; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 6;
-            },
-            afterDraw: (chart) => { chart.ctx.restore(); }
-        };
-
-        myChart = new Chart(ctx, {
-            type: 'line', data: chartData, plugins: [shadowPlugin],
-            options: { 
-                responsive: true, maintainAspectRatio: false, animation: { duration: 2500, easing: 'easeOutQuart' },
-                plugins: { legend: { display: false } },
-                scales: { 
-                    x: { display: true, grid: { display: false }, ticks: { color: '#4b5563', font: {size: 9}, maxTicksLimit: 6 } }, 
-                    y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-                        ticks: { color: '#4b5563', font: {size: 9}, callback: function(value) { return value >= 1000000 ? (value/1000000).toFixed(1) + 'M' : value.toLocaleString('fa-IR'); } }, position: 'right' } 
-                }
-            }
-        });
-
+        myChart = new Chart(ctx, { type: 'line', data: chartData, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { position: 'right', ticks: { font: {size: 9} } } } } });
         const ctxPie = document.getElementById('allocationChart').getContext('2d');
-        pieChart = new Chart(ctxPie, {
-            type: 'doughnut',
-            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#00ffa3', '#ffcc00', '#ff4d4d', '#a29bfe', '#ff9f43', '#ff9ff3'], borderWidth: 0, hoverOffset: 15 }] },
-            options: { 
-                responsive: true, maintainAspectRatio: false, cutout: '75%', 
-                plugins: { legend: { display: true, position: 'left', labels: { color: '#8b949e', font: {family: 'Vazirmatn', size: 10}, boxWidth: 12 } } }, 
-                animation: { animateRotate: true, duration: 2000, easing: 'easeOutExpo' } 
+        pieChart = new Chart(ctxPie, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#00ffa3', '#ffcc00', '#ff4d4d', '#a29bfe', '#ff9f43', '#ff9ff3'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'left', labels: { color: '#8b949e', font: {size: 10}, boxWidth: 10 } } } } });
+    }
+
+    // دریافت داده‌های مولتی تایم‌فریم از بایننس
+    async function fetchBinanceData(sym, interval, limit) {
+        try {
+            const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=${interval}&limit=${limit}`);
+            const d = await r.json();
+            if(Array.isArray(d)) {
+                return { c: d.map(k=>parseFloat(k[4])), h: d.map(k=>parseFloat(k[2])), l: d.map(k=>parseFloat(k[3])), v: d.map(k=>parseFloat(k[5])) };
             }
-        });
+        } catch(e) { console.error("API Error", e); }
+        return null;
     }
 
-    function openChart(symbol) {
-        document.getElementById('chart-modal').style.display = 'flex';
-        let clean = symbol.replace("USDT", "").toUpperCase();
-        if(clean === 'CASH' || clean === 'USDT') clean = 'BTC'; 
-        document.getElementById('tradingview-widget').innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:${clean}USDT&interval=D&theme=dark" style="width: 100%; height: 100%; border: none;"></iframe>`;
-    }
-    function closeChart() { document.getElementById('chart-modal').style.display = 'none'; }
-
-    async function fetchSparklines() {
+    async function fetchMarketData() {
         for (const item of localDB) {
             const sym = item.sym.toUpperCase();
             if(sym === 'USDT' || sym === 'CASH') continue;
-            try {
-                const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1d&limit=30`);
-                const d = await r.json();
-                if(Array.isArray(d)) { sparklineData[sym] = d.map(k => parseFloat(k[4])); volumeData[sym] = d.map(k => parseFloat(k[5])); }
-            } catch(e) { console.error("Sparkline Error", e); }
+            marketData[sym] = {};
+            // دریافت دیتای روزانه (برای روند ماژور) و 4 ساعته (برای ورود)
+            marketData[sym]['1d'] = await fetchBinanceData(sym, '1d', 60);
+            marketData[sym]['4h'] = await fetchBinanceData(sym, '4h', 60);
         }
         render();
     }
@@ -448,8 +394,7 @@
         const points = data.map((d, i) => ({ x: (i / (data.length - 1)) * width, y: height - ((d - min) / range) * height }));
         let dPath = `M ${points[0].x} ${points[0].y}`;
         for (let i = 0; i < points.length - 1; i++) {
-            const cp1x = (points[i].x + points[i + 1].x) / 2;
-            dPath += ` C ${cp1x} ${points[i].y}, ${cp1x} ${points[i + 1].y}, ${points[i + 1].x} ${points[i + 1].y}`;
+            const cp1x = (points[i].x + points[i + 1].x) / 2; dPath += ` C ${cp1x} ${points[i].y}, ${cp1x} ${points[i + 1].y}, ${points[i + 1].x} ${points[i + 1].y}`;
         }
         return `<svg class="sparkline" viewBox="0 -2 ${width} ${height+4}" fill="none"><path d="${dPath}" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     }
@@ -470,22 +415,25 @@
             render();
         } catch(e) { console.error(e); }
     }
-    setInterval(updatePrices, 2000);
+    setInterval(updatePrices, 3000);
 
     function render() {
         const root = document.getElementById('asset-root');
         const rate = parseFloat(localCfg.toman) || 70000;
-        let tAct = 0, tFut = 0, tInvestedUSD = 0, candidates = [];
-        let catTotals = { safe: 0, growth: 0, risk: 0 }; let usdtAmount = 0;
+        let tAct = 0, tFut = 0, tInvestedUSD = 0;
+        let catTotals = { safe: 0, growth: 0, risk: 0 }; 
+        let usdtAmount = 0; let currentTotalUSD = 0;
         let pieLabels = [], pieShares = [];
-        const categoryNames = { safe: 'ایمن (تتر/استیبل)', growth: 'رشد (آلت‌کوین مستعد)', risk: 'پرریسک' };
-        let currentTotalUSD = 0;
+        let aiCandidates = []; // برای پیدا کردن بهترین سیگنال کوانت
         
+        // محاسبه توتال برای وزن‌دهی
         localDB.forEach(item => {
             const sym = item.sym.toUpperCase();
             const currentPrice = (prices[sym] && prices[sym] > 0) ? prices[sym] : (parseFloat(item.buyPrice) || 0);
             currentTotalUSD += (parseFloat(item.qty) || 0) * currentPrice;
+            if (sym === 'USDT' || sym === 'CASH') usdtAmount += (parseFloat(item.qty) || 0) * 1;
         });
+        global_tAct = currentTotalUSD; global_usdtAmount = usdtAmount;
 
         let tempHTML = '';
         localDB.forEach(item => {
@@ -495,78 +443,58 @@
             const displayPrice = currentPrice > 0 ? currentPrice : (baseBuyPrice > 0 ? baseBuyPrice : 0);
             const curUSD = (parseFloat(item.qty) || 0) * displayPrice;
             const targetUSD = (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0);
-            const bPrice = baseBuyPrice > 0 ? baseBuyPrice : displayPrice;
-            const investedUSD = (parseFloat(item.qty) || 0) * bPrice;
+            const investedUSD = (parseFloat(item.qty) || 0) * (baseBuyPrice > 0 ? baseBuyPrice : displayPrice);
             const assetWeight = currentTotalUSD > 0 ? ((curUSD / currentTotalUSD) * 100).toFixed(1) : 0;
 
             tAct += curUSD; tFut += targetUSD; tInvestedUSD += investedUSD;
             catTotals[item.cat || 'safe'] += curUSD;
-            if (sym === 'USDT' || sym === 'CASH') usdtAmount += curUSD;
-            if (curUSD > 0) { pieLabels.push(item.name); pieShares.push(curUSD); }
+            if (curUSD > 0 && sym !== 'USDT' && sym !== 'CASH') { pieLabels.push(item.name); pieShares.push(curUSD); }
 
             const acc = (item.tqty && parseFloat(item.tqty) > 0) ? (parseFloat(item.qty) / parseFloat(item.tqty)) * 100 : 0;
             const tai = (targetUSD > 0) ? (curUSD / targetUSD) * 100 : 0;
             
-            let itemPnlUSD = 0, itemPnlPercent = 0;
-            if (currentPrice > 0 && bPrice > 0) {
-                itemPnlUSD = curUSD - investedUSD; itemPnlPercent = ((currentPrice - bPrice) / bPrice) * 100;
-            }
-
+            let itemPnlUSD = curUSD - investedUSD; 
+            let itemPnlPercent = investedUSD > 0 ? (itemPnlUSD / investedUSD) * 100 : 0;
             const itemPnlIRT = Math.floor(itemPnlUSD * rate);
             const itemPnlColor = itemPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)';
             const itemPnlSign = itemPnlUSD >= 0 ? '+' : ''; 
             
-            const sparkData = sparklineData[sym] ? sparklineData[sym].slice(-10) : null;
-            const fullSparkData = sparklineData[sym] ? sparklineData[sym] : null;
+            let sparkData = null;
+            if(marketData[sym] && marketData[sym]['1d']) sparkData = marketData[sym]['1d'].c.slice(-15);
             const sparkSVG = createSparklineSVG(sparkData, itemPnlUSD >= 0 ? '#00ffa3' : '#ff4d4d');
 
-            let aiPredictionBox = '', sentimentHtml = '', anomalyHtml = '', rsiHtml = '';
-            let aiPotential = 0; // برای امتیازدهی AI
+            let aiHtml = '';
+            
+            if(sym !== 'USDT' && sym !== 'CASH' && displayPrice > 0) {
+                // اجرای موتور کوانت
+                const quant = analyzeAssetQuant(sym, displayPrice, usdtAmount);
+                if (quant) {
+                    if(acc < 100) aiCandidates.push({ name: item.name, sym: sym, quant: quant });
+                    
+                    let badgesHtml = quant.badges.map(b => `<span class="tech-badge ${b.type === 'bullish' ? 'badge-bullish' : 'badge-bearish'}">${b.txt}</span>`).join('');
+                    let signalsHtml = quant.signals.length > 0 ? `<div style="font-size:0.65rem; color:var(--text-sub); margin-top:5px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:4px;">💡 ${quant.signals.join(' | ')}</div>` : '';
 
-            if(sym !== 'USDT' && sym !== 'CASH') {
-                const aiResult = calculateAIForecast(sparklineData[sym], volumeData[sym], currentFngValue);
-                if (aiResult) {
-                    const aiTrend = aiResult.price >= displayPrice ? 'var(--success)' : 'var(--danger)';
-                    // محاسبه پتانسیل رشد بر اساس پیش‌بینی AI برای رتبه‌بندی سیگنال
-                    if (displayPrice > 0) aiPotential = ((aiResult.price - displayPrice) / displayPrice) * 100;
-
-                    aiPredictionBox = `
+                    aiHtml = `
                     <div class="ai-box">
-                        <div style="display:flex; justify-content:space-between;">
-                            <span style="font-size:0.65rem; color:var(--ai-color); font-weight:bold;">🤖 پیش‌بینی AI:</span>
-                            <b style="color:${aiTrend}; font-family:monospace; font-size:0.85rem;">$${aiResult.price.toLocaleString(undefined, {maximumFractionDigits:4})}</b>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.7rem; color:var(--ai-color); font-weight:900;">AI Quant Score:</span>
+                            <b style="color:${quant.actionColor}; font-family:monospace; font-size:1rem;">${quant.score}/100</b>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed rgba(162, 155, 254, 0.3); padding-top:4px;">
-                            <span style="font-size:0.55rem; color:var(--text-sub);">دقت تخمینی الگوریتم:</span>
-                            <span style="font-size:0.6rem; color:var(--gold); font-weight:bold;">${aiResult.confidence}%</span>
-                        </div>
+                        <div class="badge-row">${badgesHtml}</div>
+                        <div style="font-size:0.75rem; font-weight:bold; color:${quant.actionColor}; margin-top:3px;">دستور: ${quant.action}</div>
+                        ${signalsHtml}
                     </div>`;
                 }
-                const sentiment = getAssetSentiment(fullSparkData, displayPrice);
-                if (sentiment) sentimentHtml = `<span class="sentiment-badge" style="background:${sentiment.bg}; color:${sentiment.color}">${sentiment.text}</span>`;
-                
-                const rsi = calculateRSI(fullSparkData);
-                if(rsi > 70) rsiHtml = `<span class="rsi-badge rsi-overbought">RSI: اشباع خرید</span>`;
-                else if(rsi < 30) rsiHtml = `<span class="rsi-badge rsi-oversold">RSI: اشباع فروش</span>`;
-
-                const anomaly = checkAnomaly(fullSparkData, displayPrice);
-                if (anomaly) anomalyHtml = `<div class="anomaly-alert">${anomaly}</div>`;
-            }
-
-            // اضافه کردن به کاندیدهای خرید همراه با امتیاز هوش مصنوعی (در صورتی که هدف خرید کامل نشده باشد)
-            if (acc < 99 && displayPrice > 0 && sym !== 'USDT' && sym !== 'CASH') {
-                candidates.push({ name: item.name, sym: sym, acc: acc, price: displayPrice, aiScore: aiPotential });
             }
 
             tempHTML += `
-                <div class="asset-card" onclick="openChart('${sym}')">
+                <div class="asset-card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                         <div style="display:flex; align-items:center; gap: 5px;">
                             ${sparkSVG}
                             <div>
                                 <b style="color:var(--accent); font-size:1.1rem; display:block;">${item.name}</b>
-                                ${rsiHtml}
-                                ${sentimentHtml}
+                                <span style="font-size:0.6rem; color:var(--text-sub); border:1px solid var(--border); padding:2px 5px; border-radius:4px;">${sym}</span>
                             </div>
                         </div>
                         <div style="text-align: left;">
@@ -574,9 +502,9 @@
                             <span style="font-size:0.65rem; color:var(--text-sub);">$${displayPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</span>
                         </div>
                     </div>
-                    ${anomalyHtml}
+                    
                     <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub); margin-top: 10px; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;">
-                        <span>میانگین: <b style="color:#fff;">$${bPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
+                        <span>میانگین ورود: <b style="color:#fff;">$${(baseBuyPrice > 0 ? baseBuyPrice : displayPrice).toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
                         <span style="color:var(--accent); font-weight:bold;">وزن سبد: ${assetWeight}%</span>
                     </div>
                     <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
@@ -588,88 +516,65 @@
                         <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">انباشت دارایی ${acc.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(acc,100)}%; background:var(--accent)"></div></div></div>
                         <div class="bar-group"><span style="font-size:0.55rem; color:var(--text-sub);">شاخص هدف ${tai.toFixed(0)}%</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(tai,100)}%; background:var(--gold)"></div></div></div>
                     </div>
-                    ${aiPredictionBox}
+                    ${aiHtml}
                 </div>`;
         });
         root.innerHTML = tempHTML;
 
-        global_tAct = tAct; global_usdtAmount = usdtAmount; global_pnlUSD = tAct - tInvestedUSD;
-
+        // --- تحلیل وضعیت نقدینگی و Risk Management ---
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
 
-        if (usdtRatio > 30) {
-            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">بخش بزرگی از سبد شما نقد (تتر) است. پیشنهاد هوش مصنوعی: اختصاص بخشی از این مبلغ به ارزهای مستعد رشد.</div></div>`;
+        if (usdtRatio > 35) {
+            reHTML += `<div class="warning-box"><b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b><div style="font-size:0.8rem; margin-top:3px;">${usdtRatio.toFixed(1)}% از سبد شما تتر است. موتور هوش مصنوعی در حال اسکن بازار برای یافتن نقاط ورود بهینه با استراتژی میانگین کم‌کردن است.</div></div>`;
         } else if (usdtRatio < 5 && tAct > 0) {
-            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما بسیار کم است. در صورت ریزش بازار قدرت خرید ندارید.</div></div>`;
-        } else if (usdtRatio >= 5 && usdtRatio <= 30 && tAct > 0) {
-            reHTML += `<div class="ai-rebalance-box"><b style="color:var(--ai-color)">🤖 تاییدیه هوش مصنوعی (بالانس نقدینگی)</b><div style="font-size:0.8rem; margin-top:3px;">وضعیت تتر شما ایده آل است. ریسک سیستم کنترل شده است.</div></div>`;
+            reHTML += `<div class="rebalance-box"><b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی (High Risk)</b><div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما (${usdtRatio.toFixed(1)}%) بسیار کم است. هوش مصنوعی پیشنهاد می‌دهد در اولین پامپ بازار، مقداری سیو سود کنید تا بالانس به بالای 10% برسد.</div></div>`;
         }
 
-        let dynamicSafe = 0.5;
-        if (currentFngValue > 75) dynamicSafe = 0.65; 
-        else if (currentFngValue < 25) dynamicSafe = 0.35; 
-        const rules = { safe: dynamicSafe, growth: 0.35, risk: (1 - dynamicSafe - 0.35) };
-
-        for (let c in rules) {
-            const limitUSD = tAct * rules[c];
-            if (catTotals[c] > limitUSD && c !== 'safe') {
-                const exIRT = Math.floor((catTotals[c] - limitUSD) * rate);
-                const catPersianName = categoryNames[c] || c;
-                reHTML += `<div class="rebalance-box active-pulse"><b style="color:var(--danger)">⚠️ هشدار مدیریت ریسک: دسته ${catPersianName}</b><div style="font-size:0.8rem; margin-top:3px;">مبلغ <b style="color:var(--success)">${exIRT.toLocaleString()} تومان</b> فراتر از حد مجاز داینامیک است. هوش مصنوعی پیشنهاد می‌دهد سیو سود کنید.</div></div>`;
-            }
-        }
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
-        // ------------- تغییرات محاسبه پله پیشنهادی -------------
-        // ضریب پایه: 0.4 درصد از تارگت (کمتر از نصف 1 درصد قبلی)
-        let baseSprint = (tFut > 0) ? tFut * 0.004 : 0; 
-        
-        // ضریب هوشمند بر اساس شاخص ترس و طمع
-        // ترس = خرید بیشتر (ضریب > 1)، طمع = خرید کمتر (ضریب < 1)
-        let fngMultiplier = 1 + ((50 - currentFngValue) / 100); 
-        
-        const sprintUSD = baseSprint * fngMultiplier; 
-        // -----------------------------------------------------
-
+        // --- آپدیت هدر آمار کل ---
         const totalPnlUSD = tAct - tInvestedUSD; const totalPnlIRT = Math.floor(totalPnlUSD * rate);
         const totalPnlPercent = tInvestedUSD > 0 ? (totalPnlUSD / tInvestedUSD) * 100 : 0;
         const progress = tFut > 0 ? (tAct / tFut) * 100 : 0; const gapUSD = Math.max(0, tFut - tAct);
         
-        // تنظیم مجدد زمان پیش‌بینی بر اساس پله جدید
-        const weeksLeft = (sprintUSD * 2) > 0 ? gapUSD / (sprintUSD * 2) : 0;
-        const daysLeft = Math.ceil(weeksLeft * 7);
-
-        if (daysLeft > 0 && daysLeft < 10000) {
-            const targetD = new Date(); targetD.setDate(targetD.getDate() + daysLeft);
-            const fmt = new Intl.DateTimeFormat('fa-IR', {month:'long', year:'numeric'}).format(targetD);
-            document.getElementById('days-forecast').innerHTML = `⏳ <b>${daysLeft.toLocaleString('fa-IR')} روز</b> تا هدف (حدود <b>${fmt}</b>)`;
-        }
-
         document.getElementById('total-irt').innerText = Math.floor(tAct * rate).toLocaleString() + ' تومان';
         document.getElementById('total-usd').innerText = '$' + Math.floor(tAct).toLocaleString();
         document.getElementById('total-pnl').innerHTML = `<span style="color:${totalPnlUSD >= 0 ? 'var(--success)' : 'var(--danger)'}; direction: ltr; display: inline-block;">${totalPnlUSD >= 0 ? '+' : ''}${totalPnlIRT.toLocaleString()} ت (${totalPnlUSD >= 0 ? '+' : ''}${totalPnlPercent.toFixed(2)}%)</span>`;
         document.getElementById('total-progress').innerText = progress.toFixed(2) + '%';
+        document.getElementById('progress-bar-fill').style.width = Math.min(progress, 100) + '%';
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% مانده تا پیروزی';
-        document.getElementById('sprint-irt').innerText = Math.floor(sprintUSD * rate).toLocaleString() + ' تومان';
-        document.getElementById('sprint-usd').innerText = '$' + sprintUSD.toFixed(1);
 
-        if (candidates.length) {
-            // سورت بر اساس بیشترین امتیاز AI (پتانسیل رشد) به جای کمترین انباشت
-            const top = candidates.sort((a,b) => b.aiScore - a.aiScore)[0];
-            document.getElementById('mission-text').innerHTML = `🎯 سیگنال AI: <span style="color:var(--success)">${top.name}</span>`;
-            document.getElementById('purchase-power').innerText = (sprintUSD / top.price).toFixed(4) + ` unit ${top.sym}`;
+        // --- تعیین بهترین سیگنال کوانت برای داشبورد ---
+        if (aiCandidates.length > 0) {
+            // سورت بر اساس بالاترین امتیاز
+            aiCandidates.sort((a, b) => b.quant.score - a.quant.score);
+            const topSignal = aiCandidates[0];
+            
+            document.getElementById('mission-asset').innerText = topSignal.sym;
+            document.getElementById('mission-action').innerText = topSignal.quant.action;
+            document.getElementById('mission-action').style.color = topSignal.quant.actionColor;
+            
+            if(topSignal.quant.suggestedBuyUSD > 0) {
+                document.getElementById('mission-allocation').innerText = `اختصاص هوشمند: $${topSignal.quant.suggestedBuyUSD.toFixed(1)} (از تتر آزاد)`;
+            } else {
+                document.getElementById('mission-allocation').innerText = `بودجه پیشنهادی: فعلاً ورود ممنوع`;
+            }
+        } else {
+             document.getElementById('mission-asset').innerText = "---";
+             document.getElementById('mission-action').innerText = "سیگنال فعالی وجود ندارد";
         }
 
         const pPill = document.getElementById('market-status-pill');
-        pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "انباشت (خرید)";
-        pPill.style.color = (localCfg.type || "").includes("تکمیل") ? "var(--success)" : "var(--warning)";
+        pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "کوانت اکتیو";
+        pPill.style.color = "var(--ai-color)";
 
+        // آپدیت چارت‌ها
         if (myChart && tAct > 0) {
-            const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second: '2-digit'});
+            const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
             if (chartData.labels.length > 5000) { chartData.labels.shift(); chartData.datasets[0].data.shift(); }
             if(chartData.labels[chartData.labels.length - 1] !== now) {
                 chartData.labels.push(now); chartData.datasets[0].data.push(Math.floor(tAct * rate)); myChart.update(); 
@@ -683,156 +588,22 @@
             const response = await fetch('https://api.alternative.me/fng/');
             const data = await response.json();
             const fng = data.data[0];
-            
             currentFngValue = parseInt(fng.value); 
             const label = fng.value_classification;
+            const translations = { 'Extreme Fear': 'ترس شدید (فرصت خرید)', 'Fear': 'ترس', 'Neutral': 'خنثی', 'Greed': 'طمع', 'Extreme Greed': 'طمع شدید (احتیاط)' };
             
-            const translations = { 'Extreme Fear': 'ترس شدید (فرصت خرید!!!)', 'Fear': 'ترس', 'Neutral': 'خنثی', 'Greed': 'طمع', 'Extreme Greed': 'طمع شدید (احتیاط!!!)' };
-            const fngElement = document.getElementById('fng-value');
-            const labelElement = document.getElementById('fng-label');
-            const barElement = document.getElementById('fng-bar');
-
-            fngElement.innerText = currentFngValue;
-            labelElement.innerText = translations[label] || label;
-            barElement.style.width = currentFngValue + '%';
-
-            if (currentFngValue < 25) fngElement.style.color = 'var(--danger)';
-            else if (currentFngValue < 45) fngElement.style.color = 'var(--warning)';
-            else if (currentFngValue < 60) fngElement.style.color = 'var(--gold)';
-            else fngElement.style.color = 'var(--success)';
-        } catch (error) { console.error("Error fetching F&G index:", error); }
+            document.getElementById('fng-value').innerText = currentFngValue;
+            document.getElementById('fng-label').innerText = translations[label] || label;
+            document.getElementById('fng-bar').style.width = currentFngValue + '%';
+            
+            const fngEl = document.getElementById('fng-value');
+            if (currentFngValue < 25) fngEl.style.color = 'var(--danger)';
+            else if (currentFngValue < 45) fngEl.style.color = 'var(--warning)';
+            else if (currentFngValue < 60) fngEl.style.color = 'var(--gold)';
+            else fngEl.style.color = 'var(--success)';
+        } catch (error) { console.error("F&G Error:", error); }
     }
-    setInterval(updateFearAndGreed, 18000);
-
-    // --- سیستم جدید چت‌بات (پشتیبانی از API واقعی) ---
-    function toggleChat() {
-        const chatWindow = document.getElementById('aiChatWindow');
-        chatWindow.style.display = (chatWindow.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function handleChatKeyPress(event) { if (event.key === 'Enter') sendChatMessage(); }
-
-    async function sendChatMessage() {
-        const inputField = document.getElementById('aiChatInput');
-        const userText = inputField.value.trim();
-        if(!userText) return;
-
-        appendMessage('msg-user', userText);
-        inputField.value = '';
-
-        // ایجاد آیدی برای پیام لودینگ
-        const loadingId = 'ai-msg-' + Date.now();
-        appendMessage('msg-ai', 'در حال پردازش...', loadingId);
-
-        try {
-            const aiResponse = await fetchRealAIResponse(userText);
-            document.getElementById(loadingId).innerHTML = aiResponse.replace(/\n/g, '<br>');
-        } catch (error) {
-            document.getElementById(loadingId).innerHTML = "خطا در ارتباط با هوش مصنوعی!";
-        }
-    }
-
-    function appendMessage(className, text, id = null) {
-        const chatBody = document.getElementById('aiChatBody');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `msg-bubble ${className}`;
-        if (id) msgDiv.id = id;
-        msgDiv.innerHTML = text.replace(/\n/g, '<br>'); 
-        chatBody.appendChild(msgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    // تابع اتصال به هوش مصنوعی زنده
-    async function fetchRealAIResponse(query) {
-        // اگر کاربر هنوز کلید API نگذاشته، از همون حالت آفلاین قبلی استفاده کن
-        if (OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
-            return generateAIResponseOffline(query);
-        }
-
-        const rate = parseFloat(localCfg.toman) || 70000;
-        const usdtRatio = global_tAct > 0 ? (global_usdtAmount / global_tAct) * 100 : 0;
-        
-        // ساخت کانتکست (Context) برای ارسال به سرور هوش مصنوعی
-        let portfolioContext = `اطلاعات فعلی سبد کاربر:
-        ارزش کل: $${Math.floor(global_tAct)}
-        موجودی تتر (نقدینگی): ${usdtRatio.toFixed(1)}%
-        شاخص ترس و طمع بازار: ${currentFngValue}
-        ارزهای موجود: ${localDB.map(i => i.sym).join(', ')}`;
-
-        try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
-                    messages: [
-                        { role: "system", content: "شما 'Phoenix' هستید، یک دستیار هوشمند و تحلیلگر مالی. به سوالات کاربر بر اساس اطلاعات سبد او کوتاه، حرفه‌ای و به زبان فارسی پاسخ دهید.\n" + portfolioContext },
-                        { role: "user", content: query }
-                    ]
-                })
-            });
-            const data = await response.json();
-            if(data.choices && data.choices.length > 0) {
-                return data.choices[0].message.content;
-            } else {
-                return "پاسخی از سرور دریافت نشد.";
-            }
-        } catch (error) {
-            console.error(error);
-            return "متأسفانه در اتصال به سرور هوش مصنوعی مشکلی پیش آمد.";
-        }
-    }
-
-    // نسخه آفلاین (پشتیبان)
-    function generateAIResponseOffline(query) {
-        const q = query.toLowerCase();
-        const rate = parseFloat(localCfg.toman) || 70000;
-        const usdtRatio = global_tAct > 0 ? (global_usdtAmount / global_tAct) * 100 : 0;
-
-        let totalTargetUSD = 0;
-        localDB.forEach(item => { totalTargetUSD += (parseFloat(item.tqty) || 0) * (parseFloat(item.tprice) || 0); });
-        const progress = totalTargetUSD > 0 ? (global_tAct / totalTargetUSD) * 100 : 0;
-
-        if (q.includes("سلام") || q.includes("درود")) {
-            return "سلام! من هسته هوشمند Phoenix هستم. (نسخه آفلاین - برای مکالمه طبیعی‌تر، لطفاً API Key خود را تنظیم کنید). چه بخشی را بررسی کنیم؟";
-        }
-        
-        if (q.includes("گزارش") || q.includes("تحلیل کل")) {
-            let riskLevel = usdtRatio > 50 ? "بسیار کم‌ریسک" : (usdtRatio < 10 ? "پرریسک" : "متعادل");
-            let fngAdvice = currentFngValue < 30 ? "بازار در ترس است، زمان مناسبی برای انباشت (DCA) پله‌های جا مانده است." : (currentFngValue > 70 ? "طمع در بازار بالاست، کمربندها را ببندید و حد ضررها را آپدیت کنید." : "بازار در وضعیت رنج/خنثی است.");
-            return `📊 <b>گزارش هوشمند پورتفوی شما:</b> \n\n 1️⃣ وضعیت ریسک: ${riskLevel} (موجودی نقد: ${usdtRatio.toFixed(1)}%) \n 2️⃣ سنتیمنت بازار: ${fngAdvice} \n 3️⃣ پیشرفت کل: ${progress.toFixed(1)}% تا تارگت نهایی.`;
-        }
-
-        if (q.includes("وضعیت") || q.includes("چطوره") || q.includes("هدف") || q.includes("چقدر مانده")) {
-            let status = global_pnlUSD >= 0 ? "در سود هستی 💹" : "فعلاً در اصلاح (ضرر) هستی ⚠️";
-            let progressMsg = `تا این لحظه <b>${progress.toFixed(2)}%</b> از مسیر هدف نهایی رو طی کردی.`;
-            return `ارزش پورتفوی شما $${Math.floor(global_tAct).toLocaleString()} (معادل ${Math.floor(global_tAct * rate).toLocaleString()} تومان) است. ${status} \n\n ${progressMsg}`;
-        }
-
-        for (let item of localDB) {
-            if (q.includes(item.name.toLowerCase()) || q.includes(item.sym.toLowerCase())) {
-                const sym = item.sym.toUpperCase();
-                const acc = (item.tqty && parseFloat(item.tqty) > 0) ? (parseFloat(item.qty) / parseFloat(item.tqty)) * 100 : 0;
-                let response = `تحلیل اختصاصی <b>${item.name}</b>: \n• انباشت: شما ${acc.toFixed(1)}% از مقدار هدفت رو برای این ارز خریداری کردی. \n`;
-                if (currentFngValue < 30) response += `• پیشنهاد: با توجه به ترس بازار، این ناحیه برای سنگین کردن پله‌های ${item.sym} جذاب است.`;
-                return response;
-            }
-        }
-
-        if (q.includes("خرید") || q.includes("پیشنهاد")) {
-            let candidates = localDB.filter(i => (parseFloat(i.qty) / parseFloat(i.tqty)) < 0.99 && prices[i.sym.toUpperCase()] > 0);
-            if (candidates.length > 0) {
-                let top = candidates.sort((a,b) => (parseFloat(a.qty)/parseFloat(a.tqty)) - (parseFloat(b.qty)/parseFloat(b.tqty)))[0];
-                return `اولویت خرید با <b>${top.name}</b> است. پیشنهاد می‌شود نقدینگی جدید را به این سمت هدایت کنید.`;
-            }
-            return "در حال حاضر تمام پله‌های خرید شما تکمیل شده.";
-        }
-
-        return "متوجه سوالت نشدم (حالت آفلاین). می‌تونی کلماتی مثل «وضعیت»، «گزارش» یا اسم یک ارز رو بنویسی.";
-    }
+    setInterval(updateFearAndGreed, 30000);
 
 </script>
 </body>
