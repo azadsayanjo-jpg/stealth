@@ -210,7 +210,6 @@
     let historicalChartData90D = []; 
     let tokenChartInstance;
     let liveStats = {};
-    let currentUserListener = null;
 
     function initChart() {
         const ctx = document.getElementById('tokenChart').getContext('2d');
@@ -237,60 +236,78 @@
         });
     }
 
+    function showErrorMsg(msg) {
+        document.getElementById('reserves-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:40px; font-weight:bold;">${msg}</td></tr>`;
+        document.getElementById('loadBtn').innerHTML = 'اسکن بلاک‌چین';
+        document.getElementById('loadBtn').disabled = false;
+    }
+
     function loadTokenData() {
         const userId = document.getElementById('search-user').value.trim();
         const btn = document.getElementById('loadBtn');
         if(!userId) return alert("لطفاً یک شناسه کاربری وارد کنید.");
         
-        btn.innerHTML = '<div class="loader"></div> اسکن...';
+        btn.innerHTML = '<div class="loader"></div> اسکن هوشمند...';
         btn.disabled = true;
 
-        if(currentUserListener) currentUserListener.off();
+        // اسکن کل دیتابیس برای پیدا کردن ردپای کاربر (بدون وابستگی به یک مسیر خاص)
+        const rootRef = firebase.database().ref('StealthCapital_V1');
         
-        // تشخیص اینکه کاربر دیتای مستر/ادمین را می‌خواهد یا یک کاربر خاص
-        let dbPath = `StealthCapital_V1/Users/${userId}`;
-        if (userId.toLowerCase() === 'admin' || userId.toLowerCase() === 'main') {
-            dbPath = 'StealthCapital_V1';
-        }
-        
-        currentUserListener = firebase.database().ref(dbPath);
-        currentUserListener.on('value', async (snapshot) => {
-            const data = snapshot.val();
-            console.log("Data from Firebase:", data); // چاپ دیتا در کنسول برای دیباگ
-            
-            if(data) {
-                // هماهنگ‌سازی با انواع ساختارها (مستقیم آرایه بودن یا داشتن child به نام db)
-                if (Array.isArray(data)) {
-                    localDB = data.filter(item => item !== null && item.sym);
-                } else if (data.db) {
-                    localDB = Array.isArray(data.db) ? data.db.filter(item => item !== null && item.sym) : Object.values(data.db).filter(item => item !== null && item.sym);
-                    localCfg = data.config || localCfg;
-                } else {
-                    localDB = Object.values(data).filter(item => typeof item === 'object' && item !== null && item.sym);
-                }
+        rootRef.once('value', async (snapshot) => {
+            const fullData = snapshot.val();
+            let targetData = null;
 
-                if (localDB.length > 0) {
-                    await fetchDeepMarketData();
-                    processAndRenderData();
-                } else {
-                    document.getElementById('reserves-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--warning); padding:40px;">کاربر یافت شد اما سبد دارایی معتبری ثبت نشده است.</td></tr>`;
-                }
-            } else {
-                document.getElementById('reserves-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:40px;">خطا: شناسه کاربری یافت نشد. (نکته: برای اسکن کل استخر بنویسید admin)</td></tr>`;
+            if (!fullData) return showErrorMsg("دیتابیس کاملاً خالی است. داده‌ای یافت نشد.");
+
+            const searchKey = userId.toLowerCase();
+
+            // منطق هوشمند پیدا کردن کاربر
+            if (searchKey === 'admin' || searchKey === 'main') {
+                targetData = fullData; // کل استخر
+            } 
+            else if (fullData.Users && fullData.Users[userId]) {
+                targetData = fullData.Users[userId]; // مسیر استاندارد
             }
-            btn.innerHTML = 'اسکن بلاک‌چین';
-            btn.disabled = false;
+            else if (fullData[userId]) {
+                targetData = fullData[userId]; // اگر مستقیماً در روت ذخیره شده
+            }
+            else {
+                return showErrorMsg(`کاربر با شناسه "${userId}" یافت نشد. <br><small style="color:var(--text-sub)">(برای مشاهده استخر اصلی بنویسید: admin)</small>`);
+            }
+
+            // استخراج آرایه دارایی‌ها
+            localDB = [];
+            if (Array.isArray(targetData)) {
+                localDB = targetData;
+            } else if (targetData.db) {
+                localDB = Array.isArray(targetData.db) ? targetData.db : Object.values(targetData.db);
+                if (targetData.config) localCfg = targetData.config;
+            } else if (typeof targetData === 'object') {
+                localDB = Object.values(targetData);
+            }
+
+            // پاکسازی آیتم‌های نامعتبر
+            localDB = localDB.filter(item => item && typeof item === 'object' && item.sym && item.qty);
+
+            if (localDB.length > 0) {
+                await fetchDeepMarketData();
+                processAndRenderData();
+                btn.innerHTML = 'اسکن بلاک‌چین';
+                btn.disabled = false;
+            } else {
+                showErrorMsg("کاربر یافت شد اما سبد دارایی وی خالی است.");
+            }
+            
         }, (error) => {
-            alert("خطا در ارتباط با سرور. لطفا از متصل بودن اینترنت مطمئن شوید.");
-            btn.innerHTML = 'اسکن بلاک‌چین';
-            btn.disabled = false;
+            console.error("Firebase Error:", error);
+            showErrorMsg("خطا در ارتباط با سرور. اتصال اینترنت خود را بررسی کنید.");
         });
     }
 
     async function fetchDeepMarketData() {
         historicalChartData90D = Array(90).fill(0);
         const promises = localDB.map(async (item) => {
-            if (!item || !item.sym) return; // محافظت در برابر آیتم‌های دیتابیس خراب
+            if (!item || !item.sym) return;
             const sym = item.sym.toUpperCase();
             const qty = parseFloat(item.qty) || 0;
             const fbPrice = parseFloat(item.buyPrice) || 0; 
@@ -303,17 +320,22 @@
             
             try {
                 const tRes = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}USDT`);
+                if(!tRes.ok) throw new Error('API Error');
                 const tData = await tRes.json();
+                
                 if(tData.lastPrice) {
                     liveStats[sym] = { price: parseFloat(tData.lastPrice), change24: parseFloat(tData.priceChangePercent) };
                     const kRes = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}USDT&interval=1d&limit=90`);
+                    if(!kRes.ok) throw new Error('Kline Error');
                     const kData = await kRes.json();
+                    
                     if(Array.isArray(kData)) {
                         const offset = 90 - kData.length;
                         kData.forEach((k, i) => historicalChartData90D[i + offset] += qty * parseFloat(k[4]));
                     }
-                } else throw 'err';
+                } else throw new Error('No Price');
             } catch(e) { 
+                // در صورت خطای بایننس از قیمت دیتابیس استفاده میکند
                 liveStats[sym] = { price: fbPrice, change24: 0 }; 
                 for(let i=0; i<90; i++) historicalChartData90D[i] += qty * fbPrice;
             }
@@ -327,7 +349,7 @@
         let futureMarketCap = 0;
 
         localDB.forEach(item => {
-            if (!item || !item.sym) return; // محافظت مجدد
+            if (!item || !item.sym) return;
             const sym = item.sym.toUpperCase();
             const qty = parseFloat(item.qty) || 0;
             const price = liveStats[sym]?.price || parseFloat(item.buyPrice) || 0;
@@ -355,7 +377,7 @@
         const sBar = document.getElementById('sentimentBar');
         
         let sentimentScore = Math.min(liqRatio * 3, 100);
-        aiBox.innerHTML = liqRatio > 25 ? `<b style="color:var(--success)">✅ پایدار:</b> ذخایر نقدینگی ${liqRatio.toFixed(1)}% است.` : `<b style="color:var(--danger)">⚠️ نوسانی:</b> نقدینگی کم است.`;
+        aiBox.innerHTML = liqRatio > 25 ? `<b style="color:var(--success)">✅ پایدار:</b> ذخایر نقدینگی ${liqRatio.toFixed(1)}% است.` : `<b style="color:var(--danger)">⚠️ نوسانی:</b> نقدینگی کم است. خطر سقوط ارزش وجود دارد.`;
         sBar.style.width = sentimentScore + "%";
         document.getElementById('sentimentVal').innerText = sentimentScore.toFixed(0) + "%";
 
