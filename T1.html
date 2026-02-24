@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHOENIX ($PHX) | Ultra Explorer v4.0</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg: #010409; --surface: rgba(13, 17, 23, 0.9); --border: rgba(0, 242, 255, 0.15);
+            --accent: #00f2ff; --gold: #ffcc00; --success: #00ffa3; --danger: #ff4d4d;
+            --ai-color: #a29bfe; --text-main: #e6edf3; --text-sub: #8b949e; --font: 'Vazirmatn', sans-serif;
+        }
+
+        * { box-sizing: border-box; font-family: var(--font) !important; outline: none; }
+        body { 
+            background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; 
+            background-image: radial-gradient(circle at top right, rgba(0, 242, 255, 0.05), transparent 50%);
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 20px; backdrop-filter: blur(12px); margin-bottom: 20px;
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px; flex-wrap: wrap; gap: 20px; }
+        .search-area { display: flex; gap: 10px; }
+        input { background: #000; border: 1px solid var(--border); color: #fff; padding: 10px 15px; border-radius: 12px; width: 200px; }
+        button { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        button:hover { opacity: 0.8; box-shadow: 0 0 15px var(--accent); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        .stat-card { padding: 20px; border-right: 3px solid var(--accent); }
+        .stat-label { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; }
+
+        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .table-box { overflow-x: auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th { color: var(--text-sub); padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+        td { padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+
+        .loader { width: 20px; height: 20px; border: 3px solid #fff; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #debug-info { font-size: 0.7rem; color: var(--danger); margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <header class="glass-panel">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 2.5rem;">🦅</div>
+            <div>
+                <h2 style="margin: 0; color: var(--accent);">PHOENIX EXPLORER</h2>
+                <div id="status-tag" style="font-size: 0.7rem; color: var(--text-sub);">آماده برای اسکن...</div>
+            </div>
+        </div>
+        <div class="search-area">
+            <input type="text" id="user-input" placeholder="آی‌دی کاربر (مثلاً Admin)">
+            <button id="search-btn" onclick="fetchUserData()">جستجو</button>
+        </div>
+    </header>
+
+    <div id="debug-info" class="glass-panel" style="padding: 10px; border-color: var(--danger);"></div>
+
+    <div class="stats-grid">
+        <div class="glass-panel stat-card">
+            <div class="stat-label">قیمت هر واحد PHX</div>
+            <div id="phx-price" class="stat-value">$0.00</div>
+            <div id="phx-toman" style="color: var(--text-sub); font-size: 0.8rem;">0 تومان</div>
+        </div>
+        <div class="glass-panel stat-card" style="border-color: var(--gold);">
+            <div class="stat-label">ارزش کل دارایی‌ها (TVL)</div>
+            <div id="total-tvl" class="stat-value">$0</div>
+            <div id="total-toman" style="color: var(--text-sub); font-size: 0.8rem;">0 تومان</div>
+        </div>
+        <div class="glass-panel stat-card" style="border-color: var(--success);">
+            <div class="stat-label">تعداد کل توکن‌ها</div>
+            <div class="stat-value">1,000 PHX</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="glass-panel table-box">
+            <h3 style="margin-top: 0;">📦 سبد دارایی‌های پشتوانه</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ارز</th>
+                        <th>مقدار موجود</th>
+                        <th>قیمت لحظه‌ای</th>
+                        <th>ارزش کل ($)</th>
+                        <th>سهم از کل</th>
+                    </tr>
+                </thead>
+                <tbody id="assets-table">
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-sub);">لطفاً آی‌دی کاربر را وارد کرده و جستجو را بزنید.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="glass-panel" style="padding: 20px;">
+            <h3 style="margin-top: 0;">📊 نمودار وضعیت</h3>
+            <canvas id="miniChart" style="max-height: 200px;"></canvas>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+            <div id="ai-insight" style="font-size: 0.85rem; line-height: 1.6; color: var(--ai-color);">
+                در انتظار تحلیل داده‌ها...
+            </div>
+        </div>
+    </div>
+
+<script>
+    // تنظیمات فایربیس - دقیقاً مطابق دیتابیس شما
+    const firebaseConfig = { databaseURL: "https://stealthcapital-67eb7-default-rtdb.firebaseio.com/" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let chartInstance = null;
+
+    async function fetchUserData() {
+        const userId = document.getElementById('user-input').value.trim();
+        const btn = document.getElementById('search-btn');
+        const debug = document.getElementById('debug-info');
+        const status = document.getElementById('status-tag');
+
+        if (!userId) return alert("لطفاً آی‌دی را وارد کنید.");
+
+        // شروع عملیات
+        btn.innerHTML = '<div class="loader"></div>';
+        btn.disabled = true;
+        debug.style.display = 'none';
+        status.innerText = "در حال اتصال به دیتابیس...";
+
+        // آدرس دقیق در فایربیس بر اساس فایل A2.html شما
+        const path = `StealthCapital_V1/${userId}`;
+        
+        try {
+            const snapshot = await database.ref(path).once('value');
+            const data = snapshot.val();
+
+            if (!data) {
+                throw new Error(`داده‌ای در مسیر "${path}" یافت نشد. مطمئن شوید در پنل ادمین داده‌ها ذخیره شده‌اند.`);
+            }
+
+            // استخراج دیتابیس و تنظیمات
+            let userAssets = [];
+            let config = { toman: 70000 };
+
+            if (data.db) {
+                userAssets = Array.isArray(data.db) ? data.db : Object.values(data.db);
+                if (data.config) config = data.config;
+            } else if (Array.isArray(data)) {
+                userAssets = data;
+            } else {
+                userAssets = Object.values(data);
+            }
+
+            status.innerText = "داده‌ها دریافت شد. در حال استعلام قیمت از بازار...";
+            await processData(userAssets, config);
+
+        } catch (error) {
+            debug.innerText = "خطا: " + error.message;
+            debug.style.display = 'block';
+            status.innerText = "خطا در بارگذاری.";
+        } finally {
+            btn.innerHTML = 'جستجو';
+            btn.disabled = false;
+        }
+    }
+
+    async function processData(assets, config) {
+        let totalUSD = 0;
+        const tableBody = document.getElementById('assets-table');
+        tableBody.innerHTML = '';
+
+        // تصفیه داده‌های خالی
+        const cleanAssets = assets.filter(a => a && a.sym && a.qty > 0);
+
+        // دریافت قیمت‌ها
+        const processedAssets = await Promise.all(cleanAssets.map(async (asset) => {
+            let price = parseFloat(asset.buyPrice) || 0;
+            let sym = asset.sym.toUpperCase();
+
+            if (!['USDT', 'CASH', 'BUSD', 'USDC'].includes(sym)) {
+                try {
+                    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}USDT`);
+                    const json = await res.json();
+                    if (json.price) price = parseFloat(json.price);
+                } catch (e) { console.warn("Binance error for " + sym); }
+            } else {
+                price = 1;
+            }
+
+            const value = price * parseFloat(asset.qty);
+            totalUSD += value;
+            return { ...asset, currentPrice: price, totalValue: value };
+        }));
+
+        // رندر جدول
+        processedAssets.forEach(asset => {
+            const share = ((asset.totalValue / totalUSD) * 100).toFixed(1);
+            tableBody.innerHTML += `
+                <tr>
+                    <td><b>${asset.sym}</b><br><small style="color:var(--text-sub)">${asset.name || ''}</small></td>
+                    <td>${parseFloat(asset.qty).toLocaleString()}</td>
+                    <td>$${asset.currentPrice.toLocaleString()}</td>
+                    <td style="color:var(--accent)">$${asset.totalValue.toLocaleString()}</td>
+                    <td>${share}%</td>
+                </tr>
+            `;
+        });
+
+        // بروزرسانی قیمت PHX
+        const phxPrice = totalUSD / 1000;
+        document.getElementById('phx-price').innerText = `$${phxPrice.toFixed(4)}`;
+        document.getElementById('phx-toman').innerText = `${Math.floor(phxPrice * config.toman).toLocaleString()} تومان`;
+        document.getElementById('total-tvl').innerText = `$${Math.floor(totalUSD).toLocaleString()}`;
+        document.getElementById('total-toman').innerText = `${Math.floor(totalUSD * config.toman).toLocaleString()} تومان`;
+        document.getElementById('status-tag').innerText = "بروزرسانی موفقیت‌آمیز";
+
+        updateUIExtras(processedAssets, phxPrice);
+    }
+
+    function updateUIExtras(assets, price) {
+        const ctx = document.getElementById('miniChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: assets.map(a => a.sym),
+                datasets: [{
+                    data: assets.map(a => a.totalValue),
+                    backgroundColor: ['#00f2ff', '#a29bfe', '#ffcc00', '#00ffa3', '#ff4d4d'],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { display: false } }, cutout: '70%' }
+        });
+
+        document.getElementById('ai-insight').innerHTML = `
+            <span style="color:var(--success)">● تحلیل هوشمند:</span><br>
+            ارزش ذاتی هر توکن PHX بر اساس ذخایر فعلی <b>${price.toFixed(3)} دلار</b> برآورد می‌شود. 
+            بزرگترین پشتوانه فعلی این شبکه ارز <b>${assets.sort((a,b)=>b.totalValue-a.totalValue)[0].sym}</b> است.
+        `;
+    }
+</script>
+</body>
+</html>
