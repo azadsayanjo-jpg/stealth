@@ -482,8 +482,16 @@
             <div id="fng-label" class="stat-sub-usd" style="font-weight: bold; font-size: 0.9rem;">در حال دریافت...</div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
                 <div class="bar-bg" style="height: 8px; background: #222;">
-                    <div id="fng-bar" class="bar-fill" style="width:0%; background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3);"></div>
-                </div>
+                    <div id="fng-bar" class="bar-fill"
+			style="width: 100%; 
+                        height: 100%; 
+                        background: linear-gradient(90deg, #ff4d4d, #ffcc00, #00ffa3); 
+                        background-size: 100% 100%; /* این باعث می‌شود کل طیف در کل عرض جا شود */
+                        transition: width 0.8s ease-in-out;
+                        position: relative;">
+		<div style="position: absolute; right: 0; top: 0; width: 2px; height: 100%; background: white; box-shadow: 0 0 5px #fff;"></div>
+            </div>
+        </div>
                 <div id="fng-update" style="font-size: 0.6rem; color: var(--text-sub); margin-top:5px;">به‌روزرسانی خودکار</div>
             </div>
         </div>
@@ -544,6 +552,7 @@
     // ==========================================
     let currentOrderRef = null;
     let prices = {};
+    let priceChanges24h = {}; // NEW: Variable to hold 24h change data
     let marketData = {}; 
     let localDB = [];
     let localCfg = { toman: 70000, type: '', note: '' };
@@ -937,18 +946,27 @@
         try {
             const res = await Promise.all(localDB.map(async (item) => {
                 const sym = item.sym.toUpperCase();
-                if (sym === 'USDT' || sym === 'CASH') return { sym: sym, price: 1 };
+                if (sym === 'USDT' || sym === 'CASH') return { sym: sym, price: 1, changePercent: 0, changeAmount: 0 };
                 try {
-                    const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}USDT`);
+                    // تغییر API به ticker/24hr برای دریافت همزمان قیمت و درصد تغییرات روزانه
+                    const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}USDT`);
                     const d = await r.json(); 
-                    return { sym: sym, price: parseFloat(d.price) || prices[sym] || 0 };
+                    return { 
+                        sym: sym, 
+                        price: parseFloat(d.lastPrice) || prices[sym] || 0,
+                        changePercent: parseFloat(d.priceChangePercent) || 0,
+                        changeAmount: parseFloat(d.priceChange) || 0
+                    };
                 } catch { 
-                    return { sym: sym, price: prices[sym] || 0 }; 
+                    return { sym: sym, price: prices[sym] || 0, changePercent: 0, changeAmount: 0 }; 
                 }
             }));
             
             res.forEach(r => { 
-                if(r.price > 0) prices[r.sym] = r.price; 
+                if(r.price > 0) {
+                    prices[r.sym] = r.price; 
+                    priceChanges24h[r.sym] = { percent: r.changePercent, amount: r.changeAmount };
+                }
             });
             prices['USDT'] = 1; 
             prices['CASH'] = 1;
@@ -1155,10 +1173,27 @@
                 }
             }
 
+            // اطلاعات 24 ساعته ارز
+            let change24hHtml = '';
+            if(sym !== 'USDT' && sym !== 'CASH' && priceChanges24h[sym]) {
+                const pc = priceChanges24h[sym];
+                const pColor = pc.percent >= 0 ? 'var(--success)' : 'var(--danger)';
+                const sign = pc.percent >= 0 ? '+' : '';
+                const changeAmtToman = Math.floor(pc.amount * rate);
+                change24hHtml = `
+                <div style="font-size:0.65rem; color:${pColor}; font-family:monospace; margin-top:4px; direction:ltr; text-align:right;">
+                    ${sign}${pc.percent.toFixed(2)}% | ${sign}$${pc.amount.toFixed(4)}
+                    <div style="font-size:0.55rem; margin-top:2px;">(~ ${sign}${changeAmtToman.toLocaleString()} ت)</div>
+                </div>`;
+            }
+
+            // لینک نمودار تریدینگ‌ویو با منبع بایننس برای کلیک روی کارت دارایی (بروزرسانی شده)
+            const cardAction = (sym !== 'USDT' && sym !== 'CASH') ? `onclick="window.open('https://www.tradingview.com/chart/?symbol=BINANCE:${sym}USDT', '_blank')"` : '';
+
             // ویژگی data-category اضافه شد تا در تب‌بندی استفاده شود
             tempHTML += `
-                <div class="asset-card" data-category="${itemCat}">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <div class="asset-card" data-category="${itemCat}" ${cardAction}>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
                         <div style="display:flex; align-items:center; gap: 5px;">
                             ${sparkSVG}
                             <div>
@@ -1169,11 +1204,12 @@
                         <div style="text-align: left;">
                             <b style="color:var(--text-main); font-size:0.85rem; font-family:monospace; display:block;">${Math.floor(displayPrice * rate).toLocaleString()} ت</b>
                             <span style="font-size:0.65rem; color:var(--text-sub);">$${displayPrice.toLocaleString(undefined, {maximumFractionDigits:4})}</span>
+                            ${change24hHtml}
                         </div>
                     </div>
                     
                     <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-sub); margin-top: 10px; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px;">
-                        <span>میانگین ورود: <b style="color:#fff;">$${(baseBuyPrice > 0 ? baseBuyPrice : displayPrice).toLocaleString(undefined, {maximumFractionDigits:4})}</b></span>
+                        <span>میانگین ورود: <b style="color:#fff;">$${(baseBuyPrice > 0 ? baseBuyPrice : displayPrice).toLocaleString(undefined, {maximumFractionDigits:4})}</b> <span style="font-size:0.55rem; color:var(--text-sub);">(${Math.floor((baseBuyPrice > 0 ? baseBuyPrice : displayPrice) * rate).toLocaleString()} ت)</span></span>
                         <span style="color:var(--accent); font-weight:bold;">وزن سبد: ${assetWeight}%</span>
                     </div>
                     <div class="stat-value-toman" style="font-size:1.4rem; color:var(--text-main); margin-bottom:2px;">${Math.floor(curUSD * rate).toLocaleString()} ت</div>
@@ -1213,7 +1249,7 @@
             reHTML += `
             <div class="warning-box">
                 <b style="color:var(--warning)">💡 پیشنهاد مدیریت نقدینگی برای آینده</b>
-                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما (${usdtRatio.toFixed(1)}%) نیازمند تقویت است. پیشنهاد می‌شود در روزهای سبز بازار، مقداری نقدینگی برای شکار فرصت‌های بعدی آزاد کنید تا تعادل سبد حفظ شود.</div>
+                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد (${usdtRatio.toFixed(1)}%) نیازمند تقویت است. پیشنهاد می‌شود در روزهای سبز بازار، مقداری نقدینگی برای شکار فرصت‌های بعدی آزاد کنید.</div>
             </div>`;
         }
 
@@ -1244,7 +1280,8 @@
             document.getElementById('mission-action').style.color = topSignal.quant.actionColor;
             
             if(topSignal.quant.suggestedBuyUSD > 0) {
-                document.getElementById('mission-allocation').innerText = `اختصاص هوشمند: $${topSignal.quant.suggestedBuyUSD.toFixed(1)} (از تتر آزاد)`;
+                const suggestedToman = Math.floor(topSignal.quant.suggestedBuyUSD * rate);
+                document.getElementById('mission-allocation').innerText = `اختصاص هوشمند: $${topSignal.quant.suggestedBuyUSD.toFixed(1)} (~ ${suggestedToman.toLocaleString()} تومان) از تتر آزاد`;
             } else {
                 document.getElementById('mission-allocation').innerText = `بودجه پیشنهادی: فعلاً ورود ممنوع`;
             }
