@@ -79,7 +79,7 @@
             0% { transform: translateX(100%); } 
             100% { transform: translateX(-100%); } 
         }
-        
+
         /* --- Animations --- */
         .active-pulse { animation: pulse-glow 2s infinite; }
         @keyframes pulse-glow { 
@@ -150,11 +150,45 @@
             position: relative; 
         }
 
+        /* --- Asset Tabs (NEW) --- */
+        .asset-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            overflow-x: auto; /* برای گوشی موبایل */
+        }
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+            padding: 8px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { 
+            background: rgba(0, 242, 255, 0.1); 
+            color: var(--text-main); 
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+        .tab-btn.active { 
+            background: rgba(0, 242, 255, 0.15); 
+            color: var(--accent); 
+            border-color: var(--accent); 
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+        }
+
         /* --- Assets Grid --- */
         .assets-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
             gap: 12px; 
+            margin-bottom: 30px;
         }
         .asset-card { 
             background: var(--surface); 
@@ -171,7 +205,7 @@
             border-color: var(--accent); 
             box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
         }
-        
+
         /* --- Alert Boxes --- */
         .rebalance-box { 
             background: rgba(255, 77, 77, 0.05); 
@@ -264,20 +298,8 @@
         }
         .badge-bearish { 
             background: rgba(255, 77, 77, 0.1); 
-            color: var(--danger); 
-            border-color: var(--danger); 
-        }
-        .anomaly-alert { 
-            font-size: 0.7rem; 
-            color: var(--danger); 
-            font-weight: bold; 
-            background: rgba(255, 77, 77, 0.1); 
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            margin-top: 5px; 
-            display: inline-block; 
-            border: 1px solid var(--danger); 
-            animation: pulse-glow 1.5s infinite;
+            color: var(--warning); /* Changed from danger to warning for calmness */
+            border-color: var(--warning); 
         }
         .sparkline { 
             display: inline-block; 
@@ -287,24 +309,53 @@
             vertical-align: middle; 
         }
 
-        /* --- News Section --- */
-        .news-header-title { 
-            color: var(--accent); 
-            margin-top: 40px; 
-            font-size: 1.2rem; 
-            border-bottom: 1px solid var(--border); 
-            padding-bottom: 10px; 
-            margin-bottom: 15px; 
-            font-weight: 900;
+        /* --- News Accordion (NEW) --- */
+        .news-accordion {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
+        .news-accordion summary {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--accent);
+            list-style: none; /* Hide default arrow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .news-accordion summary::-webkit-details-marker { display: none; }
+        .news-accordion summary::after {
+            content: '▼';
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            transition: transform 0.3s ease;
+        }
+        .news-accordion[open] summary::after { 
+            transform: rotate(180deg); 
+            color: var(--accent);
+        }
+        .news-accordion[open] summary { 
+            border-bottom: 1px solid var(--border); 
+            background: rgba(0, 242, 255, 0.02);
+        }
+        .news-accordion-content {
+            padding: 20px;
+        }
+
         .news-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
             gap: 15px; 
-            margin-bottom: 40px; 
         }
         .news-card { 
-            background: var(--surface); 
+            background: rgba(0,0,0,0.3); 
             border: 1px solid var(--border); 
             border-radius: 15px; 
             padding: 15px; 
@@ -461,12 +512,23 @@
         </div>
     </div>
 
+    <div class="asset-tabs" id="asset-tabs">
+        <button class="tab-btn active" onclick="filterAssets('all', this)">🌐 همه دارایی‌ها</button>
+        <button class="tab-btn" onclick="filterAssets('safe', this)">🛡️ کم‌ریسک (Safe)</button>
+        <button class="tab-btn" onclick="filterAssets('growth', this)">📈 رشد‌پذیر (Growth)</button>
+        <button class="tab-btn" onclick="filterAssets('risk', this)">👁️ پنهان کردن همه دارایی‌ها</button>
+    </div>
+    
     <div id="asset-root" class="assets-grid"></div>
 
-    <div class="news-header-title">📰 اخبار و فاندامنتال لحظه‌ای بازار</div>
-    <div id="news-root" class="news-grid">
-        <div style="color: var(--text-sub); font-size: 0.8rem;">در حال دریافت اخبار بازار...</div>
-    </div>
+    <details class="news-accordion">
+        <summary>📰 اخبار و فاندامنتال لحظه‌ای بازار (باز کردن پنل)</summary>
+        <div class="news-accordion-content">
+            <div id="news-root" class="news-grid">
+                <div style="color: var(--text-sub); font-size: 0.8rem;">در حال دریافت اخبار بازار...</div>
+            </div>
+        </div>
+    </details>
 
 <script>
     // ==========================================
@@ -489,6 +551,9 @@
     let currentFngValue = 50; 
     let global_tAct = 0, global_usdtAmount = 0;
     
+    // UI State Variables (NEW)
+    let currentFilterCategory = 'all';
+
     // News & Sentiment
     let globalNewsData = [];
     let coinSentimentCache = {};
@@ -517,6 +582,33 @@
         }] 
     };
     let myChart, pieChart;
+
+    // ==========================================
+    // --- UI Filtering Logic (NEW) ---
+    // ==========================================
+    function filterAssets(category, btnElement) {
+        currentFilterCategory = category;
+        
+        // Update Active Button styling
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+
+        // Apply filter to current DOM cards
+        applyAssetFilter();
+    }
+
+    function applyAssetFilter() {
+        const cards = document.querySelectorAll('.asset-card');
+        cards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            if (currentFilterCategory === 'all' || cardCat === currentFilterCategory) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
 
     // ==========================================
     // --- Utility: Clock & UI Updates ---
@@ -583,7 +675,7 @@
     function calcMACD(data, fast=12, slow=26, signal=9) {
         if(data.length < slow + signal) return null;
         let macdLine = calcEMA(data, fast) - calcEMA(data, slow);
-        let signalLine = macdLine * 0.9; // Notice: Using simplified signal for speed
+        let signalLine = macdLine * 0.9; 
         return { 
             macd: macdLine, 
             signal: signalLine, 
@@ -626,14 +718,13 @@
         let signals = [];
         let badges = [];
 
-        // Trend and Momentum Scoring
         if (rsi1D < 30) { 
             score += 20; 
             signals.push("اشباع فروش روزانه (کف‌سازی)"); 
             badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bullish'}); 
         } else if (rsi1D > 70) { 
             score -= 20; 
-            signals.push("اشباع خرید روزانه (ریسک اصلاح)"); 
+            signals.push("اشباع خرید روزانه (نیاز به استراحت قیمت)"); 
             badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bearish'}); 
         }
         
@@ -644,7 +735,7 @@
         
         if (bb1D && currentPrice <= bb1D.lower * 1.02) { 
             score += 15; 
-            signals.push("برخورد به کف کانال بولینگر (پتانسیل پامپ)"); 
+            signals.push("برخورد به کف کانال بولینگر (مستعد رشد آرام)"); 
             badges.push({txt: 'BB Lower Bounce', type: 'bullish'}); 
         }
         if (bb4H && currentPrice <= bb4H.lower * 1.01) { 
@@ -668,7 +759,6 @@
             badges.push({txt: 'MACD: Bullish', type: 'bullish'}); 
         }
 
-        // F&G Adjustment
         if (currentFngValue < 25) { 
             score += 10; 
             signals.push("ترس شدید بازار (فرصت انباشت)"); 
@@ -676,7 +766,6 @@
             score -= 15; 
         } 
 
-        // News Sentiment Adjustment
         if (coinSentimentCache[sym]) {
             let sentScore = coinSentimentCache[sym];
             if (sentScore > 0) {
@@ -688,23 +777,22 @@
 
         score = Math.max(0, Math.min(100, score));
 
-        // Money Management Logic
         let volatilityRisk = atr1D / currentPrice; 
         let allocationPercent = 0; 
         let actionTxt = "هولد (صبر)";
         let actionColor = "var(--text-sub)";
 
         if (score >= 80) {
-            actionTxt = "خرید قوی (Strong Buy)"; 
+            actionTxt = "مستعد انباشت (خرید پله‌ای)"; 
             actionColor = "var(--success)";
             allocationPercent = 0.15; 
         } else if (score >= 65) {
-            actionTxt = "خرید پله‌ای (Accumulate)"; 
+            actionTxt = "اضافه کردن تدریجی (Accumulate)"; 
             actionColor = "var(--accent)";
             allocationPercent = 0.08; 
         } else if (score <= 30) {
-            actionTxt = "هشدار ریزش / سیو سود"; 
-            actionColor = "var(--danger)";
+            actionTxt = "هولد و صبر (توقف موقت خرید)"; 
+            actionColor = "var(--warning)";
             allocationPercent = 0; 
         }
 
@@ -992,7 +1080,6 @@
         let pieLabels = [], pieShares = [];
         let aiCandidates = []; 
         
-        // Calculate Totals first
         localDB.forEach(item => {
             const sym = item.sym.toUpperCase();
             const currentPrice = (prices[sym] && prices[sym] > 0) ? prices[sym] : (parseFloat(item.buyPrice) || 0);
@@ -1005,7 +1092,6 @@
 
         let tempHTML = '';
         
-        // Render Assets
         localDB.forEach(item => {
             const sym = item.sym.toUpperCase();
             const baseBuyPrice = (item.buyPrice && parseFloat(item.buyPrice) > 0) ? parseFloat(item.buyPrice) : 0;
@@ -1019,7 +1105,14 @@
             tAct += curUSD; 
             tFut += targetUSD; 
             tInvestedUSD += investedUSD;
-            catTotals[item.cat || 'safe'] += curUSD;
+            
+            // دسته‌بندی امن برای اطمینان از مقدار داشتن
+            const itemCat = item.cat || 'safe';
+            if(catTotals[itemCat] !== undefined) {
+                catTotals[itemCat] += curUSD;
+            } else {
+                catTotals[itemCat] = curUSD;
+            }
             
             if (curUSD > 0 && sym !== 'USDT' && sym !== 'CASH') { 
                 pieLabels.push(item.name); 
@@ -1062,8 +1155,9 @@
                 }
             }
 
+            // ویژگی data-category اضافه شد تا در تب‌بندی استفاده شود
             tempHTML += `
-                <div class="asset-card">
+                <div class="asset-card" data-category="${itemCat}">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                         <div style="display:flex; align-items:center; gap: 5px;">
                             ${sparkSVG}
@@ -1100,29 +1194,31 @@
                     ${aiHtml}
                 </div>`;
         });
+        
         root.innerHTML = tempHTML;
+        
+        // اعمال مجدد فیلتر تب‌ها پس از رندر شدن کارت‌های جدید
+        applyAssetFilter();
 
-        // Render Rebalance Warnings
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
 
         if (usdtRatio > 35) {
             reHTML += `
             <div class="warning-box">
-                <b style="color:var(--warning)">⚠️ هشدار نقدینگی راکد (Cash Drag)</b>
-                <div style="font-size:0.8rem; margin-top:3px;">${usdtRatio.toFixed(1)}% از سبد شما تتر است. موتور هوش مصنوعی در حال اسکن بازار برای یافتن نقاط ورود بهینه با استراتژی میانگین کم‌کردن است.</div>
+                <b style="color:var(--warning)">💡 نقدینگی در انتظار فرصت</b>
+                <div style="font-size:0.8rem; margin-top:3px;">${usdtRatio.toFixed(1)}% از سبد شما تتر است. موتور هوش مصنوعی با آرامش در حال اسکن بازار برای یافتن بهترین نقاط ورود پله‌ای است.</div>
             </div>`;
         } else if (usdtRatio < 5 && tAct > 0) {
             reHTML += `
-            <div class="rebalance-box">
-                <b style="color:var(--danger)">⚠️ هشدار کمبود نقدینگی (High Risk)</b>
-                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما (${usdtRatio.toFixed(1)}%) بسیار کم است. هوش مصنوعی پیشنهاد می‌دهد در اولین پامپ بازار، مقداری سیو سود کنید تا بالانس به بالای 10% برسد.</div>
+            <div class="warning-box">
+                <b style="color:var(--warning)">💡 پیشنهاد مدیریت نقدینگی برای آینده</b>
+                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد شما (${usdtRatio.toFixed(1)}%) نیازمند تقویت است. پیشنهاد می‌شود در روزهای سبز بازار، مقداری نقدینگی برای شکار فرصت‌های بعدی آزاد کنید تا تعادل سبد حفظ شود.</div>
             </div>`;
         }
 
         document.getElementById('rebalance-area').innerHTML = reHTML;
 
-        // Update Stats Dashboard
         const totalPnlUSD = tAct - tInvestedUSD; 
         const totalPnlIRT = Math.floor(totalPnlUSD * rate);
         const totalPnlPercent = tInvestedUSD > 0 ? (totalPnlUSD / tInvestedUSD) * 100 : 0;
@@ -1139,7 +1235,6 @@
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% مانده تا پیروزی';
 
-        // Update AI Top Signal
         if (aiCandidates.length > 0) {
             aiCandidates.sort((a, b) => b.quant.score - a.quant.score);
             const topSignal = aiCandidates[0];
@@ -1162,7 +1257,6 @@
         pPill.innerText = (localCfg.type || "").includes("تکمیل") ? "هولد (نگهداری)" : "کوانت اکتیو";
         pPill.style.color = "var(--ai-color)";
 
-        // Update Charts
         if (myChart && tAct > 0) {
             const now = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
             if (chartData.labels.length > 5000) { 
