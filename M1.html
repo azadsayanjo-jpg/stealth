@@ -298,7 +298,7 @@
         }
         .badge-bearish { 
             background: rgba(255, 77, 77, 0.1); 
-            color: var(--warning); /* Changed from danger to warning for calmness */
+            color: var(--warning); 
             border-color: var(--warning); 
         }
         .sparkline { 
@@ -552,7 +552,7 @@
     // ==========================================
     let currentOrderRef = null;
     let prices = {};
-    let priceChanges24h = {}; // NEW: Variable to hold 24h change data
+    let priceChanges24h = {}; 
     let marketData = {}; 
     let localDB = [];
     let localCfg = { toman: 70000, type: '', note: '' };
@@ -705,13 +705,26 @@
     }
 
     // ==========================================
-    // --- Advanced Quant Strategy Engine ---
+    // --- Advanced Quant Strategy Engine (UPDATED - STRICTLY 1D & BALANCED) ---
     // ==========================================
-    function analyzeAssetQuant(sym, currentPrice, currentUSDT) {
-        if(!marketData[sym] || !marketData[sym]['1d'] || !marketData[sym]['4h']) return null;
+    function analyzeAssetQuant(sym, currentPrice, currentUSDT, itemCat = 'safe', assetWeight = 0, acc = 0, hasTarget = false) {
+        // تغییر مهم: بررسی تنها بر روی دیتای تایم‌فریم روزانه (1d)
+        if(!marketData[sym] || !marketData[sym]['1d']) return null;
         
+        // --- توقف مطلق سیگنال خرید در صورت پر شدن انباشت ---
+        if (hasTarget && acc >= 100) {
+            return {
+                score: 100, 
+                action: "انباشت تکمیل، منتظر تارگت قیمتی بمانید",
+                actionColor: "var(--gold)",
+                signals: ["ظرفیت انباشت این نماد ۱۰۰٪ پر شده است."],
+                badges: [{txt: 'Target Reached', type: 'bearish'}], 
+                suggestedBuyUSD: 0,
+                isCompleted: true // پرچم شناسایی برای حذف از لیست سیگنال‌ها
+            };
+        }
+
         let d1 = marketData[sym]['1d']; 
-        let h4 = marketData[sym]['4h'];
         
         let rsi1D = calcRSI(d1.c, 14);
         let bb1D = calcBollingerBands(d1.c, 20, 2);
@@ -720,69 +733,94 @@
         let macd1D = calcMACD(d1.c);
         let atr1D = calcATR(d1.h, d1.l, d1.c, 14);
 
-        let rsi4H = calcRSI(h4.c, 14);
-        let bb4H = calcBollingerBands(h4.c, 20, 2);
-
         let score = 50; 
         let signals = [];
         let badges = [];
 
-        if (rsi1D < 30) { 
+        // 1. تحلیل تکنیکال قدرتمند تایم‌فریم روزانه (1D)
+        
+        // تحلیل روند (Trend)
+        let isUptrend = ema20_1D > ema50_1D && currentPrice > ema50_1D;
+        if (isUptrend) {
+            score += 15;
+            badges.push({txt: '1D Trend: UP', type: 'bullish'});
+        } else {
+            score -= 10;
+            badges.push({txt: '1D Trend: DOWN', type: 'bearish'});
+        }
+
+        // تحلیل قدرت نسبی (RSI)
+        if (rsi1D < 35) { 
             score += 20; 
-            signals.push("اشباع فروش روزانه (کف‌سازی)"); 
-            badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bullish'}); 
+            signals.push("اشباع فروش (مستعد صعود)"); 
+            badges.push({txt: `RSI:${rsi1D.toFixed(0)}`, type: 'bullish'}); 
         } else if (rsi1D > 70) { 
-            score -= 20; 
-            signals.push("اشباع خرید روزانه (نیاز به استراحت قیمت)"); 
-            badges.push({txt: `1D RSI:${rsi1D.toFixed(0)}`, type: 'bearish'}); 
+            score -= 25; 
+            signals.push("اشباع خرید (خطر اصلاح)"); 
+            badges.push({txt: `RSI:${rsi1D.toFixed(0)}`, type: 'bearish'}); 
         }
         
-        if (rsi4H < 35) { 
-            score += 10; 
-            badges.push({txt: `4H RSI:${rsi4H.toFixed(0)}`, type: 'bullish'}); 
-        }
-        
-        if (bb1D && currentPrice <= bb1D.lower * 1.02) { 
+        // تحلیل کانال نوسان (Bollinger)
+        if (bb1D && currentPrice <= bb1D.lower * 1.03) { 
             score += 15; 
-            signals.push("برخورد به کف کانال بولینگر (مستعد رشد آرام)"); 
-            badges.push({txt: 'BB Lower Bounce', type: 'bullish'}); 
-        }
-        if (bb4H && currentPrice <= bb4H.lower * 1.01) { 
-            score += 10; 
-        }
-        if (bb1D && currentPrice >= bb1D.upper * 0.98) { 
-            score -= 20; 
-            badges.push({txt: 'BB Upper Touch', type: 'bearish'}); 
+            signals.push("نزدیک کف کانال بولینگر روزانه"); 
+            badges.push({txt: 'BB Support', type: 'bullish'}); 
+        } else if (bb1D && currentPrice >= bb1D.upper * 0.97) { 
+            score -= 15; 
+            badges.push({txt: 'BB Resistance', type: 'bearish'}); 
         }
 
-        if (ema20_1D > ema50_1D) { 
-            score += 10; 
-            badges.push({txt: 'Trend: UP', type: 'bullish'}); 
-        } else { 
-            score -= 10; 
-            badges.push({txt: 'Trend: DOWN', type: 'bearish'}); 
-        }
-
-        if (macd1D && macd1D.hist > 0) { 
+        // تحلیل مومنتوم (MACD)
+        if (macd1D && macd1D.hist > 0 && macd1D.hist > (macd1D.macd * 0.1)) { 
             score += 10; 
             badges.push({txt: 'MACD: Bullish', type: 'bullish'}); 
         }
 
-        if (currentFngValue < 25) { 
+        // تحلیل احساسات بازار
+        if (currentFngValue < 30) { 
             score += 10; 
-            signals.push("ترس شدید بازار (فرصت انباشت)"); 
+            signals.push("ترس شدید بازار (فرصت خرید)"); 
         } else if (currentFngValue > 75) { 
             score -= 15; 
         } 
 
         if (coinSentimentCache[sym]) {
             let sentScore = coinSentimentCache[sym];
-            if (sentScore > 0) {
-                score += 15; 
-            } else if (sentScore < 0) {
-                score -= 20; 
+            if (sentScore > 0) score += 10; 
+            else if (sentScore < 0) score -= 15; 
+        }
+
+        // تحلیل ورود پول هوشمند (حجم معاملات روزانه)
+        let avgVol1D = calcSMA(d1.v, 20);
+        let currVol1D = d1.v[d1.v.length - 1];
+        let prevClose = d1.c.length > 1 ? d1.c[d1.c.length - 2] : d1.c[0];
+        if (avgVol1D && currVol1D > avgVol1D * 1.5 && currentPrice > prevClose) {
+            score += 15;
+            signals.push("تایید حجم (ورود پول هوشمند)");
+            badges.push({txt: 'Vol: HIGH', type: 'bullish'});
+        }
+
+        // --- NEW LOGIC: سیستم تعادل‌سازی وزن دارایی‌ها (Balancing) ---
+        // توزیع پول بر اساس عقب‌ماندگی انباشت برای ایجاد نظم در سبد
+        if (hasTarget) {
+            // تبدیل درصد انباشت (0 تا 100) به ضریب تعادل (مثبت 30 تا منفی 30)
+            let balanceModifier = (50 - acc) * 0.6; 
+            score += balanceModifier;
+            if (balanceModifier > 15) {
+                signals.push("اولویت تعادل‌سازی (عقب‌ماندگی انباشت نسبت به سایرین)");
             }
         }
+
+        // رعایت اولویت دارایی‌های امن و مدیریت ریسک دسته‌بندی
+        if (itemCat === 'safe') {
+            score += 10; 
+            badges.push({txt: 'Safe Haven', type: 'bullish'});
+        } else if (itemCat === 'risk') {
+            score -= 10; 
+            badges.push({txt: 'High Risk', type: 'bearish'});
+        }
+
+        // -----------------------------------------------------------
 
         score = Math.max(0, Math.min(100, score));
 
@@ -792,30 +830,32 @@
         let actionColor = "var(--text-sub)";
 
         if (score >= 80) {
-            actionTxt = "مستعد انباشت (خرید پله‌ای)"; 
+            actionTxt = "خرید قوی (انباشت)"; 
             actionColor = "var(--success)";
-            allocationPercent = 0.15; 
+            allocationPercent = itemCat === 'safe' ? 0.20 : (itemCat === 'risk' ? 0.08 : 0.15); 
         } else if (score >= 65) {
-            actionTxt = "اضافه کردن تدریجی (Accumulate)"; 
+            actionTxt = "خرید پله‌ای (تعادل‌سازی)"; 
             actionColor = "var(--accent)";
-            allocationPercent = 0.08; 
-        } else if (score <= 30) {
-            actionTxt = "هولد و صبر (توقف موقت خرید)"; 
+            allocationPercent = itemCat === 'safe' ? 0.12 : (itemCat === 'risk' ? 0.05 : 0.08); 
+        } else if (score <= 40) {
+            actionTxt = "هولد و صبر (توقف خرید)"; 
             actionColor = "var(--warning)";
             allocationPercent = 0; 
         }
 
+        // کاهش حجم خرید در صورت نوسان شدید
         if (volatilityRisk > 0.08) allocationPercent *= 0.7; 
 
         let suggestedUSDT = global_usdtAmount > 10 ? global_usdtAmount * allocationPercent : 0;
 
         return {
-            score: score,
+            score: Math.floor(score),
             action: actionTxt,
             actionColor: actionColor,
-            signals: signals.slice(0, 2),
+            signals: signals.slice(0, 3),
             badges: badges,
-            suggestedBuyUSD: suggestedUSDT
+            suggestedBuyUSD: suggestedUSDT,
+            isCompleted: false // هنوز در حال انباشت
         };
     }
 
@@ -935,8 +975,8 @@
             const sym = item.sym.toUpperCase();
             if(sym === 'USDT' || sym === 'CASH') continue;
             marketData[sym] = {};
+            // تنها تایم‌فریم روزانه (1d) دریافت می‌شود که باعث سبک‌تر شدن کد و تمرکز استراتژی می‌گردد
             marketData[sym]['1d'] = await fetchBinanceData(sym, '1d', 60);
-            marketData[sym]['4h'] = await fetchBinanceData(sym, '4h', 60);
         }
         render();
     }
@@ -1139,6 +1179,7 @@
 
             const acc = (item.tqty && parseFloat(item.tqty) > 0) ? (parseFloat(item.qty) / parseFloat(item.tqty)) * 100 : 0;
             const tai = (targetUSD > 0) ? (curUSD / targetUSD) * 100 : 0;
+            const hasTarget = (item.tqty && parseFloat(item.tqty) > 0);
             
             let itemPnlUSD = curUSD - investedUSD; 
             let itemPnlPercent = investedUSD > 0 ? (itemPnlUSD / investedUSD) * 100 : 0;
@@ -1153,18 +1194,35 @@
             let aiHtml = '';
             
             if(sym !== 'USDT' && sym !== 'CASH' && displayPrice > 0) {
-                const quant = analyzeAssetQuant(sym, displayPrice, usdtAmount);
+                // ارسال اطلاعات مورد نیاز برای بالانس وزنی و استراتژی امنیتی به کوانت
+                const quant = analyzeAssetQuant(sym, displayPrice, usdtAmount, itemCat, parseFloat(assetWeight), acc, hasTarget);
                 if (quant) {
-                    if(acc < 100) aiCandidates.push({ name: item.name, sym: sym, quant: quant });
+                    // محدود کردن مبلغ پیشنهادی خرید به سقف تارگت دلاری تا خرید اضافی انجام نشود
+                    if (hasTarget && !quant.isCompleted) {
+                        let remainingTargetUSD = targetUSD - curUSD;
+                        if (remainingTargetUSD > 0 && quant.suggestedBuyUSD > remainingTargetUSD) {
+                            quant.suggestedBuyUSD = remainingTargetUSD;
+                        }
+                    }
+
+                    // اگر انباشت پر نشده بود، به عنوان کاندیدای برتر معرفی شود
+                    if(!quant.isCompleted) {
+                        aiCandidates.push({ name: item.name, sym: sym, quant: quant });
+                    }
                     
                     let badgesHtml = quant.badges.map(b => `<span class="tech-badge ${b.type === 'bullish' ? 'badge-bullish' : 'badge-bearish'}">${b.txt}</span>`).join('');
                     let signalsHtml = quant.signals.length > 0 ? `<div style="font-size:0.65rem; color:var(--text-sub); margin-top:5px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:4px;">💡 ${quant.signals.join(' | ')}</div>` : '';
+                    
+                    // نحوه نمایش متناسب با پر شدن ظرفیت تغییر می‌کند
+                    let scoreDisplay = quant.isCompleted 
+                        ? `<b style="color:var(--gold); font-size:0.8rem;">تکمیل هدف</b>` 
+                        : `<b style="color:${quant.actionColor}; font-family:monospace; font-size:1rem;">${quant.score}/100</b>`;
 
                     aiHtml = `
-                    <div class="ai-box">
+                    <div class="ai-box" ${quant.isCompleted ? 'style="border-color: rgba(255,204,0,0.3);"' : ''}>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.7rem; color:var(--ai-color); font-weight:900;">AI Quant Score:</span>
-                            <b style="color:${quant.actionColor}; font-family:monospace; font-size:1rem;">${quant.score}/100</b>
+                            <span style="font-size:0.7rem; color:${quant.isCompleted ? 'var(--gold)' : 'var(--ai-color)'}; font-weight:900;">AI Quant:</span>
+                            ${scoreDisplay}
                         </div>
                         <div class="badge-row">${badgesHtml}</div>
                         <div style="font-size:0.75rem; font-weight:bold; color:${quant.actionColor}; margin-top:3px;">دستور: ${quant.action}</div>
@@ -1187,7 +1245,7 @@
                 </div>`;
             }
 
-            // لینک نمودار تریدینگ‌ویو با منبع بایننس برای کلیک روی کارت دارایی (بروزرسانی شده)
+            // لینک نمودار تریدینگ‌ویو با منبع بایننس برای کلیک روی کارت دارایی
             const cardAction = (sym !== 'USDT' && sym !== 'CASH') ? `onclick="window.open('https://www.tradingview.com/chart/?symbol=BINANCE:${sym}USDT', '_blank')"` : '';
 
             // ویژگی data-category اضافه شد تا در تب‌بندی استفاده شود
@@ -1271,6 +1329,7 @@
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% مانده تا پیروزی';
 
+        // ارتقا: نمایش برترین سیگنال فقط برای نمادهایی که انباشت آنها تکمیل نشده
         if (aiCandidates.length > 0) {
             aiCandidates.sort((a, b) => b.quant.score - a.quant.score);
             const topSignal = aiCandidates[0];
@@ -1287,7 +1346,9 @@
             }
         } else {
              document.getElementById('mission-asset').innerText = "---";
-             document.getElementById('mission-action').innerText = "سیگنال فعالی وجود ندارد";
+             document.getElementById('mission-action').innerText = "تمامی اهداف تکمیل یا سیگنال فعالی نیست";
+             document.getElementById('mission-action').style.color = "var(--text-sub)";
+             document.getElementById('mission-allocation').innerText = "";
         }
 
         const pPill = document.getElementById('market-status-pill');
