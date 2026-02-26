@@ -683,12 +683,18 @@
 
     function calcMACD(data, fast=12, slow=26, signal=9) {
         if(data.length < slow + signal) return null;
-        let macdLine = calcEMA(data, fast) - calcEMA(data, slow);
-        let signalLine = macdLine * 0.9; 
-        return { 
-            macd: macdLine, 
-            signal: signalLine, 
-            hist: macdLine - signalLine 
+        let macdLine = [];
+        for(let i = slow; i <= data.length; i++) {
+             let slice = data.slice(0, i);
+             macdLine.push(calcEMA(slice, fast) - calcEMA(slice, slow));
+        }
+             let signalLine = calcEMA(macdLine, signal);
+             let currentMacd = macdLine[macdLine.length - 1];
+
+             return { 
+		macd: currentMacd, 
+		signal: signalLine, 
+		hist: currentMacd - signalLine 
         };
     }
 
@@ -981,40 +987,49 @@
         render();
     }
 
-    async function updatePrices() {
-        if (!localDB.length) return;
-        try {
-            const res = await Promise.all(localDB.map(async (item) => {
-                const sym = item.sym.toUpperCase();
-                if (sym === 'USDT' || sym === 'CASH') return { sym: sym, price: 1, changePercent: 0, changeAmount: 0 };
-                try {
-                    // تغییر API به ticker/24hr برای دریافت همزمان قیمت و درصد تغییرات روزانه
-                    const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}USDT`);
-                    const d = await r.json(); 
-                    return { 
-                        sym: sym, 
-                        price: parseFloat(d.lastPrice) || prices[sym] || 0,
-                        changePercent: parseFloat(d.priceChangePercent) || 0,
-                        changeAmount: parseFloat(d.priceChange) || 0
-                    };
-                } catch { 
-                    return { sym: sym, price: prices[sym] || 0, changePercent: 0, changeAmount: 0 }; 
-                }
-            }));
+	async function updatePrices() {
+    	// اگر دیتابیس خالی است کاری انجام نده
+    	if (!localDB || localDB.length === 0) return;
+
+    	try {
+        	// ۱. دریافت تمام قیمت‌ها در یک درخواست واحد (بسیار سریع و بدون بلاک شدن)
+        	const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr`);
+        	const allStats = await r.json();
+        
+        	// ۲. پیمایش روی دارایی‌های شما و پیدا کردن قیمت هر کدام در لیست بایننس
+        	localDB.forEach(item => {
+            	const sym = item.sym.toUpperCase();
             
-            res.forEach(r => { 
-                if(r.price > 0) {
-                    prices[r.sym] = r.price; 
-                    priceChanges24h[r.sym] = { percent: r.changePercent, amount: r.changeAmount };
-                }
-            });
-            prices['USDT'] = 1; 
-            prices['CASH'] = 1;
-            render();
-        } catch(e) { 
-            console.error(e); 
-        }
-    }
+            	// مدیریت ارزهای ثابت
+            	if (sym === 'USDT' || sym === 'CASH') {
+                	prices[sym] = 1;
+                	priceChanges24h[sym] = { percent: 0, amount: 0 };
+                	return;
+            	}
+
+            	// پیدا کردن قیمت جفت‌ارز در دیتای بایننس
+            	const market = allStats.find(s => s.symbol === sym + 'USDT');
+            
+            	if (market) {
+                	prices[sym] = parseFloat(market.lastPrice);
+                	priceChanges24h[sym] = { 
+                    		percent: parseFloat(market.priceChangePercent), 
+                    		amount: parseFloat(market.priceChange) 
+                		};
+            		}
+        	});
+
+        	// ۳. اطمینان از وجود مقادیر پایه
+        	prices['USDT'] = 1;
+        	prices['CASH'] = 1;
+        
+        	// ۴. بروزرسانی رابط کاربری (UI)
+        	render();
+
+    	} catch(e) { 
+        		console.error("خطا در بروزرسانی دسته‌جمعی قیمت‌ها:", e); 
+    		}
+	}
 
     // ==========================================
     // --- Application Initialization ---
