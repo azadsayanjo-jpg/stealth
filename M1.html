@@ -67,13 +67,15 @@
             white-space: nowrap; 
         }
         .ticker-move { 
-            display: inline-block; 
-            padding-right: 100%; 
-            animation: marquee 40s linear infinite; 
+            display: block; 
+            padding: 0 20px;
+            animation: none; 
+            transform: none;
             color: var(--accent); 
             font-size: 0.95rem; 
             font-weight: 800; 
             text-shadow: 0 0 10px rgba(0, 242, 255, 0.3); 
+            text-align: center;
         }
         @keyframes marquee { 
             0% { transform: translateX(100%); } 
@@ -447,7 +449,7 @@
     </header>
 
     <div class="ticker-wrap">
-        <div id="marquee-note" class="ticker-move">لطفاً شناسه کاربری خود را وارد کنید... در حال بارگذاری موتور هوش مصنوعی چندتایم‌فریمه...</div>
+        <div id="marquee-note" class="ticker-move">لطفاً شناسه کاربری خود را وارد کنید...</div>
     </div>
 
     <div id="rebalance-area"></div>
@@ -566,7 +568,7 @@
     // News & Sentiment
     let globalNewsData = [];
     let coinSentimentCache = {};
-    let baseMarqueeText = "لطفاً شناسه کاربری خود را وارد کنید... در حال بارگذاری موتور هوش مصنوعی چندتایم‌فریمه...";
+    let baseMarqueeText = "لطفاً شناسه کاربری خود را وارد کنید...";
 
     // Chart JS State
     let chartData = { 
@@ -1104,7 +1106,7 @@
                 localDB = data.db || [];
                 localCfg = data.config || localCfg;
                 
-                baseMarqueeText = `👤 متصل به پورتفوی ${userId} | 📢 فرامین فرماندهی: ` + (localCfg.note || "در انتظار تحلیل کوانت...");
+                baseMarqueeText = `👤 متصل به پورتفوی ${userId} | 📢 پروتکل اجرایی : ` + (localCfg.note || "در انتظار تحلیل کوانت...");
                 updateMarqueeText();
                 
                 updatePrices();
