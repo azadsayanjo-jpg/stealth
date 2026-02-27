@@ -1312,17 +1312,17 @@
         let reHTML = '';
         const usdtRatio = tAct > 0 ? (usdtAmount / tAct) * 100 : 0;
 
-        if (usdtRatio > 35) {
+        if (usdtRatio > 5) {
             reHTML += `
             <div class="warning-box">
-                <b style="color:var(--warning)">💡 نقدینگی در انتظار فرصت</b>
-                <div style="font-size:0.8rem; margin-top:3px;">${usdtRatio.toFixed(1)}% از سبد شما تتر است. موتور هوش مصنوعی با آرامش در حال اسکن بازار برای یافتن بهترین نقاط ورود پله‌ای است.</div>
+                <b style="color:var(--warning)">💡 نقدینگی آماده شکار</b>
+                <div style="font-size:0.8rem; margin-top:3px;">${usdtRatio.toFixed(1)}% از سبد شما تتر است. سیستم در حال رصد بازار برای ورود دقیق و پله‌ای است.</div>
             </div>`;
         } else if (usdtRatio < 5 && tAct > 0) {
             reHTML += `
             <div class="warning-box">
-                <b style="color:var(--warning)">💡 پیشنهاد مدیریت نقدینگی برای آینده</b>
-                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد (${usdtRatio.toFixed(1)}%) نیازمند تقویت است. پیشنهاد می‌شود در روزهای سبز بازار، مقداری نقدینگی برای شکار فرصت‌های بعدی آزاد کنید.</div>
+                <b style="color:var(--warning)">💡 نیاز به تقویت نقدینگی</b>
+                <div style="font-size:0.8rem; margin-top:3px;">موجودی نقد (${usdtRatio.toFixed(1)}%)  قدرت مانور شما محدود شده است.</div>
             </div>`;
         }
 
@@ -1390,6 +1390,3 @@
 </script>
 </body>
 </html>
-
-
-
