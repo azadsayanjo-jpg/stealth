@@ -463,7 +463,7 @@
                 <div id="total-pnl" style="font-size:0.8rem; font-weight:bold; font-family:monospace;">---</div>
             </div>
             <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
-                <span class="stat-label">پیشرفت کل سبد <span id="total-progress" style="color: var(--gold); float:left; font-weight:900;">0%</span></span>
+                <span class="stat-label">📈 وضعیت پیشرفت سبد سرمایه‌گذاری <span id="total-progress" style="color: var(--gold); float:left; font-weight:900;">0%</span></span>
                 <div class="bar-bg" style="height: 4px;"><div id="progress-bar-fill" class="bar-fill" style="width:0%; background:var(--gold)"></div></div>
             </div>
         </div>
@@ -838,15 +838,15 @@
         let actionColor = "var(--text-sub)";
 
         if (score >= 80) {
-            actionTxt = "خرید قوی (انباشت)"; 
+            actionTxt = "🛒 خرید قوی (مرحله انباشت)"; 
             actionColor = "var(--success)";
             allocationPercent = itemCat === 'safe' ? 0.20 : (itemCat === 'risk' ? 0.08 : 0.15); 
         } else if (score >= 65) {
-            actionTxt = "خرید پله‌ای (تعادل‌سازی)"; 
+            actionTxt = "⚖️ خرید پله‌ای – حفظ تعادل سرمایه"; 
             actionColor = "var(--accent)";
             allocationPercent = itemCat === 'safe' ? 0.12 : (itemCat === 'risk' ? 0.05 : 0.08); 
         } else if (score <= 40) {
-            actionTxt = "هولد و صبر (توقف خرید)"; 
+            actionTxt = "💎 صبر کنید و هولد کنید تا فرصت بعدی فرا برسد"; 
             actionColor = "var(--warning)";
             allocationPercent = 0; 
         }
@@ -939,11 +939,11 @@
             
             const label = fng.value_classification;
             const translations = { 
-                'Extreme Fear': 'ترس شدید (فرصت خرید)', 
-                'Fear': 'ترس', 
-                'Neutral': 'خنثی', 
-                'Greed': 'طمع', 
-                'Extreme Greed': 'طمع شدید (احتیاط)' 
+                'Extreme Fear': '😨 ترس شدید → فرصت خرید', 
+                'Fear': '😟 ترس', 
+                'Neutral': '😐 خنثی', 
+                'Greed': '😏 طمع', 
+                'Extreme Greed': '🤑 طمع شدید → احتیاط' 
             };
             
             document.getElementById('fng-value').innerText = currentFngValue;
@@ -1106,7 +1106,7 @@
                 localDB = data.db || [];
                 localCfg = data.config || localCfg;
                 
-                baseMarqueeText = `👤 متصل به پورتفوی ${userId} | 📢 پروتکل اجرایی : ` + (localCfg.note || "در انتظار تحلیل کوانت...");
+                baseMarqueeText = `👤 متصل به پورتفوی ${userId} | 📢 راهنمای سرمایه‌گذاری : ` + (localCfg.note || "در انتظار تحلیل کوانت...");
                 updateMarqueeText();
                 
                 updatePrices();
@@ -1344,7 +1344,7 @@
         document.getElementById('gap-irt').innerText = Math.floor(gapUSD * rate).toLocaleString() + ' تومان';
         document.getElementById('gap-usd').innerText = '$' + Math.floor(gapUSD).toLocaleString();
         document.getElementById('final-target-irt').innerText = Math.floor(tFut * rate).toLocaleString() + ' تومان';
-        document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% مانده تا پیروزی';
+        document.getElementById('gap-percent-label').innerText = (100 - progress).toFixed(1) + '% تا دستیابی به هدف باقی مانده است 💪';
 
         // ارتقا: نمایش برترین سیگنال فقط برای نمادهایی که انباشت آنها تکمیل نشده
         if (aiCandidates.length > 0) {
@@ -1392,4 +1392,3 @@
 </script>
 </body>
 </html>
-
