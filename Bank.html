@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nikdad Capital | Core Banking & Ledger Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; }
+        .bank-card { background: linear-gradient(145deg, #141417, #09090b); border: 1px solid #27272a; }
+        .bank-input { background: #18181b; border: 1px solid #27272a; color: #ffffff; transition: all 0.2s ease; }
+        .bank-input:focus { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.15); outline: none; }
+        .active-tab { border-bottom: 2px solid #f59e0b; color: #f59e0b; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/10">
+                <i class="fa-solid fa-building-columns text-zinc-950 text-base"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-base tracking-tight text-white">NIKDAD <span class="text-amber-500 font-medium text-[10px] border border-amber-500/30 px-1.5 py-0.5 rounded-md mr-1">CORE BANKING</span></h1>
+                <p class="text-[9px] text-zinc-500 font-mono tracking-wider uppercase">V2.5 DOUBLE-ENTRY LEDGER SYSTEM</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="clearLocalData()" class="text-[10px] bg-red-950/30 hover:bg-red-900/40 text-red-400 font-bold border border-red-900/30 px-3 py-2 rounded-xl transition-all">
+                <i class="fa-solid fa-rotate mr-1"></i> بازنشانی کامل دفاتر مالی
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bank-card p-5 rounded-2xl relative overflow-hidden">
+                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">خزانه کل پلتفرم (USDT)</p>
+                <input type="number" id="base-balance" onchange="syncToLocal()" class="bg-transparent text-2xl font-black text-white font-mono w-full outline-none focus:text-amber-500 transition-colors" value="1100">
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/20"></div>
+            </div>
+            <div class="bank-card p-5 rounded-2xl relative overflow-hidden">
+                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">مجموع سپرده کاربران (USDT)</p>
+                <p id="total-held" class="text-2xl font-black text-amber-500 font-mono">0.00</p>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800"></div>
+            </div>
+            <div class="bank-card p-5 rounded-2xl relative overflow-hidden">
+                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">پورتفوی تسهیلات کالایی/روزشمار</p>
+                <p id="loan-box" class="text-2xl font-black text-sky-400 font-mono">0.00</p>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-sky-500/20"></div>
+            </div>
+            <div class="bank-card p-5 rounded-2xl relative overflow-hidden">
+                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">حساب نقدینگی دفاتر (تومان)</p>
+                <p id="toman-box" class="text-2xl font-black text-white font-mono">0</p>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800"></div>
+            </div>
+            <div class="bank-card p-5 rounded-2xl relative overflow-hidden bg-gradient-to-bl from-zinc-900 to-emerald-950/20">
+                <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">سود خالص انباشته (تومان)</p>
+                <p id="profit-box" class="text-2xl font-black text-emerald-400 font-mono">0</p>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/30"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bank-card rounded-2xl overflow-hidden p-6">
+                    <div class="flex border-b border-zinc-800 pb-3 mb-6 gap-4 text-[11px] font-black">
+                        <button onclick="switchTerminal('EXCHANGE')" id="tab-exchange" class="pb-2 transition-all active-tab">
+                            <i class="fa-solid fa-right-left mr-1"></i> صرافی و آربیترژ
+                        </button>
+                        <button onclick="switchTerminal('LOAN_CENTER')" id="tab-loans" class="pb-2 text-zinc-500 hover:text-zinc-300 transition-all">
+                            <i class="fa-solid fa-hand-holding-dollar mr-1"></i> تسهیلات روزشمار
+                        </button>
+                        <button onclick="switchTerminal('BANKING')" id="tab-banking" class="pb-2 text-zinc-500 hover:text-zinc-300 transition-all">
+                            <i class="fa-solid fa-vault mr-1"></i> عملیات مستقیم بانکی
+                        </button>
+                    </div>
+
+                    <div id="panel-exchange" class="space-y-4">
+                        <div class="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+                            <button onclick="setExchangeAction('SELL')" id="action-sell" class="flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md">فروش تتر به مشتری</button>
+                            <button onclick="setExchangeAction('BUYBACK')" id="action-buy" class="flex-1 py-2 text-xs font-black rounded-lg text-zinc-500 hover:text-zinc-300">بازخرید تتر از مشتری</button>
+                        </div>
+                        <form id="exchange-form" class="space-y-3">
+                            <input type="text" id="ex-name" required class="w-full bank-input p-3 rounded-xl text-xs" placeholder="شناسه یا نام مشتری">
+                            <input type="number" id="ex-toman" required class="w-full bank-input p-3 rounded-xl text-sm font-mono" placeholder="حجم تراکنش تومانی">
+                            <input type="number" id="ex-rate" required class="w-full bank-input p-3 rounded-xl text-sm font-mono" placeholder="نرخ مبنای نوبیتکس">
+                            <div class="p-3 bg-zinc-950/60 rounded-xl border border-zinc-900 text-[10px] text-zinc-500 flex justify-between">
+                                <span>کارمزد پلتفرم (اسپرد): <b class="text-white">0.75%</b></span>
+                                <span id="ex-live-calc" class="font-mono text-amber-500 font-bold">0.00 USDT</span>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-500 text-zinc-950 py-3 rounded-xl font-black hover:bg-amber-400 transition-all text-xs">
+                                ثبت سند مشتقات صرافی
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="panel-loans" class="space-y-4" style="display: none;">
+                        <div class="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+                            <button onclick="setLoanAction('PAY_LOAN')" id="action-pay-loan" class="flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md">اعطای تسهیلات (USDT)</button>
+                            <button onclick="setLoanAction('COLLECT_LOAN')" id="action-collect-loan" class="flex-1 py-2 text-xs font-black rounded-lg text-zinc-500 hover:text-zinc-300">وصول اقساط روزشمار</button>
+                        </div>
+                        <form id="loan-form" class="space-y-3">
+                            <input type="text" id="loan-name" required class="w-full bank-input p-3 rounded-xl text-xs" placeholder="نام پرونده تسهیلات‌گیرنده">
+                            <input type="number" id="loan-usdt" required class="w-full bank-input p-3 rounded-xl text-sm font-mono" placeholder="اصل مبلغ تسهیلات (USDT)">
+                            <input type="number" id="loan-rate" required class="w-full bank-input p-3 rounded-xl text-sm font-mono" placeholder="نرخ تسویه تومانی روز">
+                            
+                            <div id="loan-interest-fields" class="grid grid-cols-2 gap-2" style="display: none;">
+                                <input type="number" id="loan-rem-balance" class="w-full bank-input p-3 rounded-xl text-xs font-mono" placeholder="مانده کل وام (USDT)">
+                                <input type="number" id="loan-days" class="w-full bank-input p-3 rounded-xl text-xs font-mono" placeholder="مدت دوره (روز)">
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[11px] space-y-1.5 text-zinc-400">
+                                <div class="flex justify-between"><span>نرخ مصوب روزشمار:</span><span class="text-white font-mono font-bold">0.05 %</span></div>
+                                <div id="live-interest-row" class="flex justify-between" style="display: none;"><span>سود انباشته بانک:</span><span id="live-interest-val" class="text-amber-500 font-mono font-bold">0.00 USDT</span></div>
+                                <div class="flex justify-between border-t border-zinc-800 pt-1.5 mt-1.5"><span>ارزش تسویه نهایی سند:</span><span id="live-total-val" class="text-emerald-400 font-mono font-bold">0 تومان</span></div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-sky-600 text-white py-3 rounded-xl font-black hover:bg-sky-500 transition-all text-xs">
+                                صدور سند حسابداری تسهیلات
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="panel-banking" class="space-y-4" style="display: none;">
+                        <div class="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+                            <button onclick="setBankingType('DEPOSIT')" id="btn-dep" class="flex-1 py-1.5 text-[11px] font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md">واریز مستقیم</button>
+                            <button onclick="setBankingType('WITHDRAW')" id="btn-with" class="flex-1 py-1.5 text-[11px] font-black rounded-lg text-zinc-500 hover:text-zinc-300">برداشت مستقیم</button>
+                        </div>
+                        <form id="banking-form" class="space-y-3">
+                            <input type="text" id="bk-name" required class="w-full bank-input p-3 rounded-xl text-xs" placeholder="شناسه حساب مشتری">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="bk-usdt" step="any" class="w-full bank-input p-3 rounded-xl text-xs font-mono" placeholder="مبلغ واریز/برداشت (USDT)">
+                                <input type="number" id="bk-toman" class="w-full bank-input p-3 rounded-xl text-xs font-mono" placeholder="مبلغ واریز/برداشت (تومان)">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black hover:bg-emerald-500 transition-all text-xs">
+                                ثبت تراکنش نقدینگی در معین کاربر
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="bank-card rounded-2xl p-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-black text-white"><i class="fa-solid fa-address-book text-amber-500 ml-1"></i> دفتـر معین و تراز کیف‌پول مشتریان</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                        <table class="w-full text-right text-[11px]">
+                            <thead class="bg-zinc-950 text-zinc-400 sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-2">سرفصل مشتری</th>
+                                    <th class="p-2 text-center">موجودی (USDT)</th>
+                                    <th class="p-2 text-center">ترازش تومانی (IRT)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wallet-rows" class="divide-y divide-zinc-900">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="bank-card rounded-2xl overflow-hidden flex flex-col h-full min-h-[600px]">
+                    <div class="p-5 border-b border-zinc-800 bg-zinc-900/10 flex items-center justify-between">
+                        <span class="text-xs font-black text-white"><i class="fa-solid fa-receipt text-amber-500 ml-1"></i> دفتر روزنامه ثبت اسناد مکتوب و آرتیکل‌های مالی</span>
+                        <div class="flex gap-1.5">
+                            <button onclick="filterStatement('ALL')" id="filter-all" class="px-2.5 py-1 text-[10px] rounded-md bg-zinc-800 border border-zinc-700 text-white font-bold">همه</button>
+                            <button onclick="filterStatement('EX')" id="filter-ex" class="px-2.5 py-1 text-[10px] rounded-md text-zinc-400 font-bold hover:text-white">صرافی</button>
+                            <button onclick="filterStatement('LN')" id="filter-ln" class="px-2.5 py-1 text-[10px] rounded-md text-zinc-400 font-bold hover:text-white">تسهیلات</button>
+                            <button onclick="filterStatement('BK')" id="filter-bk" class="px-2.5 py-1 text-[10px] rounded-md text-zinc-400 font-bold hover:text-white">خزانه داری</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto max-h-[600px]">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-zinc-950 text-zinc-400 sticky top-0 z-20">
+                                <tr>
+                                    <th class="p-4 text-[11px]">زمان سند</th>
+                                    <th class="p-4 text-[11px]">شرح آرتیکل سند</th>
+                                    <th class="p-4 text-[11px] text-center">تغییرات ولت (USDT)</th>
+                                    <th class="p-4 text-[11px] text-center">ارزش مبادله (تومان)</th>
+                                    <th class="p-4 text-[11px] text-left px-6">حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statement-rows" class="divide-y divide-zinc-900">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+
+    <script>
+        // بانک اطلاعاتی مرکزی
+        window.vouchers = [];
+        
+        let currentTerminal = 'EXCHANGE';
+        let exAction = 'SELL';
+        let lnAction = 'PAY_LOAN';
+        let bkAction = 'DEPOSIT';
+        let activeFilter = 'ALL';
+
+        const SYSTEM_FEE = 0.75;
+        const DAILY_LOAN_INTEREST_RATE = 0.05 / 100;
+
+        function initLocalStorageDatabase() {
+            const savedVouchers = localStorage.getItem('nikdad_vouchers');
+            const savedBase = localStorage.getItem('nikdad_base');
+
+            window.vouchers = savedVouchers ? JSON.parse(savedVouchers) : [];
+            document.getElementById('base-balance').value = savedBase ? savedBase : "1100";
+
+            renderBankingCore();
+        }
+
+        window.syncToLocal = function() {
+            localStorage.setItem('nikdad_vouchers', JSON.stringify(window.vouchers));
+            localStorage.setItem('nikdad_base', document.getElementById('base-balance').value);
+            renderBankingCore();
+        };
+
+        window.clearLocalData = function() {
+            if(confirm('آیا مایلید دفاتر معین و اسناد حسابداری کل سیستم به طور قطعی ریست شوند؟')) {
+                localStorage.clear();
+                window.vouchers = [];
+                document.getElementById('base-balance').value = "1100";
+                renderBankingCore();
+            }
+        };
+
+        window.switchTerminal = function(terminal) {
+            currentTerminal = terminal;
+            document.getElementById('panel-exchange').style.display = terminal === 'EXCHANGE' ? 'block' : 'none';
+            document.getElementById('panel-loans').style.display = terminal === 'LOAN_CENTER' ? 'block' : 'none';
+            document.getElementById('panel-banking').style.display = terminal === 'BANKING' ? 'block' : 'none';
+            
+            document.getElementById('tab-exchange').className = terminal === 'EXCHANGE' ? 'pb-2 text-amber-500 active-tab' : 'pb-2 text-zinc-500 hover:text-zinc-300';
+            document.getElementById('tab-loans').className = terminal === 'LOAN_CENTER' ? 'pb-2 text-amber-500 active-tab' : 'pb-2 text-zinc-500 hover:text-zinc-300';
+            document.getElementById('tab-banking').className = terminal === 'BANKING' ? 'pb-2 text-amber-500 active-tab' : 'pb-2 text-zinc-500 hover:text-zinc-300';
+        };
+
+        window.setExchangeAction = function(action) {
+            exAction = action;
+            document.getElementById('action-sell').className = action === 'SELL' ? 'flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md' : 'flex-1 py-2 text-xs font-black rounded-lg text-zinc-500';
+            document.getElementById('action-buy').className = action === 'BUYBACK' ? 'flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md' : 'flex-1 py-2 text-xs font-black rounded-lg text-zinc-500';
+            calculateLiveExchange();
+        };
+
+        window.setLoanAction = function(action) {
+            lnAction = action;
+            const interestFields = document.getElementById('loan-interest-fields');
+            if(action === 'PAY_LOAN') {
+                document.getElementById('action-pay-loan').className = 'flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md';
+                document.getElementById('action-collect-loan').className = 'flex-1 py-2 text-xs font-black rounded-lg text-zinc-500';
+                interestFields.style.display = 'none';
+            } else {
+                document.getElementById('action-pay-loan').className = 'flex-1 py-2 text-xs font-black rounded-lg text-zinc-500';
+                document.getElementById('action-collect-loan').className = 'flex-1 py-2 text-xs font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md';
+                interestFields.style.display = 'grid';
+            }
+            calculateLiveLoan();
+        };
+
+        window.setBankingType = function(type) {
+            bkAction = type;
+            document.getElementById('btn-dep').className = type === 'DEPOSIT' ? 'flex-1 py-1.5 text-[11px] font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md' : 'flex-1 py-1.5 text-[11px] font-black rounded-lg text-zinc-500';
+            document.getElementById('btn-with').className = type === 'WITHDRAW' ? 'flex-1 py-1.5 text-[11px] font-black rounded-lg bg-zinc-800 text-white border border-zinc-700 shadow-md' : 'flex-1 py-1.5 text-[11px] font-black rounded-lg text-zinc-500';
+        };
+
+        function calculateLiveExchange() {
+            const toman = parseFloat(document.getElementById('ex-toman').value) || 0;
+            const rate = parseFloat(document.getElementById('ex-rate').value) || 0;
+            if(!toman || !rate) return;
+            let finalRate = exAction === 'SELL' ? rate * (1 + (SYSTEM_FEE/100)) : rate * (1 - (SYSTEM_FEE/100));
+            document.getElementById('ex-live-calc').innerText = (toman / finalRate).toFixed(2) + ' USDT';
+        }
+        document.getElementById('exchange-form').addEventListener('input', calculateLiveExchange);
+
+        function calculateLiveLoan() {
+            const usdtInput = parseFloat(document.getElementById('loan-usdt').value) || 0;
+            const rate = parseFloat(document.getElementById('loan-rate').value) || 0;
+            if (lnAction === 'PAY_LOAN') {
+                document.getElementById('live-interest-row').style.display = 'none';
+                document.getElementById('live-total-val').innerText = Math.round(usdtInput * rate).toLocaleString() + ' تومان';
+            } else {
+                document.getElementById('live-interest-row').style.display = 'flex';
+                const remBal = parseFloat(document.getElementById('loan-rem-balance').value) || 0;
+                const days = parseInt(document.getElementById('loan-days').value) || 0;
+                const interestUsdt = remBal * DAILY_LOAN_INTEREST_RATE * days;
+                document.getElementById('live-interest-val').innerText = interestUsdt.toFixed(2) + ' USDT';
+                document.getElementById('live-total-val').innerText = Math.round((usdtInput + interestUsdt) * rate).toLocaleString() + ' تومان';
+            }
+        }
+        document.getElementById('loan-form').addEventListener('input', calculateLiveLoan);
+
+        // ۱. ثبت سند ماژول صرافی
+        document.getElementById('exchange-form').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('ex-name').value.trim();
+            const toman = parseFloat(document.getElementById('ex-toman').value);
+            const rate = parseFloat(document.getElementById('ex-rate').value);
+            
+            let finalRate = exAction === 'SELL' ? rate * (1 + (SYSTEM_FEE/100)) : rate * (1 - (SYSTEM_FEE/100));
+            let usdt = toman / finalRate;
+            let profit = exAction === 'SELL' ? toman - (usdt * rate) : (usdt * rate) - toman;
+
+            window.vouchers.unshift({
+                id: Date.now(),
+                category: 'EXCHANGE',
+                type: exAction,
+                name: name,
+                usdt: usdt,
+                toman: toman,
+                rate: rate,
+                profit: profit,
+                interest_usdt: 0,
+                date: new Date().toLocaleDateString('fa-IR', {hour: '2-digit', minute:'2-digit'})
+            });
+            window.syncToLocal();
+            this.reset();
+            document.getElementById('ex-live-calc').innerText = '0.00 USDT';
+        };
+
+        // ۲. ثبت سند ماژول تسهیلات روزشمار
+        document.getElementById('loan-form').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('loan-name').value.trim();
+            const usdt = parseFloat(document.getElementById('loan-usdt').value);
+            const rate = parseFloat(document.getElementById('loan-rate').value);
+
+            let interestUsdt = 0, totalToman = 0, profitToman = 0;
+
+            if(lnAction === 'PAY_LOAN') {
+                totalToman = usdt * rate;
+            } else {
+                const remBal = parseFloat(document.getElementById('loan-rem-balance').value) || 0;
+                const days = parseInt(document.getElementById('loan-days').value) || 0;
+                interestUsdt = remBal * DAILY_LOAN_INTEREST_RATE * days;
+                totalToman = (usdt + interestUsdt) * rate;
+                profitToman = interestUsdt * rate;
+            }
+
+            window.vouchers.unshift({
+                id: Date.now(),
+                category: 'LOAN',
+                type: lnAction,
+                name: name,
+                usdt: usdt,
+                toman: totalToman,
+                rate: rate,
+                profit: profitToman,
+                interest_usdt: interestUsdt,
+                date: new Date().toLocaleDateString('fa-IR', {hour: '2-digit', minute:'2-digit'})
+            });
+            window.syncToLocal();
+            this.reset();
+            document.getElementById('live-interest-row').style.display = 'none';
+            document.getElementById('live-total-val').innerText = '0 تومان';
+        };
+
+        // ۳. ثبت سند ماژول عملیات مستقیم بانکی (خزنه‌داری کاربران)
+        document.getElementById('banking-form').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('bk-name').value.trim();
+            const usdt = parseFloat(document.getElementById('bk-usdt').value) || 0;
+            const toman = parseFloat(document.getElementById('bk-toman').value) || 0;
+
+            if (usdt === 0 && toman === 0) return alert('لطفاً حداقل یک مقدار تومانی یا تری وارد کنید.');
+
+            window.vouchers.unshift({
+                id: Date.now(),
+                category: 'BANKING',
+                type: bkAction,
+                name: name,
+                usdt: usdt,
+                toman: toman,
+                rate: 0,
+                profit: 0,
+                interest_usdt: 0,
+                date: new Date().toLocaleDateString('fa-IR', {hour: '2-digit', minute:'2-digit'})
+            });
+            window.syncToLocal();
+            this.reset();
+        };
+
+        window.filterStatement = function(mode) {
+            activeFilter = mode;
+            const btnIds = ['all', 'ex', 'ln', 'bk'];
+            btnIds.forEach(id => {
+                const el = document.getElementById('filter-' + id);
+                if(id === mode.toLowerCase() || (mode === 'ALL' && id === 'all')) {
+                    el.className = "px-2.5 py-1 text-[10px] rounded-md bg-zinc-800 border border-zinc-700 text-white font-bold";
+                } else {
+                    el.className = "px-2.5 py-1 text-[10px] rounded-md text-zinc-400 font-bold hover:text-white";
+                }
+            });
+            renderBankingCore();
+        };
+
+        window.wipeDocument = function(id) {
+            if(confirm('آیا مایل به ابطال و پاکسازی زنجیره‌ای این سند رسمی هستید؟')) {
+                window.vouchers = window.vouchers.filter(v => v.id !== id);
+                window.syncToLocal();
+            }
+        };
+
+        // 🏦 موتور پردازش و بالانس حسابداری دفاتر کل و معین
+        window.renderBankingCore = function() {
+            const listContainer = document.getElementById('statement-rows');
+            listContainer.innerHTML = '';
+
+            // ردیف‌های کلان سیستم
+            let institutionalUSDTUserBalances = 0; 
+            let institutionalTomanLedger = 0;
+            let activeLoansPortfolio = 0;
+            let aggregateProfit = 0;
+
+            // ساخت ساختار دفاتر معین کاربران به صورت بلادرنگ
+            let wallets = {};
+
+            function initWallet(name) {
+                if(!wallets[name]) wallets[name] = { usdt: 0, toman: 0 };
+            }
+
+            // پردازش کل اسناد حسابداری موجود در روزنامه
+            window.vouchers.forEach((v) => {
+                initWallet(v.name);
+
+                if (v.category === 'EXCHANGE') {
+                    if (v.type === 'SELL') { 
+                        // سیستم تتر فروخته: خزانه تتر کم می‌شود، تتر مشتری زیاد می‌شود، صندوق تومانی سیستم زیاد و مشتری بدهکار/پرداخت‌کننده تومانی می‌شود.
+                        wallets[v.name].usdt += v.usdt;
+                        wallets[v.name].toman -= v.toman;
+                        institutionalTomanLedger += v.toman;
+                        institutionalUSDTUserBalances += v.usdt;
+                    } else if (v.type === 'BUYBACK') {
+                        // سیستم از مشتری تتر خریده
+                        wallets[v.name].usdt -= v.usdt;
+                        wallets[v.name].toman += v.toman;
+                        institutionalTomanLedger -= v.toman;
+                        institutionalUSDTUserBalances -= v.usdt;
+                    }
+                    aggregateProfit += v.profit;
+                } 
+                else if (v.category === 'LOAN') {
+                    if (v.type === 'PAY_LOAN') {
+                        wallets[v.name].usdt += v.usdt;
+                        wallets[v.name].toman -= v.toman; // تعهد تومانی بازپرداخت وام
+                        activeLoansPortfolio += v.usdt;
+                        institutionalUSDTUserBalances += v.usdt;
+                    } else if (v.type === 'COLLECT_LOAN') {
+                        wallets[v.name].usdt -= v.usdt;
+                        wallets[v.name].toman += v.toman;
+                        activeLoansPortfolio -= v.usdt;
+                        institutionalTomanLedger += v.toman;
+                        institutionalUSDTUserBalances -= v.usdt;
+                        aggregateProfit += v.profit;
+                    }
+                } 
+                else if (v.category === 'BANKING') {
+                    if (v.type === 'DEPOSIT') {
+                        // واریز مستقیم دارایی توسط کاربر به سیستم
+                        wallets[v.name].usdt += v.usdt;
+                        wallets[v.name].toman += v.toman;
+                        institutionalTomanLedger += v.toman;
+                        institutionalUSDTUserBalances += v.usdt;
+                    } else if (v.type === 'WITHDRAW') {
+                        // برداشت مستقیم دارایی کاربر از معین خود
+                        wallets[v.name].usdt -= v.usdt;
+                        wallets[v.name].toman -= v.toman;
+                        institutionalTomanLedger -= v.toman;
+                        institutionalUSDTUserBalances -= v.usdt;
+                    }
+                }
+
+                // فیلترینگ نمایش جدول دفتر روزنامه
+                let matchesFilter = (activeFilter === 'ALL') || 
+                                    (activeFilter === 'EX' && v.category === 'EXCHANGE') ||
+                                    (activeFilter === 'LN' && v.category === 'LOAN') ||
+                                    (activeFilter === 'BK' && v.category === 'BANKING');
+
+                if (matchesFilter) {
+                    let badge = '';
+                    if (v.category === 'EXCHANGE') {
+                        badge = v.type === 'SELL' ? '<span class="text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded-md border border-amber-500/20">صرافی | فروش</span>' : '<span class="text-[9px] px-1.5 py-0.5 bg-zinc-800 text-zinc-400 rounded-md border border-zinc-700">صرافی | بازخرید</span>';
+                    } else if (v.category === 'LOAN') {
+                        badge = v.type === 'PAY_LOAN' ? '<span class="text-[9px] px-1.5 py-0.5 bg-sky-500/10 text-sky-400 rounded-md border border-sky-500/20">تسهیلات | اعطا</span>' : '<span class="text-[9px] px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded-md border border-purple-500/20">تسهیلات | وصول</span>';
+                    } else if (v.category === 'BANKING') {
+                        badge = v.type === 'DEPOSIT' ? '<span class="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded-md border border-emerald-500/20">بانک | واریز</span>' : '<span class="text-[9px] px-1.5 py-0.5 bg-rose-500/10 text-rose-400 rounded-md border border-rose-500/20">بانک | برداشت</span>';
+                    }
+
+                    let interestRow = v.interest_usdt > 0 ? `<div class="text-[9px] text-amber-500 font-mono">سود بانکی: +${v.interest_usdt.toFixed(2)} USDT</div>` : '';
+
+                    listContainer.innerHTML += `
+                        <tr class="hover:bg-zinc-900/40 transition-colors group">
+                            <td class="p-4 text-zinc-500 font-mono text-[10px]">${v.date}</td>
+                            <td class="p-4 flex items-center gap-2">${badge} <span class="text-white font-bold">${v.name}</span></td>
+                            <td class="p-4 text-center font-bold font-mono ${v.type === 'SELL' || v.type === 'PAY_LOAN' || v.type === 'DEPOSIT' ? 'text-emerald-400' : 'text-zinc-400'}" dir="ltr">
+                                ${v.usdt > 0 ? (v.type==='SELL'||v.type==='PAY_LOAN'||v.type==='DEPOSIT'?'+':'-') + v.usdt.toFixed(2) : '0.00'}
+                                ${interestRow}
+                            </td>
+                            <td class="p-4 text-center font-bold font-mono text-zinc-300">${v.toman > 0 ? Math.round(v.toman).toLocaleString() : '0'}</td>
+                            <td class="p-4 text-left px-6">
+                                <button onclick="wipeDocument(${v.id})" class="w-7 h-7 rounded-lg bg-zinc-800 text-zinc-500 hover:bg-red-500/20 hover:text-red-400 border border-zinc-700 transition-all opacity-0 group-hover:opacity-100">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if(window.vouchers.length === 0) {
+                listContainer.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-zinc-600 font-medium">هیچ آرتیکل رسمی در دفتر روزنامه ثبت نشده است.</td></tr>';
+            }
+
+            // رندر تراز معین حساب مشتریان
+            const walletContainer = document.getElementById('wallet-rows');
+            walletContainer.innerHTML = '';
+            const clients = Object.keys(wallets);
+
+            if(clients.length === 0) {
+                walletContainer.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-zinc-600">دفتر معین فاقد سرفصل فعال است.</td></tr>';
+            } else {
+                clients.forEach(name => {
+                    const w = wallets[name];
+                    const tomanStyle = w.toman < 0 ? 'text-rose-400' : 'text-emerald-400';
+                    const usdtStyle = w.usdt < 0 ? 'text-rose-400' : 'text-amber-500';
+                    walletContainer.innerHTML += `
+                        <tr class="hover:bg-zinc-900/50 transition-colors">
+                            <td class="p-2.5 font-bold text-zinc-300">${name}</td>
+                            <td class="p-2.5 text-center font-mono font-bold ${usdtStyle}" dir="ltr">${w.usdt.toFixed(2)}</td>
+                            <td class="p-2.5 text-center font-mono font-bold ${tomanStyle}" dir="ltr">${Math.round(w.toman).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // محاسبات بالانس کلی داشبورد
+            document.getElementById('total-held').innerText = institutionalUSDTUserBalances.toFixed(2);
+            document.getElementById('loan-box').innerText = activeLoansPortfolio.toFixed(2);
+            document.getElementById('toman-box').innerText = Math.round(institutionalTomanLedger).toLocaleString();
+            document.getElementById('profit-box').innerText = Math.round(aggregateProfit).toLocaleString();
+        };
+
+        window.onload = initLocalStorageDatabase;
+    </script>
+</body>
+</html>
