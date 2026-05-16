@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دانشکده | ترمینال کاربری اختصاصی</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --bg-main: #020617;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-glow: rgba(37, 99, 235, 0.5);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #ef4444;
+            --glass-blur: blur(16px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            color: var(--text-main); 
+            min-height: 100vh; 
+            padding: 2rem; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+        }
+
+        /* اسکرول‌بار سفارشی */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .container { width: 100%; max-width: 1000px; margin: 0 auto; display: none; animation: fadeSlideUp 0.6s ease-out; }
+        
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 15px rgba(37,99,235, 0); } 100% { box-shadow: 0 0 0 0 rgba(37,99,235, 0); } }
+
+        /* --- استایل بخش ورود (Login) --- */
+        .login-box {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            margin-top: 15vh;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeSlideUp 0.6s ease-out;
+        }
+        .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 800; color: #fff; }
+        .login-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; }
+        
+        .form-group { margin-bottom: 2rem; text-align: right; }
+        .form-group label { display: block; margin-bottom: 0.8rem; font-size: 0.9rem; color: #cbd5e1; font-weight: 600; }
+        .form-control { 
+            width: 100%; 
+            padding: 1rem; 
+            background-color: rgba(0,0,0,0.3); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            color: var(--text-main); 
+            font-size: 1.2rem; 
+            text-align: center; 
+            letter-spacing: 4px; 
+            outline: none; 
+            transition: all 0.3s;
+        }
+        .form-control:focus { border-color: var(--accent); background-color: rgba(0,0,0,0.5); box-shadow: 0 0 15px rgba(37, 99, 235, 0.2); }
+        
+        .btn-login { 
+            width: 100%; 
+            padding: 1rem; 
+            background: linear-gradient(to right, var(--accent), #3b82f6); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px -5px var(--accent-glow);
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -5px var(--accent-glow); }
+        .error-msg { margin-top: 1.5rem; color: #fca5a5; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem; display: none; }
+
+        /* --- استایل بخش پنل اصلی (Dashboard) --- */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2.5rem; 
+            border-bottom: 1px solid var(--border); 
+            padding-bottom: 1.5rem; 
+            width: 100%; 
+        }
+        .welcome-txt h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(to left, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .welcome-txt p { color: var(--accent); font-size: 0.95rem; margin-top: 0.5rem; font-family: monospace; letter-spacing: 1px; }
+        
+        .logout-btn { 
+            background: rgba(239, 68, 68, 0.1); 
+            border: 1px solid rgba(239, 68, 68, 0.2); 
+            color: #f87171; 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        
+        .filter-container { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 2.5rem; 
+            overflow-x: auto; 
+            padding-bottom: 10px; 
+        }
+        .filter-btn { 
+            background-color: rgba(255,255,255,0.03); 
+            border: 1px solid var(--border); 
+            color: var(--text-muted); 
+            padding: 0.6rem 1.5rem; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            white-space: nowrap; 
+            transition: all 0.3s;
+        }
+        .filter-btn:hover { border-color: var(--accent); color: #fff; }
+        .filter-btn.active { 
+            background: var(--accent); 
+            color: white; 
+            border-color: var(--accent); 
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .section-title { font-size: 1.3rem; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: '⚡'; font-size: 1.2rem; }
+        
+        .no-lesson { 
+            text-align: center; 
+            padding: 4rem 2rem; 
+            background: rgba(255,255,255,0.02); 
+            border: 1px dashed rgba(255,255,255,0.1); 
+            border-radius: 16px; 
+            color: var(--text-muted); 
+            font-size: 1.1rem;
+        }
+        
+        .lesson-card { 
+            background: var(--bg-card); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 2rem; 
+            margin-bottom: 1.5rem; 
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .lesson-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+        
+        .lesson-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
+        .lesson-title { font-size: 1.3rem; font-weight: 700; color: #fff; transition: color 0.3s; }
+        .lesson-title.read { color: var(--success); text-decoration: line-through; opacity: 0.8; }
+        .lesson-date { font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px; }
+        
+        .lesson-body { font-size: 1.05rem; line-height: 1.8; color: #e2e8f0; white-space: pre-line; }
+        
+        .lesson-footer { margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; }
+        .badge-cat { background-color: rgba(245, 158, 11, 0.1); color: #fbbf24; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); }
+        
+        .read-btn { 
+            background-color: transparent; 
+            border: 1px solid var(--success); 
+            color: var(--success); 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            transition: all 0.3s;
+        }
+        .read-btn:hover { background-color: rgba(16, 185, 129, 0.1); }
+        .read-btn.active { 
+            background-color: var(--success); 
+            color: white; 
+            box-shadow: 0 4px 15px var(--success-glow);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box" id="loginBox">
+        <h1>ترمینال احراز هویت</h1>
+        <p>لطفاً کد دسترسی امنیتی خود را وارد نمایید</p>
+        <div class="form-group">
+            <label for="studentCode">Access Code / کد عبور</label>
+            <input type="text" id="studentCode" class="form-control" placeholder="****" autocomplete="off">
+        </div>
+        <button class="btn-login" onclick="handleLogin()">اتصال به شبکه</button>
+        <div id="errorMsg" class="error-msg">کد وارد شده در دیتابیس یافت نشد. دسترسی غیرمجاز.</div>
+    </div>
+
+    <div class="container" id="dashboardContainer">
+        <header>
+            <div class="welcome-txt">
+                <h1 id="studentNameHeadline">کلاینت، خوش‌آمدید</h1>
+                <p id="studentCodeHeadline">کد رهگیری: -</p>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">قطع اتصال امن (Logout)</button>
+        </header>
+
+        <div class="filter-container" id="filterContainer"></div>
+        <h2 class="section-title">داده‌ها و بسته‌های آپدیت اختصاصی شما</h2>
+        <div id="lessonsContainer"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+
+    <script>
+        // کانفیگ دیتابیس شما - مقادیر پروژه خود را اینجا جایگذاری کنید
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // مقداردهی اولیه فایربیس
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentStudent = JSON.parse(localStorage.getItem('current_student'));
+        let currentFilter = 'all';
+        
+        // متغیرهای ذخیره کلکتور ابری
+        let allLessons = [];
+        let readStatus = {};
+        
+        // پوینترهای لیسنر آنلاین
+        let lessonsRef, readRef;
+
+        // چک کردن وضعیت لاگین در بدو ورود به صفحه
+        checkAuth();
+
+        function checkAuth() {
+            const loginBox = document.getElementById('loginBox');
+            const dashboardContainer = document.getElementById('dashboardContainer');
+
+            if (currentStudent) {
+                loginBox.style.display = 'none';
+                dashboardContainer.style.display = 'block';
+                document.body.style.alignItems = 'flex-start';
+                
+                initDashboard();
+            } else {
+                loginBox.style.display = 'block';
+                dashboardContainer.style.display = 'none';
+                document.body.style.alignItems = 'center';
+                
+                // پاکسازی لیسنرهای قبلی در صورت اتمام سشن
+                if(lessonsRef) lessonsRef.off();
+                if(readRef) readRef.off();
+            }
+        }
+
+        function handleLogin() {
+            const codeInput = document.getElementById('studentCode').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // اعتبارسنجی زنده از روی سرور فایربیس
+            db.ref('faculty_students').once('value').then((snapshot) => {
+                const students = snapshot.val() || [];
+                const student = students.find(s => s.code === codeInput);
+
+                if (student) {
+                    errorMsg.style.display = 'none';
+                    localStorage.setItem('current_student', JSON.stringify(student));
+                    currentStudent = student;
+                    checkAuth();
+                } else {
+                    errorMsg.style.display = 'block';
+                }
+            }).catch(() => {
+                alert('خطا در اتصال به سرور ابری.');
+            });
+        }
+
+        function initDashboard() {
+            document.getElementById('studentNameHeadline').innerText = `کلاینت تایید شده: ${currentStudent.name}`;
+            document.getElementById('studentCodeHeadline').innerText = `شناسه دسترسی (ID): ${currentStudent.code}`;
+            
+            // پاک کردن لیسنرهای پیشین برای جلوگیری از نشت حافظه
+            if(lessonsRef) lessonsRef.off();
+            if(readRef) readRef.off();
+
+            // گوش دادن آنلاین به تغییرات تکالیف منتشر شده مدیر
+            lessonsRef = db.ref('faculty_lessons');
+            lessonsRef.on('value', (snapshot) => {
+                allLessons = snapshot.val() || [];
+                renderFiltersAndLessons();
+            });
+
+            // گوش دادن آنلاین به تاییدیه خوانده شدن دروس همین کاربر
+            readRef = db.ref(`read_status_${currentStudent.code}`);
+            readRef.on('value', (snapshot) => {
+                readStatus = snapshot.val() || {};
+                renderFiltersAndLessons();
+            });
+        }
+
+        function renderFiltersAndLessons() {
+            // فیلتر اختصاصی دروس همین دانش‌آموز
+            const privateLessons = allLessons.filter(lesson => lesson.targetCode === currentStudent.code);
+            
+            // ۱. رندر کردن دکمه‌های فیلتر دسته‌بندی
+            const filterContainer = document.getElementById('filterContainer');
+            if (privateLessons.length > 0) {
+                const categories = ['all', ...new Set(privateLessons.map(l => l.category))];
+                filterContainer.innerHTML = categories.map(cat => {
+                    const label = cat === 'all' ? 'نمایش کل دیتابیس' : cat;
+                    const activeClass = cat === currentFilter ? 'active' : '';
+                    return `<button class="filter-btn ${activeClass}" onclick="setFilter('${cat}')">${label}</button>`;
+                }).join('');
+            } else {
+                filterContainer.innerHTML = '';
+            }
+
+            // ۲. رندر کردن دروس فیلتر شده
+            const container = document.getElementById('lessonsContainer');
+            const filtered = currentFilter === 'all' 
+                ? privateLessons 
+                : privateLessons.filter(l => l.category === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="no-lesson"><p>هیچ بسته داده‌ای برای نمایش در این بخش موجود نیست.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.slice().reverse().map(lesson => {
+                const isRead = readStatus[lesson.id] ? 'read' : '';
+                const btnText = readStatus[lesson.id] ? '✓ دریافت و تایید شد' : 'ثبت تاییدیه‌ی خواندن';
+                const btnClass = readStatus[lesson.id] ? 'read-btn active' : 'read-btn';
+
+                return `
+                    <div class="lesson-card">
+                        <div class="lesson-header">
+                            <div class="lesson-title ${isRead}" id="title-${lesson.id}">${lesson.title}</div>
+                            <div class="lesson-date">تایم‌استمپ: ${lesson.date}</div>
+                        </div>
+                        <div class="lesson-body">${lesson.content}</div>
+                        <div class="lesson-footer">
+                            <span class="badge-cat">فولدر: ${lesson.category}</span>
+                            <button class="${btnClass}" onclick="toggleRead(${lesson.id})">${btnText}</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setFilter(category) {
+            currentFilter = category;
+            renderFiltersAndLessons();
+        }
+
+        function toggleRead(lessonId) {
+            // تغییر مستقیم وضعیت تاییدیه در سرور آنلاین فایربیس
+            if (readStatus[lessonId]) {
+                db.ref(`read_status_${currentStudent.code}/${lessonId}`).remove();
+            } else {
+                db.ref(`read_status_${currentStudent.code}/${lessonId}`).set(true);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('current_student');
+            currentStudent = null;
+            currentFilter = 'all';
+            document.getElementById('studentCode').value = '';
+            checkAuth();
+        }
+    </script>
+</body>
+</html>

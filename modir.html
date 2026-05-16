@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دانشکده | پنل مدیریت پیشرفته (Pro)</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --bg-main: #050810;
+            --bg-card: rgba(18, 24, 38, 0.7);
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --accent-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --glass-blur: blur(12px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            background-image: radial-gradient(circle at 50% 0%, #111a2e 0%, transparent 70%);
+            color: var(--text-main); 
+            padding: 3rem 2rem; 
+            min-height: 100vh;
+        }
+
+        /* اسکرول‌بار سفارشی */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .container { max-width: 1400px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        header { 
+            margin-bottom: 3rem; 
+            border-bottom: 1px solid var(--border); 
+            padding-bottom: 1.5rem; 
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        header p { color: var(--text-muted); font-size: 1rem; font-weight: 300; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2.5rem; }
+        @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+
+        .card { 
+            background: var(--bg-card); 
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 2rem; 
+            height: fit-content; 
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.7); }
+
+        .card h2 { 
+            font-size: 1.4rem; 
+            margin-bottom: 2rem; 
+            color: #fff; 
+            display: flex;
+            align-items: center;
+        }
+        .card h2::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 4px;
+            margin-left: 12px;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.6rem; font-size: 0.95rem; color: #cbd5e1; font-weight: 500; }
+        
+        .form-control { 
+            width: 100%; 
+            padding: 0.85rem 1rem; 
+            background-color: rgba(0,0,0,0.2); 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            color: var(--text-main); 
+            font-size: 1rem; 
+            outline: none; 
+            transition: all 0.3s ease;
+        }
+        .form-control:focus { 
+            border-color: var(--accent); 
+            background-color: rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
+        }
+        .form-control::placeholder { color: #475569; }
+        textarea.form-control { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+        .btn { 
+            display: inline-block; 
+            width: 100%; 
+            padding: 0.85rem; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover)); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1.05rem; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn:active { transform: translateY(1px); }
+        
+        .btn-warning { 
+            background: linear-gradient(135deg, var(--warning), #d97706); 
+            color: #000; 
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        .btn-warning:hover { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+        
+        .list-items { margin-top: 2rem; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-left: 5px; }
+        
+        .list-item { 
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid var(--border); 
+            padding: 1.2rem; 
+            border-radius: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            transition: all 0.2s;
+        }
+        .list-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
+        
+        .item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-title-group { display: flex; flex-direction: column; gap: 5px; }
+        .item-title-group strong { font-size: 1.1rem; color: #fff; }
+        .item-title-group code { color: var(--accent); font-family: monospace; font-size: 0.9rem; letter-spacing: 1px; }
+        
+        .item-actions { display: flex; gap: 8px; }
+        .action-btn { 
+            padding: 6px 12px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: 600; 
+            transition: all 0.2s;
+        }
+        .btn-edit { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .btn-edit:hover { background-color: var(--warning); color: #000; }
+        .btn-delete { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-delete:hover { background-color: var(--danger); color: #fff; }
+        
+        .badge-group { display: flex; gap: 8px; margin-top: 5px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid transparent; }
+        .badge-user { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2); }
+        .badge-cat { background-color: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+        
+        .row-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        select option { background-color: #0f172a; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>اتاق فرمان کنترل و مدیریت</h1>
+            <p>داشبورد پیشرفته ثبت، ویرایش، حذف و دسته‌بندی اطلاعات با الگوریتم رمزگذاری کد</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h2 id="studentFormTitle">ثبت‌نام دانش‌آموز جدید</h2>
+                <input type="hidden" id="editStudentId" value="">
+                <div class="form-group">
+                    <label for="studentName">نام و نام خانوادگی</label>
+                    <input type="text" id="studentName" class="form-control" placeholder="مثلا: علی محمدی">
+                </div>
+                <button class="btn" id="studentSubmitBtn" onclick="saveStudent()">ثبت و صدور کد دسترسی</button>
+                <button class="btn btn-warning" id="cancelStudentEditBtn" style="display:none; margin-top:10px;" onclick="resetStudentForm()">انصراف از ویرایش</button>
+
+                <div class="list-items" id="studentsList"></div>
+            </div>
+
+            <div class="card">
+                <h2 id="lessonFormTitle">ماژول انتشار محتوا و تکالیف</h2>
+                <input type="hidden" id="editLessonId" value="">
+                
+                <div class="row-inline">
+                    <div class="form-group">
+                        <label for="targetStudent">انتخاب کلاینت / دانش‌آموز</label>
+                        <select id="targetStudent" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lessonCategory">دسته‌بندی (Category)</label>
+                        <input type="text" id="lessonCategory" class="form-control" placeholder="مثلا: تکالیف، جزوه، ویدیو">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lessonTitle">عنوان مطلب (Title)</label>
+                    <input type="text" id="lessonTitle" class="form-control" placeholder="مثلا: تمرین‌های جلسه اول">
+                </div>
+                <div class="form-group">
+                    <label for="lessonContent">محتوای آموزشی (Payload)</label>
+                    <textarea id="lessonContent" class="form-control" placeholder="متن درس یا تکلیف را بنویسید..."></textarea>
+                </div>
+                <button class="btn" id="lessonSubmitBtn" onclick="saveLesson()">انتشار و همگام‌سازی مطلب</button>
+                <button class="btn btn-warning" id="cancelLessonEditBtn" style="display:none; margin-top:10px;" onclick="resetLessonForm()">انصراف از ویرایش</button>
+
+                <div class="list-items" id="lessonsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database-compat.js"></script>
+
+    <script>
+        // کانفیگ دیتابیس شما - مقادیر پروژه خود را اینجا جایگذاری کنید
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // مقداردهی اولیه فایربیس
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let students = [];
+        let lessons = [];
+
+        // سینک آنی لیست دانش‌آموزان از سرور
+        db.ref('faculty_students').on('value', (snapshot) => {
+            students = snapshot.val() || [];
+            updateStudentsList();
+            updateStudentDropdown();
+            updateLessonsList(); // لود مجدد برای نام کلاینت‌ها
+        });
+
+        // سینک آنی لیست تکالیف/دروس از سرور
+        db.ref('faculty_lessons').on('value', (snapshot) => {
+            lessons = snapshot.val() || [];
+            updateLessonsList();
+        });
+
+        // --- منطق مدیریت دانش‌آموزان (ثبت / ویرایش / حذف) ---
+        function saveStudent() {
+            const nameInput = document.getElementById('studentName');
+            const editId = document.getElementById('editStudentId').value;
+            const name = nameInput.value.trim();
+
+            if (!name) return alert('نام را وارد کنید');
+
+            if (editId) {
+                // حالت ویرایش
+                students = students.map(s => s.code === editId ? { ...s, name: name } : s);
+            } else {
+                // حالت ثبت نام جدید
+                const studentCode = `1405${Math.floor(1000 + Math.random() * 9000)}`;
+                students.push({ name: name, code: studentCode });
+            }
+
+            db.ref('faculty_students').set(students).then(() => {
+                resetStudentForm();
+            });
+        }
+
+        function editStudent(code) {
+            const student = students.find(s => s.code === code);
+            if (!student) return;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('editStudentId').value = student.code;
+            document.getElementById('studentFormTitle').innerText = `ویرایش کلاینت (${student.code})`;
+            document.getElementById('studentSubmitBtn').innerText = 'اعمال تغییرات نام';
+            document.getElementById('cancelStudentEditBtn').style.display = 'block';
+        }
+
+        function deleteStudent(code) {
+            if (confirm('با حذف دانش‌آموز، دسترسی او قطع می‌شود. آیا مطمئنید؟')) {
+                students = students.filter(s => s.code !== code);
+                lessons = lessons.filter(l => l.targetCode !== code);
+                
+                db.ref('faculty_students').set(students);
+                db.ref('faculty_lessons').set(lessons);
+                db.ref(`read_status_${code}`).remove(); // حذف وضعیت خوانده شده‌های کاربر برای تمیزی سرور
+            }
+        }
+
+        function resetStudentForm() {
+            document.getElementById('studentName').value = '';
+            document.getElementById('editStudentId').value = '';
+            document.getElementById('studentFormTitle').innerText = 'ثبت‌نام دانش‌آموز جدید';
+            document.getElementById('studentSubmitBtn').innerText = 'ثبت و صدور کد دسترسی';
+            document.getElementById('cancelStudentEditBtn').style.display = 'none';
+        }
+
+        function updateStudentsList() {
+            const list = document.getElementById('studentsList');
+            list.innerHTML = students.map(s => `
+                <div class="list-item">
+                    <div class="item-header">
+                        <div class="item-title-group">
+                            <strong>${s.name}</strong>
+                            <code>ID: ${s.code}</code>
+                        </div>
+                        <div class="item-actions">
+                            <button class="action-btn btn-edit" onclick="editStudent('${s.code}')">ویرایش</button>
+                            <button class="action-btn btn-delete" onclick="deleteStudent('${s.code}')">حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStudentDropdown() {
+            const select = document.getElementById('targetStudent');
+            select.innerHTML = '<option value="">-- انتخاب کلاینت هدف --</option>' + 
+                students.map(s => `<option value="${s.code}">${s.name}</option>`).join('');
+        }
+
+        // --- منطق مدیریت دروس (ثبت / ویرایش / حذف) ---
+        function saveLesson() {
+            const targetSelect = document.getElementById('targetStudent');
+            const categoryInput = document.getElementById('lessonCategory');
+            const titleInput = document.getElementById('lessonTitle');
+            const contentInput = document.getElementById('lessonContent');
+            const editId = document.getElementById('editLessonId').value;
+
+            const targetCode = targetSelect.value;
+            const category = categoryInput.value.trim() || 'عمومی';
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!targetCode || !title || !content) return alert('پر کردن فیلدهای ستاره دار الزامیست.');
+
+            if (editId) {
+                // حالت ویرایش درس
+                lessons = lessons.map(l => l.id == editId ? { ...l, targetCode, category, title, content } : l);
+            } else {
+                // حالت انتشار درس جدید
+                lessons.push({ id: Date.now(), targetCode, category, title, content, date: new Date().toLocaleDateString('fa-IR') });
+            }
+
+            db.ref('faculty_lessons').set(lessons).then(() => {
+                resetLessonForm();
+            });
+        }
+
+        function editLesson(id) {
+            const lesson = lessons.find(l => l.id == id);
+            if (!lesson) return;
+            document.getElementById('targetStudent').value = lesson.targetCode;
+            document.getElementById('lessonCategory').value = lesson.category;
+            document.getElementById('lessonTitle').value = lesson.title;
+            document.getElementById('lessonContent').value = lesson.content;
+            document.getElementById('editLessonId').value = lesson.id;
+            
+            document.getElementById('lessonFormTitle').innerText = 'ویرایش پیکربندی مطلب';
+            document.getElementById('lessonSubmitBtn').innerText = 'بروزرسانی مطلب';
+            document.getElementById('cancelLessonEditBtn').style.display = 'block';
+        }
+
+        function deleteLesson(id) {
+            if (confirm('آیا از حذف این مطلب مطمئن هستید؟')) {
+                lessons = lessons.filter(l => l.id != id);
+                db.ref('faculty_lessons').set(lessons);
+            }
+        }
+
+        function resetLessonForm() {
+            document.getElementById('targetStudent').value = '';
+            document.getElementById('lessonCategory').value = '';
+            document.getElementById('lessonTitle').value = '';
+            document.getElementById('lessonContent').value = '';
+            document.getElementById('editLessonId').value = '';
+            
+            document.getElementById('lessonFormTitle').innerText = 'ماژول انتشار محتوا و تکالیف';
+            document.getElementById('lessonSubmitBtn').innerText = 'انتشار و همگام‌سازی مطلب';
+            document.getElementById('cancelLessonEditBtn').style.display = 'none';
+        }
+
+        function updateLessonsList() {
+            const list = document.getElementById('lessonsList');
+            list.innerHTML = lessons.map(l => {
+                const sName = students.find(s => s.code === l.targetCode)?.name || 'کلاینت نامعتبر / حذف‌شده';
+                return `
+                    <div class="list-item">
+                        <div class="item-header">
+                            <div class="item-title-group">
+                                <strong>${l.title}</strong>
+                                <div class="badge-group">
+                                    <span class="badge badge-user">🎯 ${sName}</span>
+                                    <span class="badge badge-cat">📁 ${l.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-actions" style="margin-top: 12px; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                            <button class="action-btn btn-edit" onclick="editLesson(${l.id})">ویرایش پارامترها</button>
+                            <button class="action-btn btn-delete" onclick="deleteLesson(${l.id})">حذف از سرور</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
