@@ -401,12 +401,12 @@
         if(isBullishBreak) {
             priceAction = "BULLISH BOS (HH)";
             structureConfirmed = true;
-            entryLevel = ((cH + cL) / 2).toFixed(5);
+            entryLevel = pH.toFixed(5);
             trendDir = "BULL";
         } else if (isBearishBreak) {
             priceAction = "BEARISH BOS (LL)";
             structureConfirmed = true;
-            entryLevel = ((cH + cL) / 2).toFixed(5);
+            entryLevel = pH.toFixed(5);
             trendDir = "BEAR";
         } else {
             priceAction = "RANGE / SWEEP";
