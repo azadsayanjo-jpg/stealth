@@ -384,14 +384,13 @@
         const cAO = parseFloat(document.getElementById('currAO').value);
         const pDist = parseInt(document.getElementById('pivotDist').value) || 0;
 
-        if(isNaN(pH) || isNaN(cH) || isNaN(pAO) || isNaN(cAO) || isNaN(cClose)) {
+        // اضافه شدن اعتبارسنجی برای کف‌های قیمتی
+        if(isNaN(pH) || isNaN(cH) || isNaN(pL) || isNaN(cL) || isNaN(pAO) || isNaN(cAO) || isNaN(cClose)) {
             alert("اخطار سیستم: دیتا وارد شده ناقص یا نامعتبر است.");
             return;
         }
 
         let priceAction = "";
-        let dPrice = cH - pH; 
-        
         let isBullishBreak = cClose > pH;
         let isBearishBreak = cClose < pL;
         let structureConfirmed = false;
@@ -401,12 +400,12 @@
         if(isBullishBreak) {
             priceAction = "BULLISH BOS (HH)";
             structureConfirmed = true;
-            entryLevel = pL.toFixed(5);
+            entryLevel = pH.toFixed(5);
             trendDir = "BULL";
         } else if (isBearishBreak) {
             priceAction = "BEARISH BOS (LL)";
             structureConfirmed = true;
-            entryLevel = pH.toFixed(5);
+            entryLevel = pL.toFixed(5);
             trendDir = "BEAR";
         } else {
             priceAction = "RANGE / SWEEP";
@@ -414,19 +413,46 @@
             entryLevel = "NO ENTRY";
         }
 
+        // ==========================================
+        // بخش اصلاح شده: موتور تشخیص مومنتوم و واگرایی
+        // ==========================================
+        let dHigh = cH - pH; // بررسی شیب سقف‌ها
+        let dLow = cL - pL;  // بررسی شیب کف‌ها
         let dAO = cAO - pAO;
+        
         let aoAction = dAO > 0 ? "AO INC" : (dAO < 0 ? "AO DEC" : "AO EQ");
-
         let momentumStatus = "";
         let isDiv = false;
-        if (dPrice > 0 && dAO > 0) momentumStatus = "BULL CONFIRMED";
-        else if (dPrice < 0 && dAO < 0) momentumStatus = "BEAR CONFIRMED";
-        else if (dPrice > 0 && dAO < 0) { momentumStatus = "BEARISH DIV"; isDiv = true; trendDir = "BEAR"; }
-        else if (dPrice < 0 && dAO > 0) { momentumStatus = "BULLISH DIV"; isDiv = true; trendDir = "BULL"; }
-        else momentumStatus = "NEUTRAL";
 
-        let rawStrength = Math.abs(dPrice) * Math.abs(dAO);
+        // واگرایی نزولی: سقف بالاتر (dHigh > 0) + اسیلاتور پایین‌تر (dAO < 0)
+        if (dHigh > 0 && dAO < 0) { 
+            momentumStatus = "BEARISH DIV"; 
+            isDiv = true; 
+            trendDir = "BEAR"; 
+        } 
+        // واگرایی صعودی: کف پایین‌تر (dLow < 0) + اسیلاتور بالاتر (dAO > 0)
+        else if (dLow < 0 && dAO > 0) { 
+            momentumStatus = "BULLISH DIV"; 
+            isDiv = true; 
+            trendDir = "BULL"; 
+        } 
+        // تاییدیه مومنتوم صعودی
+        else if (dHigh > 0 && dAO > 0) { 
+            momentumStatus = "BULL CONFIRMED"; 
+        } 
+        // تاییدیه مومنتوم نزولی
+        else if (dLow < 0 && dAO < 0) { 
+            momentumStatus = "BEAR CONFIRMED"; 
+        } 
+        else {
+            momentumStatus = "NEUTRAL";
+        }
+
+        // محاسبه قدرت روند بر اساس بیشترین حرکت در سقف یا کف
+        let priceDeltaRaw = Math.max(Math.abs(dHigh), Math.abs(dLow));
+        let rawStrength = priceDeltaRaw * Math.abs(dAO);
         let strCategory = rawStrength > 20 ? "MAX" : (rawStrength > 10 ? "HIGH" : (rawStrength > 5 ? "MID" : "LOW"));
+        // ==========================================
 
         let s_Price = structureConfirmed ? 25 : 5;
         let s_AO = Math.min(20, (Math.abs(dAO) * 2)); 
