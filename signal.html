@@ -1,397 +1,838 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StealthCapital FX Terminal - V5.0 (Institutional)</title>
+    <title>Quantum Radar Engine | StealthCapital V6.1</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Vazirmatn:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Vazirmatn', sans-serif; 
-            background-color: #030303;
-            background-image: radial-gradient(circle at 50% 0%, #111827 0%, #030303 70%);
-            color: #e2e8f0;
+        :root {
+            --bg-base: #040409;
+            --panel-bg: rgba(11, 10, 22, 0.7);
+            --panel-border: rgba(168, 85, 247, 0.12);
+            --neon-blue: #a855f7; /* Electric Purple Core */
+            --neon-red: #ff005b;  /* Laser Rose */
+            --neon-green: #00ffd1; /* Matrix Mint */
+            --neon-amber: #ffaa00; /* Cyber Gold */
+            --glass-glow: rgba(168, 85, 247, 0.02);
         }
-        .font-digital { font-family: 'JetBrains Mono', monospace; }
         
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.08), transparent 45%),
+                linear-gradient(rgba(168, 85, 247, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            letter-spacing: -0.01em;
+        }
+        
+        .font-digital { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+        
+        /* Ultra-Premium Cyber Panel */
         .cyber-panel { 
-            background: rgba(15, 23, 42, 0.6); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            background: var(--panel-bg); 
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--panel-border); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.02);
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .cyber-input {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #334155;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s ease;
+        /* Tech Corner Accents */
+        .cyber-panel::before, .cyber-panel::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-color: rgba(168, 85, 247, 0.3);
+            border-style: solid;
+            pointer-events: none;
         }
+        .cyber-panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+        .cyber-panel::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+        
+        .panel-header-line {
+            position: absolute;
+            top: 0; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.3), transparent);
+        }
+
+        /* Institutional Luxury Inputs */
+        .cyber-input {
+            background: rgba(5, 5, 10, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+        }
+        
         .cyber-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #c084fc;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.08), inset 0 2px 4px rgba(0,0,0,0.9);
             outline: none;
         }
 
-        .transition-colors-glow { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Scanline Luxury overlay */
+        .scanline {
+            width: 100%;
+            height: 10px;
+            z-index: 9999;
+            position: fixed;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, rgba(168,85,247,0.015), transparent);
+            animation: scanline 15s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { top: -10px; }
+            100% { top: 100%; }
+        }
+
+        .glow-text-purple { text-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+        .glow-text-premium { text-shadow: 0 0 20px currentColor; }
+        .transition-state { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        /* Custom Premium Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #040409; }
+        ::-webkit-scrollbar-thumb { background: #151326; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #242042; }
+
+        /* Segmented Progress bar effect */
+        .segmented-track {
+            background-image: linear-gradient(90deg, transparent 75%, var(--bg-base) 75%);
+            background-size: 8px 100%;
+        }
+
+        /* Data Feed Gateway Spaceship Theme */
+        .data-feed-gateway {
+            border-radius: 20px;
+            border: 2px solid rgba(168, 85, 247, 0.15);
+            background: repeating-linear-gradient(-45deg, rgba(13, 11, 26, 0.85), rgba(13, 11, 26, 0.85) 5px, rgba(6, 5, 12, 0.9) 5px, rgba(6, 5, 12, 0.9) 10px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .data-feed-gateway::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            width: 80px;
+            height: 10px;
+            background: linear-gradient(90deg, #ff005b 0%, #ffaa00 50%, #00ffd1 100%);
+            border-radius: 5px;
+            box-shadow: 0 0 10px currentcolor;
+        }
+
+        /* Spaceship-like Digital Buttons */
+        .digital-spaceship-button {
+            position: relative;
+            background: #06050c;
+            color: #f1f5f9;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 10px 20px;
+            border: 2px solid rgba(168, 85, 247, 0.2);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            transition: all 0.3s ease-out;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: inset 0 0 10px rgba(168, 85, 247, 0.1);
+        }
+
+        .digital-spaceship-button i {
+            font-size: 14px;
+            transition: color 0.3s ease-out, text-shadow 0.3s ease-out;
+        }
+
+        .digital-spaceship-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.06), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        .digital-spaceship-button::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+
+        .digital-spaceship-button.swing-matrix-a {
+            clip-path: polygon(10px 0, 100% 0, 100% 70%, calc(100% - 10px) 100%, 0 100%, 0 30%);
+            border-color: rgba(255, 170, 0, 0.3);
+        }
+
+        .digital-spaceship-button.swing-matrix-b {
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 30%, 100% 100%, 10px 100%, 0 70%);
+            border-color: rgba(0, 255, 209, 0.3);
+        }
+
+        .digital-spaceship-button.swing-matrix-a i { color: #ffaa00; }
+        .digital-spaceship-button.swing-matrix-b i { color: #00ffd1; }
+
+        .digital-spaceship-button.swing-matrix-a::after { background-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .digital-spaceship-button.swing-matrix-b::after { background-color: #00ffd1; box-shadow: 0 0 10px #00ffd1; }
+
+        .digital-spaceship-button:hover {
+            box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.2), 0 0 15px rgba(168, 85, 247, 0.1);
+        }
+
+        .digital-spaceship-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .digital-spaceship-button:hover i {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+        }
     </style>
 </head>
-<body class="p-4 md:p-6 min-h-screen">
+<body class="p-4 md:p-8 min-h-screen relative">
+<div class="scanline"></div>
 
-<div class="max-w-7xl mx-auto space-y-6">
-    <header class="flex justify-between items-center pb-4 border-b border-gray-800">
-        <div class="flex items-center gap-3">
-            <div id="statusDot" class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6] transition-colors-glow"></div>
-            <h1 class="text-2xl font-black text-white tracking-wide uppercase">StealthCapital FX <span class="text-xs font-digital text-blue-400 bg-blue-900/30 px-2 py-1 rounded ml-2">Terminal V5.0</span></h1>
+<div class="max-w-7xl mx-auto space-y-6 relative z-10">
+    
+    <header class="flex flex-col sm:flex-row justify-between items-center pb-5 border-b border-purple-950/40 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="relative flex items-center justify-center">
+                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-[#a855f7] shadow-[0_0_15px_#a855f7] animate-pulse"></div>
+                <div class="absolute w-5 h-5 rounded-full border border-[#a855f7]/20 animate-ping" style="animation-duration: 2s;"></div>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-[0.15em] text-white uppercase glow-text-purple">
+                    STEALTHCAPITAL <span class="text-[10px] font-digital text-[#a855f7] bg-[#a855f7]/5 px-2.5 py-1 rounded ml-2 border border-[#a855f7]/15 backdrop-blur-md">QRE - V6.1</span>
+                </h1>
+            </div>
         </div>
-        <div class="text-xs font-digital text-gray-500 flex gap-4">
-            <span id="clock">00:00:00</span>
+        <div class="text-[11px] font-digital text-slate-500 flex items-center gap-5 tracking-wider bg-black/40 px-4 py-2 rounded-lg border border-white/[0.01]">
+            <div class="flex items-center gap-1.5">
+                <span class="w-1 h-1 rounded-full bg-purple-500"></span>
+                <span>SYS.QUANTUM: <span class="text-[#a855f7] font-bold">ONLINE</span></span>
+            </div>
+            <span class="text-slate-700">|</span>
+            <span id="clock" class="text-slate-300 font-bold tracking-normal">00:00:00:000</span>
         </div>
     </header>
 
-    <div class="cyber-panel p-5 rounded-2xl border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.15)] mx-auto text-right">
-        <div class="flex items-center justify-between mb-4 border-b border-gray-800/80 pb-3">
-            <h3 class="text-blue-400 font-bold flex items-center gap-2 text-base">
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-                سیستم دیتای متاتریدر ۵ (Institutional Swings)
-            </h3>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            <button onclick="importMt5Data('prev')" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-sm border border-amber-400/20">
-                📥 وارد کردن Swing A (منشأ حرکت)
-            </button>
-            <button onclick="importMt5Data('curr')" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-sm border border-blue-400/20">
-                📥 وارد کردن Swing B (لگ شکست)
-            </button>
-        </div>
-        <input type="text" id="quickPasteBox" placeholder="Paste MT5 Data Here (Offline Backup)..." class="w-full bg-gray-950 border border-gray-800 focus:border-blue-500/80 rounded-xl px-4 py-2.5 text-xs text-left font-digital text-blue-300 outline-none">
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <div class="cyber-panel p-5 rounded-2xl lg:col-span-4 space-y-5">
-            <div class="flex justify-between items-end border-b border-gray-800 pb-2">
-                <h2 class="text-lg font-bold text-gray-300">دیتا سنتر (Swing Data)</h2>
-                <button onclick="resetCalculator()" class="text-xs text-gray-500 hover:text-white transition">⟳ ریست</button>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div><input type="text" id="pair" placeholder="ASSET" class="cyber-input w-full p-2 rounded-lg text-sm text-center"></div>
-                <div><input type="text" id="tf" placeholder="TF" class="cyber-input w-full p-2 rounded-lg text-sm text-center"></div>
+    <div class="data-feed-gateway cyber-panel p-6 rounded-xl mx-auto flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div class="panel-header-line"></div>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="w-8 h-8 rounded-lg bg-[#a855f7]/5 border border-[#a855f7]/10 flex items-center justify-center">
+                <i class="fa-solid fa-microchip text-[#a855f7] text-xs opacity-80"></i>
             </div>
             <div>
-                <select id="priorTrend" class="cyber-input w-full p-2 rounded-lg text-sm text-center bg-gray-900">
-                    <option value="BULL">روند قبلی: صعودی (Bullish)</option>
-                    <option value="BEAR">روند قبلی: نزولی (Bearish)</option>
-                </select>
+                <span class="text-xs font-digital text-slate-200 block tracking-wider uppercase">QUANTUM CORE MATRIX GATEWAY</span>
+                <span class="text-[10px] text-slate-500 block">Synchronized terminal clipboard vector buffer execution</span>
+            </div>
+        </div>
+        <div class="flex gap-2.5 w-full sm:w-auto">
+            <button onclick="importMt5Data('prev')" class="digital-spaceship-button swing-matrix-a flex-1 sm:flex-none py-2.5 px-5 rounded-lg border border-slate-900 transition-state text-[11px] flex items-center justify-center gap-2 uppercase tracking-wider shadow-lg">
+                <i class="fa-solid fa-satellite-dish text-[10px]"></i> SWING MATRIX A
+            </button>
+            <button onclick="importMt5Data('curr')" class="digital-spaceship-button swing-matrix-b flex-1 sm:flex-none py-2.5 px-5 rounded-lg border border-slate-900 transition-state text-[11px] flex items-center justify-center gap-2 uppercase tracking-wider shadow-lg">
+                <i class="fa-solid fa-satellite-dish text-[10px]"></i> SWING MATRIX B
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        <div class="cyber-panel p-6 rounded-xl xl:col-span-4 space-y-5 flex flex-col justify-between">
+            <div class="panel-header-line"></div>
+            <div class="space-y-5">
+                <div class="flex justify-between items-center border-b border-purple-950/20 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-gears text-slate-500 text-xs"></i>
+                        <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-[0.15em]">Terminal Variables</h2>
+                    </div>
+                    <button onclick="resetSystem()" class="text-[10px] font-digital text-slate-500 hover:text-[#a855f7] transition-state flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-slate-900 hover:border-purple-950/30">
+                        <i class="fa-solid fa-terminal text-[9px]"></i> PURGE
+                    </button>
+                </div>
+
+                <div class="space-y-3 bg-black/50 p-4 rounded-xl border border-purple-950/30 relative overflow-hidden">
+                    <label class="text-[10px] text-slate-400 font-digital uppercase tracking-widest flex justify-between items-center">
+                        <span class="flex items-center gap-1.5"><span class="w-1 h-1 bg-amber-500 rounded-full"></span> 1. Price Structure</span>
+                        <span class="text-slate-600 bg-white/[0.01] px-1.5 py-0.5 rounded text-[9px]">SWING BOUNDS</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-600 font-digital pl-1">A HIGH</span>
+                            <input type="number" id="prevHigh" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-600 font-digital pl-1">B HIGH</span>
+                            <input type="number" id="currHigh" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-600 font-digital pl-1">A LOW</span>
+                            <input type="number" id="prevLow" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-600 font-digital pl-1">B LOW</span>
+                            <input type="number" id="currLow" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                        </div>
+                    </div>
+                    <div class="pt-1">
+                        <span class="text-[9px] text-slate-600 font-digital pl-1">BREAKOUT CANDLE CLOSE</span>
+                        <input type="number" id="currClose" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs border-dashed border-purple-950/40">
+                    </div>
+                </div>
+
+                <div class="space-y-3 bg-black/50 p-4 rounded-xl border border-purple-950/30">
+                    <label class="text-[10px] text-slate-400 font-digital uppercase tracking-widest flex justify-between items-center">
+                        <span class="flex items-center gap-1.5"><span class="w-1 h-1 bg-[#a855f7] rounded-full"></span> 2. Momentum Array (AO)</span>
+                        <span class="text-slate-600 bg-white/[0.01] px-1.5 py-0.5 rounded text-[9px]">SERIES MATRICES</span>
+                    </label>
+                    <div class="space-y-2">
+                        <input type="text" id="prevAOArr" placeholder="Swing A Series (e.g. 0.5, 0.8, -0.2)" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs placeholder-slate-700">
+                        <input type="text" id="currAOArr" placeholder="Swing B Series (e.g. -0.1, 0.4, 0.9)" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs placeholder-slate-700">
+                    </div>
+                    <div class="pt-1">
+                        <span class="text-[9px] text-slate-600 font-digital pl-1">TIME DISTANCE AXIS (BARS)</span>
+                        <input type="number" id="pivotDist" placeholder="0" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                    </div>
+                </div>
             </div>
 
-            <div class="space-y-3 bg-black/30 p-3 rounded-xl border border-gray-800">
-                <label class="text-xs text-blue-400 font-bold uppercase tracking-wider flex items-center gap-2">Price Structure</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="prevHigh" placeholder="Swing A High" class="cyber-input p-2 rounded text-center text-sm">
-                    <input type="number" id="currHigh" placeholder="Swing B High" class="cyber-input p-2 rounded text-center text-sm">
-                    <input type="number" id="prevLow" placeholder="Swing A Low" class="cyber-input p-2 rounded text-center text-sm">
-                    <input type="number" id="currLow" placeholder="Swing B Low" class="cyber-input p-2 rounded text-center text-sm">
-                </div>
-                <input type="number" id="currClose" placeholder="Breakout Candle Close" class="cyber-input w-full p-2 rounded text-center text-sm border-blue-500/30 focus:border-blue-500">
-            </div>
-
-            <div class="space-y-3 bg-black/30 p-3 rounded-xl border border-gray-800">
-                <label class="text-xs text-purple-400 font-bold uppercase tracking-wider flex items-center gap-2">Momentum Engine</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="prevAO" placeholder="Swing A AO" class="cyber-input p-2 rounded text-center text-sm">
-                    <input type="number" id="currAO" placeholder="Swing B AO" class="cyber-input p-2 rounded text-center text-sm">
-                </div>
-                <div class="flex-1">
-                    <input type="number" id="pivotDist" placeholder="Distance Between Swings (Time)" class="cyber-input w-full p-2 rounded text-center text-sm">
-                </div>
-            </div>
-
-            <button onclick="runEngine()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.4)] uppercase tracking-widest text-sm">
-                Process SMC Logic
+            <button onclick="executeEngines()" class="w-full relative mt-4 overflow-hidden bg-gradient-to-r from-[#a855f7]/10 to-[#a855f7]/5 hover:from-[#a855f7]/20 hover:to-[#a855f7]/10 text-[#a855f7] border border-[#a855f7]/20 font-digital font-bold py-3.5 rounded-xl transition-state text-xs tracking-[0.25em] shadow-[0_0_30px_rgba(168,85,247,0.03)] hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] uppercase">
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bolt-lightning text-[10px]"></i> CALCULATE INTEL MATRICES
+                </span>
             </button>
         </div>
 
-        <div class="cyber-panel p-6 rounded-2xl lg:col-span-8 flex flex-col justify-between relative transition-colors-glow border-t-4 border-t-gray-700" id="mainDashboard">
+        <div class="cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-2 border-t-purple-950/40 shadow-2xl" id="mainDashboard">
+            <div class="panel-header-line"></div>
             
-            <div id="overlay" class="absolute inset-0 bg-[#030303]/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center transition-all duration-500">
-                <p class="text-gray-500 font-digital tracking-widest uppercase">Awaiting Swing Data</p>
+            <div id="overlay" class="absolute inset-0 bg-[#05050b]/95 backdrop-blur-xl z-20 flex flex-col items-center justify-center transition-state rounded-xl">
+                <div class="relative mb-6 flex items-center justify-center">
+                    <i class="fa-solid fa-compact-disc text-3xl text-[#a855f7]/20 animate-spin" style="animation-duration: 3s;"></i>
+                    <i class="fa-solid fa-circle-nodes absolute text-sm text-[#a855f7]/60"></i>
+                </div>
+                <p class="text-[#a855f7]/60 font-digital tracking-[0.35em] uppercase text-[11px] glow-text-purple">System Standby // Awaiting Matrix Input</p>
+                <p class="text-slate-600 text-[10px] mt-1">Provide algorithmic core vectors from MT5 to compute</p>
             </div>
 
-            <div class="z-10 flex flex-col h-full space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-center bg-black/40 p-4 rounded-xl border border-gray-800 transition-colors-glow" id="actionBar">
-                    <div class="text-center md:text-right mb-4 md:mb-0">
-                        <p class="text-xs text-gray-500 font-digital uppercase tracking-widest mb-1">Algorithmic Directive</p>
-                        <h2 class="text-3xl font-black text-white transition-colors-glow" id="actionCommand">WAITING</h2>
-                        <p id="actionSub" class="text-sm text-gray-400 mt-1">---</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="block text-[10px] text-gray-500 font-digital uppercase">Confidence Score</span>
-                        <div class="flex items-baseline gap-1">
-                            <span id="finalScoreTotal" class="text-5xl font-digital font-bold text-gray-300 transition-colors-glow">00</span>
-                            <span class="text-gray-600 font-digital">/100</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="entryBox" class="p-4 rounded-xl border border-gray-800 bg-gray-900/50 hidden transition-colors-glow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-                    <div class="col-span-1 md:col-span-2 lg:col-span-4 border-b border-gray-800 pb-2 mb-2">
-                        <span class="block text-[10px] uppercase tracking-widest opacity-60 font-digital text-blue-400">Institutional Context</span>
-                        <strong class="text-xl text-white transition-colors-glow block" id="structureStatusText">---</strong>
+            <div class="z-10 flex flex-col h-full space-y-6 justify-between">
+                
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center bg-black/40 p-5 rounded-xl border border-purple-950/20 transition-state gap-4" id="actionBar">
+                    <div class="text-left">
+                        <p class="text-[9px] text-slate-500 font-digital uppercase tracking-[0.2em] mb-1.5 flex items-center gap-1">
+                            <span class="w-1 h-1 rounded-full bg-[#a855f7]"></span> System Operational Directive
+                        </p>
+                        <h2 class="text-2xl md:text-3xl font-black text-white transition-state tracking-wide font-digital" id="actionCommand">STANDBY</h2>
+                        <p id="actionSub" class="text-xs text-slate-400 mt-1 font-medium">Core intelligence unit idle. Awaiting quantitative stream arrays.</p>
                     </div>
                     
-                    <div class="bg-black/60 p-3 rounded-lg border border-gray-700/50">
-                        <span class="block text-[10px] opacity-60 font-digital text-amber-400">Main Entry (OB/Breaker)</span>
-                        <strong class="text-lg font-digital text-white" id="fixedEntryLevel">0.000</strong>
-                    </div>
-                    <div class="bg-black/60 p-3 rounded-lg border border-gray-700/50">
-                        <span class="block text-[10px] opacity-60 font-digital text-blue-300">OTE Zone (FVG Focus)</span>
-                        <strong class="text-lg font-digital text-white" id="optimalEntryLevel">0.000</strong>
-                    </div>
-                    <div class="bg-red-900/20 p-3 rounded-lg border border-red-900/50">
-                        <span class="block text-[10px] opacity-60 font-digital text-red-400">Stop Loss (Invalidation)</span>
-                        <strong class="text-lg font-digital text-red-300" id="slLevel">0.000</strong>
-                    </div>
-                    <div class="bg-green-900/20 p-3 rounded-lg border border-green-900/50">
-                        <span class="block text-[10px] opacity-60 font-digital text-green-400">Take Profit 1 (1:2 R/R)</span>
-                        <strong class="text-lg font-digital text-green-300" id="tpLevel">0.000</strong>
+                    <div class="flex gap-6 justify-between md:justify-end border-t md:border-t-0 border-purple-950/20 pt-4 md:pt-0 items-center">
+                        <div class="text-right">
+                            <span class="block text-[9px] text-slate-500 font-digital uppercase tracking-wider mb-1">State Machine</span>
+                            <span id="momentumStateOut" class="text-xs font-digital font-bold text-slate-300 bg-white/[0.01] border border-white/[0.03] px-2.5 py-1 rounded">NEUTRAL</span>
+                        </div>
+                        <div class="text-right border-l border-purple-950/30 pl-6">
+                            <span class="block text-[9px] text-slate-500 font-digital uppercase tracking-wider mb-1">CONFIDENCE MATRIX</span>
+                            <div class="flex items-baseline gap-1 justify-end">
+                                <span id="finalScoreTotal" class="text-3xl md:text-4xl font-digital font-extrabold text-slate-300 transition-state tracking-tighter">00</span>
+                                <span class="text-slate-600 font-digital text-xs">/100</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <div class="bg-black/30 p-3 rounded-lg border border-gray-800/50">
-                        <span class="text-[10px] text-gray-500 uppercase font-digital block">Liquidity</span>
-                        <strong id="outPrice" class="text-gray-200 font-digital text-xs">---</strong>
+                <div id="entryBox" class="p-5 rounded-xl border border-purple-950/30 bg-black/20 hidden transition-state grid grid-cols-1 md:grid-cols-3 gap-4 items-center relative overflow-hidden">
+                    <div class="col-span-1 md:col-span-3 border-b border-purple-950/20 pb-3 flex justify-between items-center">
+                        <div>
+                            <span class="block text-[9px] uppercase tracking-[0.2em] font-digital text-slate-500">Structural Framework Context</span>
+                            <strong class="text-sm text-white transition-state block font-semibold mt-0.5" id="structureStatusText">---</strong>
+                        </div>
+                        <div class="text-right bg-amber-500/5 px-2.5 py-1 rounded border border-amber-500/10">
+                            <span class="block text-[8px] uppercase tracking-wider font-digital text-amber-500/70">State Transition Zone</span>
+                            <strong class="text-[10px] text-amber-400 transition-state block font-digital" id="adaptiveResetText">ADAPTIVE RESET ACTIVE</strong>
+                        </div>
                     </div>
-                    <div class="bg-black/30 p-3 rounded-lg border border-gray-800/50">
-                        <span class="text-[10px] text-gray-500 uppercase font-digital block">AO Slope & Cross</span>
-                        <strong id="outAO" class="text-gray-200 font-digital text-xs">---</strong>
+                    
+                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-[#00ffd1]/30 transition-state">
+                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#00ffd1]"></div>
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">BLOCK ENTRY RATIO</span>
+                        <strong class="text-xl font-digital text-[#00ffd1] block mt-1.5 glow-text-premium" id="fixedEntryLevel">0.0000</strong>
                     </div>
-                    <div class="bg-black/30 p-3 rounded-lg border border-gray-800/50">
-                        <span class="text-[10px] text-gray-500 uppercase font-digital block">Swing Divergence</span>
-                        <strong id="outMom" class="text-gray-200 font-digital text-xs">---</strong>
+                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-[#ff005b]/30 transition-state">
+                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#ff005b]"></div>
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">INVALIDATION VECTOR (SL)</span>
+                        <strong class="text-xl font-digital text-[#ff005b] block mt-1.5 glow-text-premium" id="slLevel">0.0000</strong>
                     </div>
-                    <div class="bg-black/30 p-3 rounded-lg border border-gray-800/50">
-                        <span class="text-[10px] text-gray-500 uppercase font-digital block">Leg Volatility</span>
-                        <strong id="outStr" class="text-gray-200 font-digital text-xs">---</strong>
+                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-emerald-500/30 transition-state">
+                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#00ff66]"></div>
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">EXPANSION TARGET (TP1)</span>
+                        <strong class="text-xl font-digital text-[#00ff66] block mt-1.5 glow-text-premium" id="tpLevel">0.0000</strong>
                     </div>
                 </div>
 
-                <div class="flex-1 bg-black/20 rounded-xl p-4 border border-gray-800/50 space-y-4">
-                    <h3 class="text-xs text-gray-500 font-digital uppercase tracking-widest mb-2 border-b border-gray-800/50 pb-2">Dynamic Confidence Metrics</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                        <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">LIQUIDITY MATRIX</span>
+                        <strong id="outPrice" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                    </div>
+                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                        <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">MOMENTUM PATTERN</span>
+                        <strong id="outAO" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                    </div>
+                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                        <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">CONVERGENCE SHIFT</span>
+                        <strong id="outMom" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                    </div>
+                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                        <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">VOLUMETRIC RATIO</span>
+                        <strong id="outStr" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                    </div>
+                </div>
+
+                <div class="bg-black/30 rounded-xl p-5 border border-purple-950/20 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
                         <div>
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400">Structure Quality</span><span id="scorePrice" class="font-digital text-white">0</span></div>
-                            <div class="w-full bg-gray-900 rounded-full h-1"><div id="barPrice" class="bg-blue-500 h-1 rounded-full transition-all duration-700" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Structural Quality Edge</span><span id="scorePrice" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barPrice" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400">Momentum Flow (AO)</span><span id="scoreAO" class="font-digital text-white">0</span></div>
-                            <div class="w-full bg-gray-900 rounded-full h-1"><div id="barAO" class="bg-blue-500 h-1 rounded-full transition-all duration-700" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Momentum Power Index</span><span id="scoreAO" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barAO" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400">Divergence Power</span><span id="scoreDiv" class="font-digital text-white">0</span></div>
-                            <div class="w-full bg-gray-900 rounded-full h-1"><div id="barDiv" class="bg-blue-500 h-1 rounded-full transition-all duration-700" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Divergence Sync Engine</span><span id="scoreDiv" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barDiv" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-400">Time/Space Sync</span><span id="scoreDist" class="font-digital text-white">0</span></div>
-                            <div class="w-full bg-gray-900 rounded-full h-1"><div id="barDist" class="bg-blue-500 h-1 rounded-full transition-all duration-700" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Exhaustion Axis Range</span><span id="scoreDist" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barDist" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="cyber-panel p-6 rounded-xl mt-6 transition-state">
+        <div class="panel-header-line"></div>
+        <div class="flex justify-between items-center border-b border-purple-950/40 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-database text-slate-500 text-xs"></i>
+                <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-[0.15em]">Signal Intel History</h2>
+            </div>
+            <button onclick="clearHistory()" class="text-[10px] font-digital text-slate-500 hover:text-[#ff005b] transition-state flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-slate-900 hover:border-[#ff005b]/30">
+                <i class="fa-solid fa-trash-can text-[9px]"></i> PURGE DATABASE
+            </button>
+        </div>
+        
+        <div id="historyContainer" class="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+            </div>
+    </div>
+
 </div>
 
 <script>
+    // High-precision Millisecond Clock
     setInterval(() => {
         const d = new Date();
-        document.getElementById('clock').innerText = d.toLocaleTimeString('en-US', {hour12: false});
-    }, 1000);
+        document.getElementById('clock').innerText = 
+            d.toLocaleTimeString('en-US', {hour12: false}) + ':' + d.getMilliseconds().toString().padStart(3, '0');
+    }, 45);
 
-    function applyTheme(type) {
+    // Initial load for history
+    window.onload = () => {
+        renderHistory();
+    };
+
+    // MRE Core Logic Processing Subsystems - V2 Wave Engine
+    class MomentumEngine {
+        static parseSeries(str) {
+            if(!str) return [];
+            return str.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+        }
+
+        static calcSmoothedState(arr) {
+            if (arr.length === 0) return 0;
+            if (arr.length <= 3) return arr.reduce((a, b) => a + b, 0) / arr.length;
+            let smaSeed = (arr[0] + arr[1] + arr[2]) / 3;
+            let multiplier = 2 / (arr.length + 1);
+            let ema = smaSeed;
+            for(let i = 3; i < arr.length; i++) ema = (arr[i] - ema) * multiplier + ema;
+            return ema;
+        }
+
+        static analyzeWave(arr) {
+            if (arr.length === 0) return null;
+            let max = -Infinity, min = Infinity;
+            let energy = 0;
+            let zeroCrosses = 0;
+            let aboveZero = 0, belowZero = 0;
+            let smoothed = this.calcSmoothedState(arr);
+            
+            for (let i = 0; i < arr.length; i++) {
+                let v = arr[i];
+                if (v > max) max = v;
+                if (v < min) min = v;
+                energy += Math.abs(v);
+                
+                if (v > 0) aboveZero++;
+                if (v < 0) belowZero++;
+                
+                if (i > 0 && ((arr[i-1] > 0 && v < 0) || (arr[i-1] < 0 && v > 0))) {
+                    zeroCrosses++;
+                }
+            }
+            
+            let peak = (aboveZero > belowZero) ? max : min;
+            let length = arr.length;
+            let lastVal = arr[arr.length - 1];
+            
+            let slope = 0, acceleration = 0;
+            if (length >= 3) {
+                let delta1 = arr[length-2] - arr[length-3];
+                let delta2 = arr[length-1] - arr[length-2];
+                slope = delta2;
+                acceleration = delta2 - delta1;
+            } else if (length >= 2) {
+                slope = arr[length-1] - arr[length-2];
+            }
+            
+            return { max, min, peak, energy, zeroCrosses, aboveZero, belowZero, lastVal, slope, acceleration, smoothed, arr };
+        }
+
+        static detectPattern(wave) {
+            if (!wave || wave.arr.length < 3) return "STANDARD";
+            const arr = wave.arr;
+            const len = arr.length;
+            
+            if (arr[len-1] > 0 && arr[len-2] < arr[len-3] && arr[len-1] > arr[len-2]) return "SAUCER BULL";
+            if (arr[len-1] < 0 && arr[len-2] > arr[len-3] && arr[len-1] < arr[len-2]) return "SAUCER BEAR";
+            
+            if (len >= 5) {
+                let isBelow = wave.aboveZero === 0;
+                let isAbove = wave.belowZero === 0;
+                if (isBelow && arr[len-1] > arr[len-2] && arr[len-3] < arr[len-4]) return "TWIN PEAKS BULL";
+                if (isAbove && arr[len-1] < arr[len-2] && arr[len-3] > arr[len-4]) return "TWIN PEAKS BEAR";
+            }
+            return "STANDARD";
+        }
+
+        static determineState(waveA, waveB) {
+            let state = "NEUTRAL";
+            let v = waveB.lastVal;
+            let acc = waveB.acceleration;
+            let slope = waveB.slope;
+            
+            if (v > 0) {
+                if (slope > 0 && acc > 0) state = "BULL ACCELERATION";
+                else if (slope > 0 && acc <= 0) state = "BULL CONTINUATION";
+                else if (slope < 0 && acc < 0) state = "BULL DECELERATION";
+                else state = "BULL REVERSAL CANDIDATE";
+            } else if (v < 0) {
+                if (slope < 0 && acc < 0) state = "BEAR ACCELERATION";
+                else if (slope < 0 && acc >= 0) state = "BEAR CONTINUATION";
+                else if (slope > 0 && acc > 0) state = "BEAR DECELERATION";
+                else state = "BEAR REVERSAL CANDIDATE";
+            }
+
+            if (waveB.energy < (waveA.energy * 0.3) && Math.abs(v) < 0.001) state = "COMPRESSION";
+            if (waveB.energy > (waveA.energy * 2)) state = "EXPANSION";
+            
+            return state;
+        }
+
+        static analyze(arrA, arrB) {
+            const waveA = this.analyzeWave(arrA);
+            const waveB = this.analyzeWave(arrB);
+            
+            if (!waveA || !waveB) {
+                return { waveA: null, waveB: null, lastA: 0, lastB: 0, peakA: 0, peakB: 0, pattern: "N/A", state: "ERR", cross: false, powerRatio: 0, exhaustion: false };
+            }
+            
+            const pattern = this.detectPattern(waveB);
+            const state = this.determineState(waveA, waveB);
+            
+            let denom = Math.max(Math.abs(waveA.energy), 0.0001);
+            let powerRatio = waveB.energy / denom;
+            
+            return {
+                waveA, waveB,
+                lastA: waveA.lastVal, lastB: waveB.lastVal,
+                peakA: waveA.peak, peakB: waveB.peak,
+                pattern, state, 
+                cross: waveB.zeroCrosses > 0,
+                powerRatio,
+                exhaustion: state.includes("DECELERATION") || state.includes("REVERSAL")
+            };
+        }
+    }
+
+    class StructureEngine {
+        static analyze(pH, pL, cH, cL, cClose) {
+            let swingBase = Math.max(Math.abs(pH - pL), 0.000001);
+            let currSwingBase = Math.max(Math.abs(cH - cL), 0.000001);
+            
+            let status = "RANGE BOUND";
+            let trend = "NEUTRAL";
+            let sweep = false;
+            let breakConfirmed = false;
+
+            if (cH > pH) {
+                if (cClose > pH) { breakConfirmed = true; status = "BOS / CHOCH [BULL]"; trend = "BULL"; }
+                else { sweep = true; status = "BSL LIQUIDITY SWEEP"; trend = "BEAR"; }
+            } else if (cL < pL) {
+                if (cClose < pL) { breakConfirmed = true; status = "BOS / CHOCH [BEAR]"; trend = "BEAR"; }
+                else { sweep = true; status = "SSL LIQUIDITY SWEEP"; trend = "BULL"; }
+            }
+
+            return { status, trend, sweep, breakConfirmed, swingBase, currSwingBase, pH, pL, cH, cL };
+        }
+    }
+
+    class DecisionEngine {
+        static evaluate(struct, mom) {
+            let s_Price = 0, s_AO = 0, s_Div = 0, s_Exh = 0;
+            let isDiv = false, isHiddenDiv = false;
+
+            if (struct.cH > struct.pH && mom.peakB < mom.peakA) isDiv = true; 
+            if (struct.cL < struct.pL && mom.peakB > mom.peakA) isDiv = true; 
+            
+            if (struct.cL > struct.pL && mom.peakB < mom.peakA && struct.trend === "BULL") isHiddenDiv = true; 
+            if (struct.cH < struct.pH && mom.peakB > mom.peakA && struct.trend === "BEAR") isHiddenDiv = true;
+
+            s_Price = struct.sweep ? 25 : (struct.breakConfirmed ? 20 : 0);
+            
+            s_AO = Math.min(25, mom.powerRatio * 15);
+            if (mom.pattern.includes("SAUCER") || mom.pattern.includes("TWIN PEAKS")) s_AO += 5;
+
+            s_Div = isDiv ? 25 : (isHiddenDiv ? 20 : 5);
+            s_Exh = mom.exhaustion ? 25 : 10;
+            if (mom.cross) s_Exh += 5;
+
+            let total = Math.min(100, Math.round(s_Price + s_AO + s_Div + s_Exh));
+            return { total, scores: [s_Price, s_AO, s_Div, s_Exh], isDiv, isHiddenDiv };
+        }
+    }
+
+    // --- History Database Functions ---
+    function saveSignalToHistory(data) {
+        let history = JSON.parse(localStorage.getItem('qre_history')) || [];
+        history.unshift(data); // Add to the top of the array
+        if(history.length > 50) history.pop(); // Max 50 items memory limit
+        localStorage.setItem('qre_history', JSON.stringify(history));
+        renderHistory();
+    }
+
+    function clearHistory() {
+        if(confirm("SYSTEM WARNING: Are you sure you want to purge all historical intel matrices? This action is irreversible.")) {
+            localStorage.removeItem('qre_history');
+            renderHistory();
+        }
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyContainer');
+        let history = JSON.parse(localStorage.getItem('qre_history')) || [];
+        
+        if (history.length === 0) {
+            container.innerHTML = '<div class="text-center p-6 text-slate-600 font-digital text-[10px] uppercase tracking-widest border border-dashed border-purple-950/30 rounded-lg">Database Empty // No Historical Intel Found</div>';
+            return;
+        }
+
+        container.innerHTML = history.map(item => {
+            let colorCls = item.signal === 'LONG' ? 'text-[#00ffd1]' : (item.signal === 'SHORT' ? 'text-[#ff005b]' : 'text-[#a855f7]');
+            let borderCls = item.signal === 'LONG' ? 'border-l-[#00ffd1]' : (item.signal === 'SHORT' ? 'border-l-[#ff005b]' : 'border-l-[#a855f7]');
+            
+            return `
+            <div class="bg-black/40 p-4 rounded-lg border border-purple-950/20 border-l-2 ${borderCls} flex flex-col md:flex-row justify-between items-center gap-4 hover:bg-black/60 transition-state shadow-sm">
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="text-center bg-slate-950 px-3 py-2 rounded border border-white/[0.02] min-w-[70px]">
+                        <span class="block text-xl font-digital font-bold ${colorCls}">${item.score}</span>
+                        <span class="block text-[8px] text-slate-600 font-digital mt-0.5">SCORE</span>
+                    </div>
+                    <div>
+                        <span class="block text-[9px] text-slate-500 font-digital mb-0.5 flex items-center gap-1.5"><i class="fa-regular fa-clock text-[8px]"></i> ${item.timestamp}</span>
+                        <strong class="text-xs font-digital uppercase ${colorCls} tracking-wider">${item.directive}</strong>
+                        <span class="block text-[10px] text-slate-400 mt-1 truncate w-[200px] sm:w-[300px]">${item.status} | ${item.pattern}</span>
+                    </div>
+                </div>
+                <div class="flex gap-3 w-full md:w-auto bg-slate-950/80 p-2.5 rounded-lg border border-white/[0.03] justify-between md:justify-end font-digital text-[10px]">
+                    <div class="text-center px-2 border-r border-slate-800">
+                        <span class="block text-slate-500 mb-1">ENTRY</span>
+                        <span class="text-slate-200">${item.entry !== "0.0000" ? item.entry : "N/A"}</span>
+                    </div>
+                    <div class="text-center px-2 border-r border-slate-800">
+                        <span class="block text-slate-500 mb-1">INV (SL)</span>
+                        <span class="text-slate-200">${item.sl !== "0.0000" ? item.sl : "N/A"}</span>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="block text-slate-500 mb-1">TARGET</span>
+                        <span class="text-slate-200">${item.tp !== "0.0000" ? item.tp : "N/A"}</span>
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+    // ------------------------------------------
+
+    function applyTheme(stateWord) {
         const d = document.getElementById('mainDashboard');
         const a = document.getElementById('actionBar');
         const s = document.getElementById('finalScoreTotal');
         const c = document.getElementById('actionCommand');
+        const dot = document.getElementById('statusDot');
         const bars = ['Price', 'AO', 'Div', 'Dist'].map(id => document.getElementById(`bar${id}`));
         
-        d.className = "cyber-panel p-6 rounded-2xl lg:col-span-8 flex flex-col justify-between relative transition-colors-glow border-t-4";
-        a.className = "flex flex-col md:flex-row justify-between items-center p-4 rounded-xl border transition-colors-glow";
-        
         let conf = {};
-        if (type.includes('BUY')) conf = { b: 'border-t-green-500', bg: 'bg-green-900/20', c: 'text-green-400', bar: 'bg-green-500' };
-        else if (type.includes('SELL')) conf = { b: 'border-t-red-500', bg: 'bg-red-900/20', c: 'text-red-400', bar: 'bg-red-500' };
-        else conf = { b: 'border-t-yellow-500', bg: 'bg-yellow-900/20', c: 'text-yellow-400', bar: 'bg-yellow-500' };
+        if (stateWord === 'LONG') {
+            conf = { b: 'border-t-[#00ffd1]', bg: 'bg-[#00ffd1]/5', c: 'text-[#00ffd1]', bar: 'bg-[#00ffd1]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(0,255,209,0.06)]', border: 'rgba(0, 255, 209, 0.15)' };
+        } else if (stateWord === 'SHORT') {
+            conf = { b: 'border-t-[#ff005b]', bg: 'bg-[#ff005b]/5', c: 'text-[#ff005b]', bar: 'bg-[#ff005b]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(255,0,91,0.06)]', border: 'rgba(255, 0, 91, 0.15)' };
+        } else {
+            conf = { b: 'border-t-[#a855f7]', bg: 'bg-[#a855f7]/5', c: 'text-[#a855f7]', bar: 'bg-[#a855f7]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(168,85,247,0.06)]', border: 'rgba(168, 85, 247, 0.15)' };
+        }
 
-        d.classList.add(conf.b); a.classList.add(conf.bg); c.className = `text-3xl font-black transition-colors-glow ${conf.c}`;
-        s.className = `text-5xl font-digital font-bold transition-colors-glow ${conf.c}`;
-        document.getElementById('statusDot').className = `w-3 h-3 rounded-full transition-colors-glow ${conf.bar}`;
-        bars.forEach(b => b.className = `h-1 rounded-full transition-all duration-1000 ${conf.bar}`);
+        d.className = `cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-2 ${conf.b} ${conf.shad}`;
+        d.style.borderColor = conf.border;
+        a.className = `flex flex-col md:flex-row justify-between items-stretch md:items-center p-5 rounded-xl border border-purple-950/20 transition-state ${conf.bg}`;
+        c.className = `text-2xl md:text-3xl font-black transition-state tracking-wide font-digital ${conf.c}`;
+        s.className = `text-3xl md:text-4xl font-digital font-extrabold transition-state ${conf.c}`;
+        dot.className = `w-2.5 h-2.5 rounded-full animate-pulse transition-state ${conf.bar} shadow-[0_0_15px_${conf.c.replace('text-','')}]`;
         
+        bars.forEach(b => b.className = `h-full rounded-full transition-state ${conf.bar} segmented-track`);
         return conf.c;
     }
 
-    function resetCalculator() {
-        document.querySelectorAll('input:not(#quickPasteBox)').forEach(i => i.value = '');
+    function resetSystem() {
+        document.querySelectorAll('.cyber-input').forEach(i => i.value = '');
         document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
         document.getElementById('entryBox').classList.add('hidden');
         ['Price', 'AO', 'Div', 'Dist'].forEach(id => {
             document.getElementById(`bar${id}`).style.width = '0%';
             document.getElementById(`score${id}`).innerText = `0`;
         });
+        document.getElementById('actionCommand').innerText = "STANDBY";
+        document.getElementById('actionSub').innerText = "System core matrix flushed. Awaiting fresh terminal bindings.";
+        document.getElementById('mainDashboard').style.borderColor = 'rgba(168, 85, 247, 0.12)';
     }
 
-    function runEngine() {
-        // خواندن متغیرها
-        const priorTrend = document.getElementById('priorTrend').value;
+    function executeEngines() {
         const pH = parseFloat(document.getElementById('prevHigh').value);
         const pL = parseFloat(document.getElementById('prevLow').value);
         const cH = parseFloat(document.getElementById('currHigh').value);
         const cL = parseFloat(document.getElementById('currLow').value);
         const cClose = parseFloat(document.getElementById('currClose').value);
-        const pAO = parseFloat(document.getElementById('prevAO').value);
-        const cAO = parseFloat(document.getElementById('currAO').value);
-        const pDist = parseInt(document.getElementById('pivotDist').value) || 0;
-
-        if(isNaN(pH) || isNaN(cH) || isNaN(pL) || isNaN(cL) || isNaN(pAO) || isNaN(cAO) || isNaN(cClose)) {
-            alert("System Error: دیتای وارد شده برای تحلیل نهادی ناقص است."); return;
-        }
-
-        // جلوگیری از خطای تقسیم بر صفر
-        let swingBase = Math.max(Math.abs(pH - pL), 0.000001);
-        let currSwingBase = Math.max(Math.abs(cH - cL), 0.000001);
-
-        // متغیرهای SMC
-        let structureStatus = "RANGE";
-        let signalTrend = "NEUTRAL";
-        let isConfirmedBreak = false;
-        let isSweep = false;
-
-        // منطق تشخیص ساختار (Sweep / BOS / CHoCH)
-        if (cH > pH) { // سقف قبلی زده شده
-            if (cClose > pH) { // کلوز بالای سقف
-                isConfirmedBreak = true;
-                structureStatus = priorTrend === "BULL" ? "BULLISH BOS (Continuation)" : "BULLISH CHoCH (Reversal)";
-                signalTrend = "BULL";
-            } else { // شدو زده ولی زیر سقف بسته شده
-                isSweep = true;
-                structureStatus = "Buy-Side Liquidity SWEEP (Turtle Soup)";
-                signalTrend = "BEAR"; // انتظار ریزش
-            }
-        } 
-        else if (cL < pL) { // کف قبلی زده شده
-            if (cClose < pL) { // کلوز زیر کف
-                isConfirmedBreak = true;
-                structureStatus = priorTrend === "BEAR" ? "BEARISH BOS (Continuation)" : "BEARISH CHoCH (Reversal)";
-                signalTrend = "BEAR";
-            } else { // شدو زده ولی بالای کف بسته شده
-                isSweep = true;
-                structureStatus = "Sell-Side Liquidity SWEEP (Turtle Soup)";
-                signalTrend = "BULL"; // انتظار صعود
-            }
-        }
-
-        // تحلیل مومنتوم داینامیک
-        let aoCross = (pAO > 0 && cAO < 0) || (pAO < 0 && cAO > 0) ? "ZERO CROSS" : "SAME SIDE";
-        let aoSlope = cAO > pAO ? "INC" : "DEC";
-        let aoStatus = `${aoSlope} | ${aoCross}`;
         
-        let dHigh = cH - pH; 
-        let dLow = cL - pL;  
-        let isDiv = false;
+        const arrA = MomentumEngine.parseSeries(document.getElementById('prevAOArr').value);
+        const arrB = MomentumEngine.parseSeries(document.getElementById('currAOArr').value);
 
-        // واگرایی بین دو Swing واقعی
-        if (dHigh > 0 && cAO < pAO) isDiv = true; // واگرایی منفی در سقف‌ها
-        if (dLow < 0 && cAO > pAO) isDiv = true;  // واگرایی مثبت در کف‌ها
+        if(isNaN(pH) || isNaN(cH) || isNaN(cClose) || arrA.length === 0 || arrB.length === 0) {
+            alert("MRE.FATAL: Terminal data buffer corrupted or empty."); return;
+        }
 
-        // امتیازدهی داینامیک
-        let s_Price = isSweep ? 25 : (isConfirmedBreak ? Math.min(25, (Math.abs(cClose - (signalTrend==="BULL"?pH:pL)) / swingBase) * 50) : 0);
-        let s_AO = Math.min(25, (Math.abs(cAO) / Math.max(Math.abs(pAO), 0.001)) * 10);
-        let s_Div = isDiv ? 25 : (isSweep ? 15 : 5);
-        let s_Dist = pDist > 5 ? 25 : (pDist * 4); // زمان بین سوینگ‌ها
-        let totalScore = Math.min(100, Math.round(s_Price + s_AO + s_Div + s_Dist));
-
-        // محاسبات OTE، SL و TP
-        let fixEntry = "N/A", oteEntry = "N/A", sl = "N/A", tp1 = "N/A";
+        const struct = StructureEngine.analyze(pH, pL, cH, cL, cClose);
+        const mom = MomentumEngine.analyze(arrA, arrB);
         
-        if (signalTrend === "BULL") {
-            let legH = isSweep ? pH : cH; 
-            let legL = isSweep ? cL : pL;
-            let range = legH - legL;
-            
-            fixEntry = isSweep ? cClose.toFixed(4) : pH.toFixed(4); // برای سوئیپ روی کلوز، برای شکست روی سقف قبلی
-            oteEntry = `${(legH - range*0.786).toFixed(4)} - ${(legH - range*0.618).toFixed(4)}`;
-            sl = legL.toFixed(4);
-            
-            let risk = isSweep ? (cClose - legL) : (pH - legL);
-            tp1 = (parseFloat(fixEntry) + (risk * 2)).toFixed(4); // 1:2 R/R
+        if (mom.state === "ERR") {
+            alert("MRE.FATAL: Wave analytics failed."); return;
+        }
+        
+        const dec = DecisionEngine.evaluate(struct, mom);
 
-        } else if (signalTrend === "BEAR") {
-            let legH = isSweep ? cH : pH;
-            let legL = isSweep ? pL : cL;
-            let range = legH - legL;
-
-            fixEntry = isSweep ? cClose.toFixed(4) : pL.toFixed(4);
-            oteEntry = `${(legL + range*0.618).toFixed(4)} - ${(legL + range*0.786).toFixed(4)}`;
-            sl = legH.toFixed(4);
-
-            let risk = isSweep ? (legH - cClose) : (legH - pL);
-            tp1 = (parseFloat(fixEntry) - (risk * 2)).toFixed(4); // 1:2 R/R
+        let fixEntry = "0.0000", sl = "0.0000", tp1 = "0.0000";
+        if (struct.trend === "BULL") {
+            let legL = struct.sweep ? cL : pL;
+            fixEntry = pH.toFixed(4); sl = legL.toFixed(4);
+            tp1 = (parseFloat(fixEntry) + (Math.abs(parseFloat(fixEntry) - parseFloat(sl)) * 2)).toFixed(4);
+        } else if (struct.trend === "BEAR") {
+            let legH = struct.sweep ? cH : pH;
+            fixEntry = pL.toFixed(4); sl = legH.toFixed(4);
+            tp1 = (parseFloat(fixEntry) - (Math.abs(parseFloat(sl) - parseFloat(fixEntry)) * 2)).toFixed(4);
         }
 
-        // خروجی و صدور فرمان
-        let actWord = "WAIT", actDesc = "تاییدیه نهادی دریافت نشد.";
-        if (totalScore >= 70 && signalTrend !== "NEUTRAL") {
-            actWord = signalTrend === "BULL" ? "LONG POSITION" : "SHORT POSITION";
-            actDesc = isSweep ? `شکار نقدینگی تایید شد. معامله خلاف جهت (Reversal).` : `شکست ساختار تایید شد. منتظر اصلاح به بلوک سفارش باشید.`;
-        } else if (totalScore >= 45) {
-            actWord = "MONITOR"; actDesc = "شرایط در حال شکل‌گیری است. منتظر تاییدیه مومنتوم بمانید.";
+        let actWord = "MONITOR RADAR", actDesc = "Building structural context. Adaptive state active.";
+        let stateSignal = 'WAIT';
+        
+        if (dec.total >= 70 && struct.trend !== "NEUTRAL") {
+            actWord = struct.trend === "BULL" ? "EXECUTE ALPHA LONG" : "EXECUTE ALPHA SHORT";
+            actDesc = struct.sweep ? "Liquidity purge validated. Counter-trend sweep confirmed." : "Structural breakout confirmed. Monitor order block retracement.";
+            stateSignal = struct.trend === "BULL" ? 'LONG' : 'SHORT';
         }
 
-        // اعمال رنگ‌بندی
-        const cClass = applyTheme(totalScore >= 70 ? (signalTrend==="BULL"?'STRONG_BUY':'STRONG_SELL') : 'WAIT');
+        applyTheme(stateSignal);
         document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
         document.getElementById('actionCommand').innerText = actWord;
         document.getElementById('actionSub').innerText = actDesc;
+        document.getElementById('momentumStateOut').innerText = mom.state;
         
-        document.getElementById('outPrice').innerText = isSweep ? "SWEEP DETECTED" : (isConfirmedBreak ? "BREAK CONFIRMED" : "INTERNAL");
-        document.getElementById('outAO').innerText = aoStatus;
-        document.getElementById('outMom').innerText = isDiv ? "DIVERGENCE ACTIVE" : "ALIGNED";
-        document.getElementById('outStr').innerText = ((currSwingBase/swingBase)*100).toFixed(0) + "% Ratio";
+        document.getElementById('outPrice').innerText = struct.status;
+        document.getElementById('outAO').innerText = mom.pattern + (mom.cross ? " (+CROSS)" : "");
+        document.getElementById('outMom').innerText = dec.isDiv ? "REGULAR SPEED DIV" : (dec.isHiddenDiv ? "HIDDEN VELOCITY DIV" : "VELOCITY SYNCED");
+        document.getElementById('outStr').innerText = ((struct.currSwingBase/struct.swingBase)*100).toFixed(0) + "% VOL EXP";
 
-        // آپدیت پنل Entry
         const eBox = document.getElementById('entryBox');
-        if (signalTrend !== "NEUTRAL") {
+        if (struct.trend !== "NEUTRAL") {
             eBox.classList.remove('hidden');
-            eBox.className = `p-4 rounded-xl border bg-black/40 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center mt-4 transition-colors-glow ${cClass.replace('text-', 'border-')}`;
-            document.getElementById('structureStatusText').innerText = structureStatus;
-            document.getElementById('structureStatusText').className = `text-lg font-bold transition-colors-glow ${cClass}`;
-            
+            document.getElementById('structureStatusText').innerText = struct.status;
             document.getElementById('fixedEntryLevel').innerText = fixEntry;
-            document.getElementById('optimalEntryLevel').innerText = oteEntry;
             document.getElementById('slLevel').innerText = sl;
             document.getElementById('tpLevel').innerText = tp1;
+        } else {
+            eBox.classList.add('hidden');
         }
 
-        // آپدیت بارها
         const updateB = (id, v, max) => {
             document.getElementById(`score${id}`).innerText = `${Math.round(v)}/${max}`;
-            setTimeout(() => document.getElementById(`bar${id}`).style.width = `${(v/max)*100}%`, 100);
+            setTimeout(() => document.getElementById(`bar${id}`).style.width = `${Math.min((v/max)*100, 100)}%`, 120);
         };
-        updateB('Price', s_Price, 25); updateB('AO', s_AO, 25); updateB('Div', s_Div, 25); updateB('Dist', s_Dist, 25);
-        document.getElementById('finalScoreTotal').innerText = totalScore;
+        updateB('Price', dec.scores[0], 25); updateB('AO', dec.scores[1], 25); 
+        updateB('Div', dec.scores[2], 25); updateB('Dist', dec.scores[3], 25);
+        document.getElementById('finalScoreTotal').innerText = dec.total;
+
+        // --- Save to Local History Database ---
+        const d = new Date();
+        const timestamp = d.toISOString().split('T')[0] + ' ' + d.toTimeString().split(' ')[0];
+        
+        saveSignalToHistory({
+            timestamp: timestamp,
+            directive: actWord,
+            signal: stateSignal,
+            score: dec.total,
+            entry: fixEntry,
+            sl: sl,
+            tp: tp1,
+            status: struct.status,
+            pattern: mom.pattern + (mom.cross ? " (CROSS)" : "")
+        });
     }
 
     async function importMt5Data(t) {
@@ -400,11 +841,10 @@
             if(json.High!==undefined) {
                 document.getElementById(t+'High').value = json.High;
                 document.getElementById(t+'Low').value = json.Low;
-                document.getElementById(t+'AO').value = json.AO;
+                if(json.AO_Series) document.getElementById(t+'AOArr').value = json.AO_Series;
                 if(t==='curr' && json.Close!==undefined) document.getElementById('currClose').value = json.Close;
-                alert(`دیتا Swing ${t==='prev'?'A':'B'} دریافت شد.`);
             }
-        } catch(e) { alert("دسترسی به کلیپ‌بورد مسدود است. لطفاً دستی Paste کنید."); }
+        } catch(e) { alert("MRE.IO_ERR: Clipboard empty or malformed token string."); }
     }
 </script>
 </body>
