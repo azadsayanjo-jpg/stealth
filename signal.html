@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Radar Engine | StealthCapital V6.1</title>
+    <title>Quantum Radar Engine | StealthCapital V6.2</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,255 +11,139 @@
     
     <style>
         :root {
-            --bg-base: #040409;
-            --panel-bg: rgba(11, 10, 22, 0.7);
-            --panel-border: rgba(168, 85, 247, 0.12);
-            --neon-blue: #a855f7; /* Electric Purple Core */
-            --neon-red: #ff005b;  /* Laser Rose */
-            --neon-green: #00ffd1; /* Matrix Mint */
-            --neon-amber: #ffaa00; /* Cyber Gold */
-            --glass-glow: rgba(168, 85, 247, 0.02);
+            --bg-base: #020202; /* Solid Institutional Black */
+            --panel-bg: #070707;
+            --panel-border: #1f1f1f;
+            --core-purple: #8b5cf6;
+            --core-red: #f43f5e;
+            --core-green: #10b981;
+            --core-amber: #f59e0b;
         }
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.08), transparent 45%),
-                linear-gradient(rgba(168, 85, 247, 0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(168, 85, 247, 0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
-            color: #f1f5f9;
+            color: #e2e8f0;
             overflow-x: hidden;
             letter-spacing: -0.01em;
         }
         
         .font-digital { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
         
-        /* Ultra-Premium Cyber Panel */
+        /* Clean Zero-Noise Panel */
         .cyber-panel { 
             background: var(--panel-bg); 
-            backdrop-filter: blur(25px); 
-            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--panel-border); 
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
             position: relative;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease-in-out;
         }
-
-        /* Tech Corner Accents */
-        .cyber-panel::before, .cyber-panel::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-color: rgba(168, 85, 247, 0.3);
-            border-style: solid;
-            pointer-events: none;
-        }
-        .cyber-panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
-        .cyber-panel::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
         
-        .panel-header-line {
-            position: absolute;
-            top: 0; left: 10%; right: 10%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.3), transparent);
-        }
-
-        /* Institutional Luxury Inputs */
+        /* Institutional Inputs - Focus on Data Typography */
         .cyber-input {
-            background: rgba(5, 5, 10, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: #000000;
+            border: 1px solid #262626;
             color: #ffffff;
             font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
         
         .cyber-input:focus {
-            border-color: rgba(168, 85, 247, 0.4);
-            color: #c084fc;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.08), inset 0 2px 4px rgba(0,0,0,0.9);
+            border-color: var(--core-purple);
+            color: var(--core-purple);
             outline: none;
+            background: rgba(139, 92, 246, 0.05);
         }
 
-        /* Scanline Luxury overlay */
-        .scanline {
-            width: 100%;
-            height: 10px;
-            z-index: 9999;
-            position: fixed;
-            pointer-events: none;
-            background: linear-gradient(to bottom, transparent, rgba(168,85,247,0.015), transparent);
-            animation: scanline 15s linear infinite;
-        }
-
-        @keyframes scanline {
-            0% { top: -10px; }
-            100% { top: 100%; }
-        }
-
-        .glow-text-purple { text-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-        .glow-text-premium { text-shadow: 0 0 20px currentColor; }
-        .transition-state { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .transition-state { transition: all 0.3s ease; }
         
         /* Custom Premium Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #040409; }
-        ::-webkit-scrollbar-thumb { background: #151326; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #242042; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
 
-        /* Segmented Progress bar effect */
+        /* Segmented Progress bar effect - Cleaned */
         .segmented-track {
-            background-image: linear-gradient(90deg, transparent 75%, var(--bg-base) 75%);
-            background-size: 8px 100%;
+            background-image: linear-gradient(90deg, transparent 75%, var(--panel-bg) 75%);
+            background-size: 6px 100%;
         }
 
-        /* Data Feed Gateway Spaceship Theme */
-        .data-feed-gateway {
-            border-radius: 20px;
-            border: 2px solid rgba(168, 85, 247, 0.15);
-            background: repeating-linear-gradient(-45deg, rgba(13, 11, 26, 0.85), rgba(13, 11, 26, 0.85) 5px, rgba(6, 5, 12, 0.9) 5px, rgba(6, 5, 12, 0.9) 10px);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-        }
-
-        .data-feed-gateway::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            width: 80px;
-            height: 10px;
-            background: linear-gradient(90deg, #ff005b 0%, #ffaa00 50%, #00ffd1 100%);
-            border-radius: 5px;
-            box-shadow: 0 0 10px currentcolor;
-        }
-
-        /* Spaceship-like Digital Buttons */
+        /* Clean Gateway Buttons */
         .digital-spaceship-button {
             position: relative;
-            background: #06050c;
-            color: #f1f5f9;
+            background: #000000;
+            color: #cbd5e1;
             font-family: 'JetBrains Mono', monospace;
             padding: 10px 20px;
-            border: 2px solid rgba(168, 85, 247, 0.2);
+            border: 1px solid #262626;
             text-transform: uppercase;
             font-size: 12px;
-            letter-spacing: 0.2em;
-            transition: all 0.3s ease-out;
+            letter-spacing: 0.1em;
+            transition: all 0.2s ease;
             cursor: pointer;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: inset 0 0 10px rgba(168, 85, 247, 0.1);
         }
-
-        .digital-spaceship-button i {
-            font-size: 14px;
-            transition: color 0.3s ease-out, text-shadow 0.3s ease-out;
-        }
-
-        .digital-spaceship-button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.06), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease-out;
-            pointer-events: none;
-        }
-
-        .digital-spaceship-button::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue);
-            transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
-        }
-
-        .digital-spaceship-button.swing-matrix-a {
-            clip-path: polygon(10px 0, 100% 0, 100% 70%, calc(100% - 10px) 100%, 0 100%, 0 30%);
-            border-color: rgba(255, 170, 0, 0.3);
-        }
-
-        .digital-spaceship-button.swing-matrix-b {
-            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 30%, 100% 100%, 10px 100%, 0 70%);
-            border-color: rgba(0, 255, 209, 0.3);
-        }
-
-        .digital-spaceship-button.swing-matrix-a i { color: #ffaa00; }
-        .digital-spaceship-button.swing-matrix-b i { color: #00ffd1; }
-
-        .digital-spaceship-button.swing-matrix-a::after { background-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
-        .digital-spaceship-button.swing-matrix-b::after { background-color: #00ffd1; box-shadow: 0 0 10px #00ffd1; }
 
         .digital-spaceship-button:hover {
-            box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.2), 0 0 15px rgba(168, 85, 247, 0.1);
-        }
-
-        .digital-spaceship-button:hover::before {
-            transform: translateX(100%);
-        }
-
-        .digital-spaceship-button:hover i {
+            border-color: #525252;
             color: #ffffff;
-            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+            background: #0a0a0a;
         }
+
+        .digital-spaceship-button i { font-size: 12px; }
+        
+        .swing-matrix-a i { color: var(--core-amber); }
+        .swing-matrix-b i { color: var(--core-green); }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen relative">
-<div class="scanline"></div>
 
 <div class="max-w-7xl mx-auto space-y-6 relative z-10">
     
-    <header class="flex flex-col sm:flex-row justify-between items-center pb-5 border-b border-purple-950/40 gap-4">
+    <header class="flex flex-col sm:flex-row justify-between items-center pb-5 border-b border-[#262626] gap-4">
         <div class="flex items-center gap-4">
             <div class="relative flex items-center justify-center">
-                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-[#a855f7] shadow-[0_0_15px_#a855f7] animate-pulse"></div>
-                <div class="absolute w-5 h-5 rounded-full border border-[#a855f7]/20 animate-ping" style="animation-duration: 2s;"></div>
+                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]"></div>
             </div>
             <div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-[0.15em] text-white uppercase glow-text-purple">
-                    STEALTHCAPITAL <span class="text-[10px] font-digital text-[#a855f7] bg-[#a855f7]/5 px-2.5 py-1 rounded ml-2 border border-[#a855f7]/15 backdrop-blur-md">QRE - V6.1</span>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-[0.1em] text-white uppercase">
+                    STEALTHCAPITAL <span class="text-[10px] font-digital text-[#8b5cf6] bg-[#8b5cf6]/10 px-2 py-1 rounded ml-2 border border-[#8b5cf6]/20">QRE - V6.2</span>
                 </h1>
             </div>
         </div>
-        <div class="text-[11px] font-digital text-slate-500 flex items-center gap-5 tracking-wider bg-black/40 px-4 py-2 rounded-lg border border-white/[0.01]">
+        <div class="text-[11px] font-digital text-slate-400 flex items-center gap-5 tracking-wider bg-[#0a0a0a] px-4 py-2 rounded-lg border border-[#262626]">
             <div class="flex items-center gap-1.5">
-                <span class="w-1 h-1 rounded-full bg-purple-500"></span>
-                <span>SYS.QUANTUM: <span class="text-[#a855f7] font-bold">ONLINE</span></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[#8b5cf6]"></span>
+                <span>SYS.QUANTUM: <span class="text-white font-bold">ONLINE</span></span>
             </div>
-            <span class="text-slate-700">|</span>
-            <span id="clock" class="text-slate-300 font-bold tracking-normal">00:00:00:000</span>
+            <span class="text-[#262626]">|</span>
+            <span id="clock" class="text-white font-bold tracking-normal">00:00:00:000</span>
         </div>
     </header>
 
-    <div class="data-feed-gateway cyber-panel p-6 rounded-xl mx-auto flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div class="panel-header-line"></div>
+    <div class="cyber-panel p-5 rounded-xl mx-auto flex flex-col sm:flex-row gap-4 items-center justify-between border-l-4 border-l-[#8b5cf6]">
         <div class="flex items-center gap-3 w-full sm:w-auto">
-            <div class="w-8 h-8 rounded-lg bg-[#a855f7]/5 border border-[#a855f7]/10 flex items-center justify-center">
-                <i class="fa-solid fa-microchip text-[#a855f7] text-xs opacity-80"></i>
+            <div class="w-8 h-8 rounded bg-[#171717] flex items-center justify-center">
+                <i class="fa-solid fa-microchip text-slate-300 text-xs"></i>
             </div>
             <div>
-                <span class="text-xs font-digital text-slate-200 block tracking-wider uppercase">QUANTUM CORE MATRIX GATEWAY</span>
-                <span class="text-[10px] text-slate-500 block">Synchronized terminal clipboard vector buffer execution</span>
+                <span class="text-xs font-digital text-white block tracking-wider uppercase">QUANTUM CORE MATRIX GATEWAY</span>
+                <span class="text-[10px] text-slate-500 block">Synchronized clipboard vector execution</span>
             </div>
         </div>
         <div class="flex gap-2.5 w-full sm:w-auto">
-            <button onclick="importMt5Data('prev')" class="digital-spaceship-button swing-matrix-a flex-1 sm:flex-none py-2.5 px-5 rounded-lg border border-slate-900 transition-state text-[11px] flex items-center justify-center gap-2 uppercase tracking-wider shadow-lg">
-                <i class="fa-solid fa-satellite-dish text-[10px]"></i> SWING MATRIX A
+            <button onclick="importMt5Data('prev')" class="digital-spaceship-button swing-matrix-a flex-1 sm:flex-none py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 uppercase tracking-wider">
+                <i class="fa-solid fa-satellite-dish"></i> SWING MATRIX A
             </button>
-            <button onclick="importMt5Data('curr')" class="digital-spaceship-button swing-matrix-b flex-1 sm:flex-none py-2.5 px-5 rounded-lg border border-slate-900 transition-state text-[11px] flex items-center justify-center gap-2 uppercase tracking-wider shadow-lg">
-                <i class="fa-solid fa-satellite-dish text-[10px]"></i> SWING MATRIX B
+            <button onclick="importMt5Data('curr')" class="digital-spaceship-button swing-matrix-b flex-1 sm:flex-none py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 uppercase tracking-wider">
+                <i class="fa-solid fa-satellite-dish"></i> SWING MATRIX B
             </button>
         </div>
     </div>
@@ -267,173 +151,158 @@
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
         
         <div class="cyber-panel p-6 rounded-xl xl:col-span-4 space-y-5 flex flex-col justify-between">
-            <div class="panel-header-line"></div>
             <div class="space-y-5">
-                <div class="flex justify-between items-center border-b border-purple-950/20 pb-3">
+                <div class="flex justify-between items-center border-b border-[#262626] pb-3">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-gears text-slate-500 text-xs"></i>
-                        <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-[0.15em]">Terminal Variables</h2>
+                        <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-widest">Terminal Variables</h2>
                     </div>
-                    <button onclick="resetSystem()" class="text-[10px] font-digital text-slate-500 hover:text-[#a855f7] transition-state flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-slate-900 hover:border-purple-950/30">
+                    <button onclick="resetSystem()" class="text-[10px] font-digital text-slate-500 hover:text-white transition-state flex items-center gap-1 bg-[#171717] px-2 py-1 rounded border border-[#262626]">
                         <i class="fa-solid fa-terminal text-[9px]"></i> PURGE
                     </button>
                 </div>
 
-                <div class="space-y-3 bg-black/50 p-4 rounded-xl border border-purple-950/30 relative overflow-hidden">
+                <div class="space-y-3 bg-[#0a0a0a] p-4 rounded-xl border border-[#1f1f1f]">
                     <label class="text-[10px] text-slate-400 font-digital uppercase tracking-widest flex justify-between items-center">
-                        <span class="flex items-center gap-1.5"><span class="w-1 h-1 bg-amber-500 rounded-full"></span> 1. Price Structure</span>
-                        <span class="text-slate-600 bg-white/[0.01] px-1.5 py-0.5 rounded text-[9px]">SWING BOUNDS</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> 1. Price Structure</span>
                     </label>
-                    <div class="grid grid-cols-2 gap-2.5">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
-                            <span class="text-[9px] text-slate-600 font-digital pl-1">A HIGH</span>
-                            <input type="number" id="prevHigh" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">A HIGH</span>
+                            <input type="number" id="prevHigh" class="cyber-input w-full p-2.5 rounded text-center">
                         </div>
                         <div class="space-y-1">
-                            <span class="text-[9px] text-slate-600 font-digital pl-1">B HIGH</span>
-                            <input type="number" id="currHigh" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">B HIGH</span>
+                            <input type="number" id="currHigh" class="cyber-input w-full p-2.5 rounded text-center">
                         </div>
                         <div class="space-y-1">
-                            <span class="text-[9px] text-slate-600 font-digital pl-1">A LOW</span>
-                            <input type="number" id="prevLow" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">A LOW</span>
+                            <input type="number" id="prevLow" class="cyber-input w-full p-2.5 rounded text-center">
                         </div>
                         <div class="space-y-1">
-                            <span class="text-[9px] text-slate-600 font-digital pl-1">B LOW</span>
-                            <input type="number" id="currLow" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">B LOW</span>
+                            <input type="number" id="currLow" class="cyber-input w-full p-2.5 rounded text-center">
                         </div>
                     </div>
-                    <div class="pt-1">
-                        <span class="text-[9px] text-slate-600 font-digital pl-1">BREAKOUT CANDLE CLOSE</span>
-                        <input type="number" id="currClose" placeholder="0.0000" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs border-dashed border-purple-950/40">
+                    <div class="pt-2">
+                        <span class="text-[9px] text-slate-500 font-digital pl-1">BREAKOUT CANDLE CLOSE</span>
+                        <input type="number" id="currClose" class="cyber-input w-full p-2.5 rounded text-center border-dashed border-[#404040]">
                     </div>
                 </div>
 
-                <div class="space-y-3 bg-black/50 p-4 rounded-xl border border-purple-950/30">
+                <div class="space-y-3 bg-[#0a0a0a] p-4 rounded-xl border border-[#1f1f1f]">
                     <label class="text-[10px] text-slate-400 font-digital uppercase tracking-widest flex justify-between items-center">
-                        <span class="flex items-center gap-1.5"><span class="w-1 h-1 bg-[#a855f7] rounded-full"></span> 2. Momentum Array (AO)</span>
-                        <span class="text-slate-600 bg-white/[0.01] px-1.5 py-0.5 rounded text-[9px]">SERIES MATRICES</span>
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-[#8b5cf6] rounded-full"></span> 2. Momentum Array (AO)</span>
                     </label>
                     <div class="space-y-2">
-                        <input type="text" id="prevAOArr" placeholder="Swing A Series (e.g. 0.5, 0.8, -0.2)" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs placeholder-slate-700">
-                        <input type="text" id="currAOArr" placeholder="Swing B Series (e.g. -0.1, 0.4, 0.9)" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs placeholder-slate-700">
-                    </div>
-                    <div class="pt-1">
-                        <span class="text-[9px] text-slate-600 font-digital pl-1">TIME DISTANCE AXIS (BARS)</span>
-                        <input type="number" id="pivotDist" placeholder="0" class="cyber-input w-full p-2.5 rounded-lg text-center text-xs">
+                        <input type="text" id="prevAOArr" placeholder="Swing A Series" class="cyber-input w-full p-2.5 rounded text-center text-xs placeholder-slate-700">
+                        <input type="text" id="currAOArr" placeholder="Swing B Series" class="cyber-input w-full p-2.5 rounded text-center text-xs placeholder-slate-700">
                     </div>
                 </div>
             </div>
 
-            <button onclick="executeEngines()" class="w-full relative mt-4 overflow-hidden bg-gradient-to-r from-[#a855f7]/10 to-[#a855f7]/5 hover:from-[#a855f7]/20 hover:to-[#a855f7]/10 text-[#a855f7] border border-[#a855f7]/20 font-digital font-bold py-3.5 rounded-xl transition-state text-xs tracking-[0.25em] shadow-[0_0_30px_rgba(168,85,247,0.03)] hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] uppercase">
-                <span class="relative z-10 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-bolt-lightning text-[10px]"></i> CALCULATE INTEL MATRICES
-                </span>
+            <button onclick="executeEngines()" class="w-full bg-[#171717] hover:bg-[#262626] text-white border border-[#404040] font-digital font-bold py-3.5 rounded transition-state text-xs tracking-widest uppercase mt-4">
+                <i class="fa-solid fa-bolt-lightning text-[10px] mr-1"></i> CALCULATE INTEL
             </button>
         </div>
 
-        <div class="cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-2 border-t-purple-950/40 shadow-2xl" id="mainDashboard">
-            <div class="panel-header-line"></div>
+        <div class="cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-4 border-t-[#262626]" id="mainDashboard">
             
-            <div id="overlay" class="absolute inset-0 bg-[#05050b]/95 backdrop-blur-xl z-20 flex flex-col items-center justify-center transition-state rounded-xl">
-                <div class="relative mb-6 flex items-center justify-center">
-                    <i class="fa-solid fa-compact-disc text-3xl text-[#a855f7]/20 animate-spin" style="animation-duration: 3s;"></i>
-                    <i class="fa-solid fa-circle-nodes absolute text-sm text-[#a855f7]/60"></i>
+            <div id="overlay" class="absolute inset-0 bg-[#070707] z-20 flex flex-col items-center justify-center transition-state rounded-xl">
+                <div class="relative mb-6">
+                    <i class="fa-solid fa-circle-nodes text-3xl text-slate-600"></i>
                 </div>
-                <p class="text-[#a855f7]/60 font-digital tracking-[0.35em] uppercase text-[11px] glow-text-purple">System Standby // Awaiting Matrix Input</p>
-                <p class="text-slate-600 text-[10px] mt-1">Provide algorithmic core vectors from MT5 to compute</p>
+                <p class="text-slate-400 font-digital tracking-widest uppercase text-[11px]">System Standby // Awaiting Input</p>
             </div>
 
             <div class="z-10 flex flex-col h-full space-y-6 justify-between">
                 
-                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center bg-black/40 p-5 rounded-xl border border-purple-950/20 transition-state gap-4" id="actionBar">
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center bg-[#0a0a0a] p-5 rounded border border-[#1f1f1f] transition-state gap-4" id="actionBar">
                     <div class="text-left">
-                        <p class="text-[9px] text-slate-500 font-digital uppercase tracking-[0.2em] mb-1.5 flex items-center gap-1">
-                            <span class="w-1 h-1 rounded-full bg-[#a855f7]"></span> System Operational Directive
+                        <p class="text-[9px] text-slate-500 font-digital uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                            System Directive
                         </p>
-                        <h2 class="text-2xl md:text-3xl font-black text-white transition-state tracking-wide font-digital" id="actionCommand">STANDBY</h2>
-                        <p id="actionSub" class="text-xs text-slate-400 mt-1 font-medium">Core intelligence unit idle. Awaiting quantitative stream arrays.</p>
+                        <h2 class="text-2xl md:text-3xl font-black text-white transition-state font-digital" id="actionCommand">STANDBY</h2>
+                        <p id="actionSub" class="text-xs text-slate-400 mt-1">Core intelligence unit idle.</p>
                     </div>
                     
-                    <div class="flex gap-6 justify-between md:justify-end border-t md:border-t-0 border-purple-950/20 pt-4 md:pt-0 items-center">
+                    <div class="flex gap-6 justify-between md:justify-end border-t md:border-t-0 border-[#262626] pt-4 md:pt-0 items-center">
                         <div class="text-right">
                             <span class="block text-[9px] text-slate-500 font-digital uppercase tracking-wider mb-1">State Machine</span>
-                            <span id="momentumStateOut" class="text-xs font-digital font-bold text-slate-300 bg-white/[0.01] border border-white/[0.03] px-2.5 py-1 rounded">NEUTRAL</span>
+                            <span id="momentumStateOut" class="text-xs font-digital font-bold text-slate-300 bg-[#171717] px-2 py-1 rounded border border-[#262626]">NEUTRAL</span>
                         </div>
-                        <div class="text-right border-l border-purple-950/30 pl-6">
-                            <span class="block text-[9px] text-slate-500 font-digital uppercase tracking-wider mb-1">CONFIDENCE MATRIX</span>
+                        <div class="text-right border-l border-[#262626] pl-6">
+                            <span class="block text-[9px] text-slate-500 font-digital uppercase tracking-wider mb-1">CONFIDENCE</span>
                             <div class="flex items-baseline gap-1 justify-end">
-                                <span id="finalScoreTotal" class="text-3xl md:text-4xl font-digital font-extrabold text-slate-300 transition-state tracking-tighter">00</span>
-                                <span class="text-slate-600 font-digital text-xs">/100</span>
+                                <span id="finalScoreTotal" class="text-3xl md:text-4xl font-digital font-extrabold text-white transition-state tracking-tighter">00</span>
+                                <span class="text-slate-500 font-digital text-xs">/100</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="entryBox" class="p-5 rounded-xl border border-purple-950/30 bg-black/20 hidden transition-state grid grid-cols-1 md:grid-cols-3 gap-4 items-center relative overflow-hidden">
-                    <div class="col-span-1 md:col-span-3 border-b border-purple-950/20 pb-3 flex justify-between items-center">
+                <div id="entryBox" class="p-5 rounded border border-[#1f1f1f] bg-[#0a0a0a] hidden transition-state grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <div class="col-span-1 md:col-span-3 border-b border-[#262626] pb-3 flex justify-between items-center">
                         <div>
-                            <span class="block text-[9px] uppercase tracking-[0.2em] font-digital text-slate-500">Structural Framework Context</span>
+                            <span class="block text-[9px] uppercase tracking-widest font-digital text-slate-500">Structural Context</span>
                             <strong class="text-sm text-white transition-state block font-semibold mt-0.5" id="structureStatusText">---</strong>
                         </div>
-                        <div class="text-right bg-amber-500/5 px-2.5 py-1 rounded border border-amber-500/10">
-                            <span class="block text-[8px] uppercase tracking-wider font-digital text-amber-500/70">State Transition Zone</span>
-                            <strong class="text-[10px] text-amber-400 transition-state block font-digital" id="adaptiveResetText">ADAPTIVE RESET ACTIVE</strong>
+                        <div class="text-right bg-[#171717] px-2 py-1 rounded border border-[#262626]">
+                            <span class="block text-[8px] uppercase tracking-wider font-digital text-slate-400">State Momentum Engine</span>
+                            <strong class="text-[10px] text-amber-500 transition-state block font-digital" id="adaptiveResetText">STANDARD THRESHOLD (70)</strong>
                         </div>
                     </div>
                     
-                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-[#00ffd1]/30 transition-state">
-                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#00ffd1]"></div>
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">BLOCK ENTRY RATIO</span>
-                        <strong class="text-xl font-digital text-[#00ffd1] block mt-1.5 glow-text-premium" id="fixedEntryLevel">0.0000</strong>
+                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">BLOCK ENTRY</span>
+                        <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="fixedEntryLevel">0.0000</strong>
                     </div>
-                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-[#ff005b]/30 transition-state">
-                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#ff005b]"></div>
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">INVALIDATION VECTOR (SL)</span>
-                        <strong class="text-xl font-digital text-[#ff005b] block mt-1.5 glow-text-premium" id="slLevel">0.0000</strong>
+                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-rose-500">
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">INVALIDATION (SL)</span>
+                        <strong class="text-2xl font-digital text-rose-400 block mt-1" id="slLevel">0.0000</strong>
                     </div>
-                    <div class="bg-black/50 p-3.5 rounded-lg border border-purple-950/20 relative overflow-hidden group hover:border-emerald-500/30 transition-state">
-                        <div class="absolute top-0 left-0 w-0.5 h-full bg-[#00ff66]"></div>
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">EXPANSION TARGET (TP1)</span>
-                        <strong class="text-xl font-digital text-[#00ff66] block mt-1.5 glow-text-premium" id="tpLevel">0.0000</strong>
+                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
+                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">TARGET (TP1)</span>
+                        <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="tpLevel">0.0000</strong>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                    <div class="bg-[#0a0a0a] p-3.5 rounded border border-[#1f1f1f]">
                         <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">LIQUIDITY MATRIX</span>
-                        <strong id="outPrice" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                        <strong id="outPrice" class="text-slate-300 font-digital text-[11px] block truncate">---</strong>
                     </div>
-                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                    <div class="bg-[#0a0a0a] p-3.5 rounded border border-[#1f1f1f]">
                         <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">MOMENTUM PATTERN</span>
-                        <strong id="outAO" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                        <strong id="outAO" class="text-slate-300 font-digital text-[11px] block truncate">---</strong>
                     </div>
-                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                    <div class="bg-[#0a0a0a] p-3.5 rounded border border-[#1f1f1f]">
                         <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">CONVERGENCE SHIFT</span>
-                        <strong id="outMom" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                        <strong id="outMom" class="text-slate-300 font-digital text-[11px] block truncate">---</strong>
                     </div>
-                    <div class="bg-black/40 p-3.5 rounded-xl border border-purple-950/20">
+                    <div class="bg-[#0a0a0a] p-3.5 rounded border border-[#1f1f1f]">
                         <span class="text-[9px] text-slate-500 uppercase font-digital block tracking-widest mb-1.5">VOLUMETRIC RATIO</span>
-                        <strong id="outStr" class="text-slate-200 font-digital text-[11px] block truncate">---</strong>
+                        <strong id="outStr" class="text-slate-300 font-digital text-[11px] block truncate">---</strong>
                     </div>
                 </div>
 
-                <div class="bg-black/30 rounded-xl p-5 border border-purple-950/20 space-y-4">
+                <div class="bg-[#0a0a0a] rounded p-4 border border-[#1f1f1f]">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
                         <div>
-                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Structural Quality Edge</span><span id="scorePrice" class="text-white font-bold">0</span></div>
-                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barPrice" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Structure Score</span><span id="scorePrice" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-[#171717] h-1.5 rounded-full overflow-hidden"><div id="barPrice" class="bg-[#8b5cf6] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Momentum Power Index</span><span id="scoreAO" class="text-white font-bold">0</span></div>
-                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barAO" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Momentum Index</span><span id="scoreAO" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-[#171717] h-1.5 rounded-full overflow-hidden"><div id="barAO" class="bg-[#8b5cf6] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Divergence Sync Engine</span><span id="scoreDiv" class="text-white font-bold">0</span></div>
-                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barDiv" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Divergence Sync</span><span id="scoreDiv" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-[#171717] h-1.5 rounded-full overflow-hidden"><div id="barDiv" class="bg-[#8b5cf6] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                         <div>
-                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Exhaustion Axis Range</span><span id="scoreDist" class="text-white font-bold">0</span></div>
-                            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden p-[1px] border border-white/[0.01]"><div id="barDist" class="bg-[#a855f7] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
+                            <div class="flex justify-between text-[10px] mb-1.5 font-digital uppercase tracking-wider"><span class="text-slate-500">Exhaustion Axis</span><span id="scoreDist" class="text-white font-bold">0</span></div>
+                            <div class="w-full bg-[#171717] h-1.5 rounded-full overflow-hidden"><div id="barDist" class="bg-[#8b5cf6] h-full rounded-full transition-state segmented-track" style="width: 0%"></div></div>
                         </div>
                     </div>
                 </div>
@@ -441,19 +310,18 @@
         </div>
     </div>
 
-    <div class="cyber-panel p-6 rounded-xl mt-6 transition-state">
-        <div class="panel-header-line"></div>
-        <div class="flex justify-between items-center border-b border-purple-950/40 pb-3 mb-4">
+    <div class="cyber-panel p-5 rounded-xl mt-6 transition-state">
+        <div class="flex justify-between items-center border-b border-[#262626] pb-3 mb-4">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-database text-slate-500 text-xs"></i>
-                <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-[0.15em]">Signal Intel History</h2>
+                <h2 class="text-xs font-digital font-bold text-slate-400 uppercase tracking-widest">Signal History</h2>
             </div>
-            <button onclick="clearHistory()" class="text-[10px] font-digital text-slate-500 hover:text-[#ff005b] transition-state flex items-center gap-1 bg-slate-950 px-2 py-1 rounded border border-slate-900 hover:border-[#ff005b]/30">
+            <button onclick="clearHistory()" class="text-[10px] font-digital text-slate-500 hover:text-rose-500 transition-state flex items-center gap-1 bg-[#171717] px-2 py-1 rounded border border-[#262626]">
                 <i class="fa-solid fa-trash-can text-[9px]"></i> PURGE DATABASE
             </button>
         </div>
         
-        <div id="historyContainer" class="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+        <div id="historyContainer" class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
             </div>
     </div>
 
@@ -467,12 +335,8 @@
             d.toLocaleTimeString('en-US', {hour12: false}) + ':' + d.getMilliseconds().toString().padStart(3, '0');
     }, 45);
 
-    // Initial load for history
-    window.onload = () => {
-        renderHistory();
-    };
+    window.onload = () => { renderHistory(); };
 
-    // MRE Core Logic Processing Subsystems - V2 Wave Engine
     class MomentumEngine {
         static parseSeries(str) {
             if(!str) return [];
@@ -502,10 +366,8 @@
                 if (v > max) max = v;
                 if (v < min) min = v;
                 energy += Math.abs(v);
-                
                 if (v > 0) aboveZero++;
                 if (v < 0) belowZero++;
-                
                 if (i > 0 && ((arr[i-1] > 0 && v < 0) || (arr[i-1] < 0 && v > 0))) {
                     zeroCrosses++;
                 }
@@ -606,11 +468,35 @@
             let breakConfirmed = false;
 
             if (cH > pH) {
-                if (cClose > pH) { breakConfirmed = true; status = "BOS / CHOCH [BULL]"; trend = "BULL"; }
-                else { sweep = true; status = "BSL LIQUIDITY SWEEP"; trend = "BEAR"; }
+                if (cClose > pH) { 
+                    breakConfirmed = true; 
+                    status = "BOS / CHOCH [BULL]"; 
+                    trend = "BULL"; 
+                }
+                else if (cClose < pL) { 
+                    sweep = true; 
+                    status = "BSL LIQUIDITY SWEEP"; 
+                    trend = "BEAR"; 
+                } 
+                else {
+                    status = "WEAK REJECTION"; 
+                    trend = "NEUTRAL"; 
+                }
             } else if (cL < pL) {
-                if (cClose < pL) { breakConfirmed = true; status = "BOS / CHOCH [BEAR]"; trend = "BEAR"; }
-                else { sweep = true; status = "SSL LIQUIDITY SWEEP"; trend = "BULL"; }
+                if (cClose < pL) { 
+                    breakConfirmed = true; 
+                    status = "BOS / CHOCH [BEAR]"; 
+                    trend = "BEAR"; 
+                }
+                else if (cClose > pH) { 
+                    sweep = true; 
+                    status = "SSL LIQUIDITY SWEEP"; 
+                    trend = "BULL"; 
+                }
+                else {
+                    status = "WEAK REJECTION"; 
+                    trend = "NEUTRAL";
+                }
             }
 
             return { status, trend, sweep, breakConfirmed, swingBase, currSwingBase, pH, pL, cH, cL };
@@ -642,17 +528,16 @@
         }
     }
 
-    // --- History Database Functions ---
     function saveSignalToHistory(data) {
         let history = JSON.parse(localStorage.getItem('qre_history')) || [];
-        history.unshift(data); // Add to the top of the array
-        if(history.length > 50) history.pop(); // Max 50 items memory limit
+        history.unshift(data); 
+        if(history.length > 50) history.pop(); 
         localStorage.setItem('qre_history', JSON.stringify(history));
         renderHistory();
     }
 
     function clearHistory() {
-        if(confirm("SYSTEM WARNING: Are you sure you want to purge all historical intel matrices? This action is irreversible.")) {
+        if(confirm("SYSTEM WARNING: Purge historical intel matrices? Action is irreversible.")) {
             localStorage.removeItem('qre_history');
             renderHistory();
         }
@@ -663,50 +548,42 @@
         let history = JSON.parse(localStorage.getItem('qre_history')) || [];
         
         if (history.length === 0) {
-            container.innerHTML = '<div class="text-center p-6 text-slate-600 font-digital text-[10px] uppercase tracking-widest border border-dashed border-purple-950/30 rounded-lg">Database Empty // No Historical Intel Found</div>';
+            container.innerHTML = '<div class="text-center p-4 text-slate-600 font-digital text-[10px] uppercase tracking-widest border border-dashed border-[#262626] rounded">Database Empty</div>';
             return;
         }
 
         container.innerHTML = history.map(item => {
-            let colorCls = item.signal === 'LONG' ? 'text-[#00ffd1]' : (item.signal === 'SHORT' ? 'text-[#ff005b]' : 'text-[#a855f7]');
-            let borderCls = item.signal === 'LONG' ? 'border-l-[#00ffd1]' : (item.signal === 'SHORT' ? 'border-l-[#ff005b]' : 'border-l-[#a855f7]');
+            let colorCls = item.signal === 'LONG' ? 'text-emerald-400' : (item.signal === 'SHORT' ? 'text-rose-400' : 'text-[#8b5cf6]');
+            let borderCls = item.signal === 'LONG' ? 'border-l-emerald-500' : (item.signal === 'SHORT' ? 'border-l-rose-500' : 'border-l-[#8b5cf6]');
             
             return `
-            <div class="bg-black/40 p-4 rounded-lg border border-purple-950/20 border-l-2 ${borderCls} flex flex-col md:flex-row justify-between items-center gap-4 hover:bg-black/60 transition-state shadow-sm">
+            <div class="bg-[#0a0a0a] p-3 rounded border border-[#1f1f1f] border-l-2 ${borderCls} flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4 w-full md:w-auto">
-                    <div class="text-center bg-slate-950 px-3 py-2 rounded border border-white/[0.02] min-w-[70px]">
-                        <span class="block text-xl font-digital font-bold ${colorCls}">${item.score}</span>
-                        <span class="block text-[8px] text-slate-600 font-digital mt-0.5">SCORE</span>
+                    <div class="text-center bg-[#171717] px-3 py-1.5 rounded border border-[#262626] min-w-[60px]">
+                        <span class="block text-lg font-digital font-bold ${colorCls}">${item.score}</span>
                     </div>
                     <div>
-                        <span class="block text-[9px] text-slate-500 font-digital mb-0.5 flex items-center gap-1.5"><i class="fa-regular fa-clock text-[8px]"></i> ${item.timestamp}</span>
+                        <span class="block text-[9px] text-slate-500 font-digital mb-0.5">${item.timestamp}</span>
                         <strong class="text-xs font-digital uppercase ${colorCls} tracking-wider">${item.directive}</strong>
-                        <span class="block text-[10px] text-slate-400 mt-1 truncate w-[200px] sm:w-[300px]">${item.status} | ${item.pattern}</span>
                     </div>
                 </div>
-                <div class="flex gap-3 w-full md:w-auto bg-slate-950/80 p-2.5 rounded-lg border border-white/[0.03] justify-between md:justify-end font-digital text-[10px]">
-                    <div class="text-center px-2 border-r border-slate-800">
-                        <span class="block text-slate-500 mb-1">ENTRY</span>
-                        <span class="text-slate-200">${item.entry !== "0.0000" ? item.entry : "N/A"}</span>
+                <div class="flex gap-4 w-full md:w-auto font-digital text-[11px]">
+                    <div class="text-right">
+                        <span class="text-slate-500 mr-1">ENTRY:</span>
+                        <span class="text-slate-200 font-bold">${item.entry !== "0.0000" ? item.entry : "N/A"}</span>
                     </div>
-                    <div class="text-center px-2 border-r border-slate-800">
-                        <span class="block text-slate-500 mb-1">INV (SL)</span>
-                        <span class="text-slate-200">${item.sl !== "0.0000" ? item.sl : "N/A"}</span>
-                    </div>
-                    <div class="text-center px-2">
-                        <span class="block text-slate-500 mb-1">TARGET</span>
-                        <span class="text-slate-200">${item.tp !== "0.0000" ? item.tp : "N/A"}</span>
+                    <div class="text-right">
+                        <span class="text-slate-500 mr-1">SL:</span>
+                        <span class="text-slate-200 font-bold">${item.sl !== "0.0000" ? item.sl : "N/A"}</span>
                     </div>
                 </div>
             </div>
             `;
         }).join('');
     }
-    // ------------------------------------------
 
     function applyTheme(stateWord) {
         const d = document.getElementById('mainDashboard');
-        const a = document.getElementById('actionBar');
         const s = document.getElementById('finalScoreTotal');
         const c = document.getElementById('actionCommand');
         const dot = document.getElementById('statusDot');
@@ -714,19 +591,17 @@
         
         let conf = {};
         if (stateWord === 'LONG') {
-            conf = { b: 'border-t-[#00ffd1]', bg: 'bg-[#00ffd1]/5', c: 'text-[#00ffd1]', bar: 'bg-[#00ffd1]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(0,255,209,0.06)]', border: 'rgba(0, 255, 209, 0.15)' };
+            conf = { b: 'border-t-emerald-500', c: 'text-emerald-400', bar: 'bg-emerald-500' };
         } else if (stateWord === 'SHORT') {
-            conf = { b: 'border-t-[#ff005b]', bg: 'bg-[#ff005b]/5', c: 'text-[#ff005b]', bar: 'bg-[#ff005b]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(255,0,91,0.06)]', border: 'rgba(255, 0, 91, 0.15)' };
+            conf = { b: 'border-t-rose-500', c: 'text-rose-400', bar: 'bg-rose-500' };
         } else {
-            conf = { b: 'border-t-[#a855f7]', bg: 'bg-[#a855f7]/5', c: 'text-[#a855f7]', bar: 'bg-[#a855f7]', shad: 'shadow-[0_20px_50px_rgba(0,0,0,0.6),_0_0_30px_rgba(168,85,247,0.06)]', border: 'rgba(168, 85, 247, 0.15)' };
+            conf = { b: 'border-t-[#8b5cf6]', c: 'text-[#8b5cf6]', bar: 'bg-[#8b5cf6]' };
         }
 
-        d.className = `cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-2 ${conf.b} ${conf.shad}`;
-        d.style.borderColor = conf.border;
-        a.className = `flex flex-col md:flex-row justify-between items-stretch md:items-center p-5 rounded-xl border border-purple-950/20 transition-state ${conf.bg}`;
-        c.className = `text-2xl md:text-3xl font-black transition-state tracking-wide font-digital ${conf.c}`;
+        d.className = `cyber-panel p-6 rounded-xl xl:col-span-8 flex flex-col justify-between relative transition-state border-t-4 ${conf.b}`;
+        c.className = `text-2xl md:text-3xl font-black transition-state font-digital ${conf.c}`;
         s.className = `text-3xl md:text-4xl font-digital font-extrabold transition-state ${conf.c}`;
-        dot.className = `w-2.5 h-2.5 rounded-full animate-pulse transition-state ${conf.bar} shadow-[0_0_15px_${conf.c.replace('text-','')}]`;
+        dot.className = `w-2 h-2 rounded-full transition-state ${conf.bar}`;
         
         bars.forEach(b => b.className = `h-full rounded-full transition-state ${conf.bar} segmented-track`);
         return conf.c;
@@ -741,8 +616,8 @@
             document.getElementById(`score${id}`).innerText = `0`;
         });
         document.getElementById('actionCommand').innerText = "STANDBY";
-        document.getElementById('actionSub').innerText = "System core matrix flushed. Awaiting fresh terminal bindings.";
-        document.getElementById('mainDashboard').style.borderColor = 'rgba(168, 85, 247, 0.12)';
+        document.getElementById('actionSub').innerText = "System core matrix flushed.";
+        applyTheme('WAIT');
     }
 
     function executeEngines() {
@@ -756,17 +631,37 @@
         const arrB = MomentumEngine.parseSeries(document.getElementById('currAOArr').value);
 
         if(isNaN(pH) || isNaN(cH) || isNaN(cClose) || arrA.length === 0 || arrB.length === 0) {
-            alert("MRE.FATAL: Terminal data buffer corrupted or empty."); return;
+            alert("MRE.FATAL: Terminal data buffer corrupted."); return;
         }
 
         const struct = StructureEngine.analyze(pH, pL, cH, cL, cClose);
         const mom = MomentumEngine.analyze(arrA, arrB);
         
-        if (mom.state === "ERR") {
-            alert("MRE.FATAL: Wave analytics failed."); return;
-        }
+        if (mom.state === "ERR") { alert("MRE.FATAL: Wave analytics failed."); return; }
         
         const dec = DecisionEngine.evaluate(struct, mom);
+
+        // --- State Momentum Engine: Dynamic Threshold Logic ---
+        let baseThreshold = 70;
+        let adaptiveText = "STANDARD THRESHOLD (70)";
+        let adaptColor = "text-amber-500";
+        
+        if (mom.state === "COMPRESSION" || mom.state.includes("REVERSAL CANDIDATE")) {
+            baseThreshold = 85; 
+            adaptiveText = "ADAPTIVE RESET (85) - FILTERING RANGE";
+            adaptColor = "text-rose-400";
+        } else if (mom.state.includes("ACCELERATION")) {
+            baseThreshold = 65;
+            adaptiveText = "SOFT TRANSITION (65) - HIGH MOMENTUM";
+            adaptColor = "text-emerald-400";
+        } else if (mom.state.includes("CONTINUATION")) {
+            baseThreshold = 70;
+        }
+        
+        const adaptEl = document.getElementById('adaptiveResetText');
+        adaptEl.innerText = adaptiveText;
+        adaptEl.className = `text-[10px] transition-state block font-digital ${adaptColor}`;
+        // -----------------------------------------------------
 
         let fixEntry = "0.0000", sl = "0.0000", tp1 = "0.0000";
         if (struct.trend === "BULL") {
@@ -779,12 +674,12 @@
             tp1 = (parseFloat(fixEntry) - (Math.abs(parseFloat(sl) - parseFloat(fixEntry)) * 2)).toFixed(4);
         }
 
-        let actWord = "MONITOR RADAR", actDesc = "Building structural context. Adaptive state active.";
+        let actWord = "MONITOR RADAR", actDesc = "Building structural context.";
         let stateSignal = 'WAIT';
         
-        if (dec.total >= 70 && struct.trend !== "NEUTRAL") {
-            actWord = struct.trend === "BULL" ? "EXECUTE ALPHA LONG" : "EXECUTE ALPHA SHORT";
-            actDesc = struct.sweep ? "Liquidity purge validated. Counter-trend sweep confirmed." : "Structural breakout confirmed. Monitor order block retracement.";
+        if (dec.total >= baseThreshold && struct.trend !== "NEUTRAL") {
+            actWord = struct.trend === "BULL" ? "EXECUTE LONG" : "EXECUTE SHORT";
+            actDesc = struct.sweep ? "Liquidity purge validated." : "Structural breakout confirmed.";
             stateSignal = struct.trend === "BULL" ? 'LONG' : 'SHORT';
         }
 
@@ -796,8 +691,8 @@
         
         document.getElementById('outPrice').innerText = struct.status;
         document.getElementById('outAO').innerText = mom.pattern + (mom.cross ? " (+CROSS)" : "");
-        document.getElementById('outMom').innerText = dec.isDiv ? "REGULAR SPEED DIV" : (dec.isHiddenDiv ? "HIDDEN VELOCITY DIV" : "VELOCITY SYNCED");
-        document.getElementById('outStr').innerText = ((struct.currSwingBase/struct.swingBase)*100).toFixed(0) + "% VOL EXP";
+        document.getElementById('outMom').innerText = dec.isDiv ? "REGULAR DIV" : (dec.isHiddenDiv ? "HIDDEN DIV" : "SYNCED");
+        document.getElementById('outStr').innerText = ((struct.currSwingBase/struct.swingBase)*100).toFixed(0) + "% VOL";
 
         const eBox = document.getElementById('entryBox');
         if (struct.trend !== "NEUTRAL") {
@@ -812,13 +707,12 @@
 
         const updateB = (id, v, max) => {
             document.getElementById(`score${id}`).innerText = `${Math.round(v)}/${max}`;
-            setTimeout(() => document.getElementById(`bar${id}`).style.width = `${Math.min((v/max)*100, 100)}%`, 120);
+            setTimeout(() => document.getElementById(`bar${id}`).style.width = `${Math.min((v/max)*100, 100)}%`, 50);
         };
         updateB('Price', dec.scores[0], 25); updateB('AO', dec.scores[1], 25); 
         updateB('Div', dec.scores[2], 25); updateB('Dist', dec.scores[3], 25);
         document.getElementById('finalScoreTotal').innerText = dec.total;
 
-        // --- Save to Local History Database ---
         const d = new Date();
         const timestamp = d.toISOString().split('T')[0] + ' ' + d.toTimeString().split(' ')[0];
         
@@ -829,9 +723,7 @@
             score: dec.total,
             entry: fixEntry,
             sl: sl,
-            tp: tp1,
-            status: struct.status,
-            pattern: mom.pattern + (mom.cross ? " (CROSS)" : "")
+            tp: tp1
         });
     }
 
@@ -844,7 +736,7 @@
                 if(json.AO_Series) document.getElementById(t+'AOArr').value = json.AO_Series;
                 if(t==='curr' && json.Close!==undefined) document.getElementById('currClose').value = json.Close;
             }
-        } catch(e) { alert("MRE.IO_ERR: Clipboard empty or malformed token string."); }
+        } catch(e) { alert("MRE.IO_ERR: Clipboard sync failed."); }
     }
 </script>
 </body>
