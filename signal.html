@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Radar Engine | StealthCapital V6.2</title>
+    <title>Quantum Radar Engine | StealthCapital V6.5</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
     
     <style>
         :root {
-            --bg-base: #020202; /* Solid Institutional Black */
+            --bg-base: #020202; 
             --panel-bg: #070707;
             --panel-border: #1f1f1f;
             --core-purple: #8b5cf6;
@@ -30,7 +30,6 @@
         
         .font-digital { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
         
-        /* Clean Zero-Noise Panel */
         .cyber-panel { 
             background: var(--panel-bg); 
             border: 1px solid var(--panel-border); 
@@ -39,7 +38,6 @@
             transition: all 0.3s ease-in-out;
         }
         
-        /* Institutional Inputs - Focus on Data Typography */
         .cyber-input {
             background: #000000;
             border: 1px solid #262626;
@@ -59,19 +57,16 @@
 
         .transition-state { transition: all 0.3s ease; }
         
-        /* Custom Premium Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #404040; }
 
-        /* Segmented Progress bar effect - Cleaned */
         .segmented-track {
             background-image: linear-gradient(90deg, transparent 75%, var(--panel-bg) 75%);
             background-size: 6px 100%;
         }
 
-        /* Clean Gateway Buttons */
         .digital-spaceship-button {
             position: relative;
             background: #000000;
@@ -114,7 +109,7 @@
             </div>
             <div>
                 <h1 class="text-xl md:text-2xl font-extrabold tracking-[0.1em] text-white uppercase">
-                    STEALTHCAPITAL <span class="text-[10px] font-digital text-[#8b5cf6] bg-[#8b5cf6]/10 px-2 py-1 rounded ml-2 border border-[#8b5cf6]/20">QRE - V6.2</span>
+                    STEALTHCAPITAL <span class="text-[10px] font-digital text-[#8b5cf6] bg-[#8b5cf6]/10 px-2 py-1 rounded ml-2 border border-[#8b5cf6]/20">QRE - V6.5</span>
                 </h1>
             </div>
         </div>
@@ -160,6 +155,22 @@
                     <button onclick="resetSystem()" class="text-[10px] font-digital text-slate-500 hover:text-white transition-state flex items-center gap-1 bg-[#171717] px-2 py-1 rounded border border-[#262626]">
                         <i class="fa-solid fa-terminal text-[9px]"></i> PURGE
                     </button>
+                </div>
+
+                <div class="space-y-3 bg-[#0c0a09] p-4 rounded-xl border border-[#292524]">
+                    <label class="text-[10px] text-amber-500 font-digital uppercase tracking-widest flex justify-between items-center">
+                        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> 0. Risk Controller</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">BALANCE ($)</span>
+                            <input type="number" id="riskBalance" value="10000" class="cyber-input w-full p-2.5 rounded text-center border-amber-900/40">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[9px] text-slate-500 font-digital pl-1">RISK (%)</span>
+                            <input type="number" id="riskPercent" value="1.0" step="0.1" class="cyber-input w-full p-2.5 rounded text-center border-amber-900/40">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-3 bg-[#0a0a0a] p-4 rounded-xl border border-[#1f1f1f]">
@@ -241,8 +252,8 @@
                     </div>
                 </div>
 
-                <div id="entryBox" class="p-5 rounded border border-[#1f1f1f] bg-[#0a0a0a] hidden transition-state grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <div class="col-span-1 md:col-span-3 border-b border-[#262626] pb-3 flex justify-between items-center">
+                <div id="entryBox" class="p-5 rounded border border-[#1f1f1f] bg-[#0a0a0a] hidden transition-state flex flex-col space-y-4">
+                    <div class="border-b border-[#262626] pb-3 flex justify-between items-center">
                         <div>
                             <span class="block text-[9px] uppercase tracking-widest font-digital text-slate-500">Structural Context</span>
                             <strong class="text-sm text-white transition-state block font-semibold mt-0.5" id="structureStatusText">---</strong>
@@ -253,17 +264,34 @@
                         </div>
                     </div>
                     
-                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">BLOCK ENTRY</span>
-                        <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="fixedEntryLevel">0.0000</strong>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
+                            <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">BLOCK ENTRY</span>
+                            <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="fixedEntryLevel">0.0000</strong>
+                        </div>
+                        <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-rose-500">
+                            <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">INVALIDATION (SL)</span>
+                            <strong class="text-2xl font-digital text-rose-400 block mt-1" id="slLevel">0.0000</strong>
+                        </div>
+                        <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
+                            <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">TARGET (TP1)</span>
+                            <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="tpLevel">0.0000</strong>
+                        </div>
                     </div>
-                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-rose-500">
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">INVALIDATION (SL)</span>
-                        <strong class="text-2xl font-digital text-rose-400 block mt-1" id="slLevel">0.0000</strong>
-                    </div>
-                    <div class="bg-[#000000] p-4 rounded border border-[#262626] border-l-2 border-l-emerald-500">
-                        <span class="block text-[9px] font-digital uppercase text-slate-500 tracking-wider">TARGET (TP1)</span>
-                        <strong class="text-2xl font-digital text-emerald-400 block mt-1" id="tpLevel">0.0000</strong>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                        <div class="bg-[#050505] p-3 rounded border border-[#1f1f1f] flex justify-between items-center">
+                            <span class="text-[10px] font-digital text-slate-500 uppercase">Cash Risk Allocation:</span>
+                            <span class="text-xs font-digital font-bold text-rose-400" id="riskCashAllocation">$0.00</span>
+                        </div>
+                        <div class="bg-[#050505] p-3 rounded border border-[#1f1f1f] flex justify-between items-center">
+                            <span class="text-[10px] font-digital text-slate-500 uppercase">Calculated Lot (Forex):</span>
+                            <span class="text-xs font-digital font-bold text-sky-400" id="riskForexLots">0.00 Lots</span>
+                        </div>
+                        <div class="bg-[#050505] p-3 rounded border border-[#1f1f1f] flex justify-between items-center">
+                            <span class="text-[10px] font-digital text-slate-500 uppercase">Calculated Lot (Gold/XAU):</span>
+                            <span class="text-xs font-digital font-bold text-amber-400" id="riskGoldLots">0.00 Lots</span>
+                        </div>
                     </div>
                 </div>
 
@@ -321,8 +349,7 @@
             </button>
         </div>
         
-        <div id="historyContainer" class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-            </div>
+        <div id="historyContainer" class="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar"></div>
     </div>
 
 </div>
@@ -467,36 +494,25 @@
             let sweep = false;
             let breakConfirmed = false;
 
-            if (cH > pH) {
-                if (cClose > pH) { 
-                    breakConfirmed = true; 
-                    status = "BOS / CHOCH [BULL]"; 
-                    trend = "BULL"; 
-                }
-                else if (cClose < pL) { 
-                    sweep = true; 
-                    status = "BSL LIQUIDITY SWEEP"; 
-                    trend = "BEAR"; 
-                } 
-                else {
-                    status = "WEAK REJECTION"; 
-                    trend = "NEUTRAL"; 
-                }
+            if (cClose > pH) {
+                breakConfirmed = true; 
+                status = "BOS / CHOCH [BULL]"; 
+                trend = "BULL"; 
+            } else if (cClose < pL) {
+                breakConfirmed = true; 
+                status = "BOS / CHOCH [BEAR]"; 
+                trend = "BEAR"; 
+            } else if (cH > pH) {
+                sweep = true; 
+                status = "BSL LIQUIDITY SWEEP"; 
+                trend = "BEAR"; 
             } else if (cL < pL) {
-                if (cClose < pL) { 
-                    breakConfirmed = true; 
-                    status = "BOS / CHOCH [BEAR]"; 
-                    trend = "BEAR"; 
-                }
-                else if (cClose > pH) { 
-                    sweep = true; 
-                    status = "SSL LIQUIDITY SWEEP"; 
-                    trend = "BULL"; 
-                }
-                else {
-                    status = "WEAK REJECTION"; 
-                    trend = "NEUTRAL";
-                }
+                sweep = true; 
+                status = "SSL LIQUIDITY SWEEP"; 
+                trend = "BULL"; 
+            } else {
+                status = "WEAK REJECTION / INSIDE"; 
+                trend = "NEUTRAL";
             }
 
             return { status, trend, sweep, breakConfirmed, swingBase, currSwingBase, pH, pL, cH, cL };
@@ -508,11 +524,15 @@
             let s_Price = 0, s_AO = 0, s_Div = 0, s_Exh = 0;
             let isDiv = false, isHiddenDiv = false;
 
-            if (struct.cH > struct.pH && mom.peakB < mom.peakA) isDiv = true; 
-            if (struct.cL < struct.pL && mom.peakB > mom.peakA) isDiv = true; 
-            
-            if (struct.cL > struct.pL && mom.peakB < mom.peakA && struct.trend === "BULL") isHiddenDiv = true; 
-            if (struct.cH < struct.pH && mom.peakB > mom.peakA && struct.trend === "BEAR") isHiddenDiv = true;
+            let sameSide = Math.sign(mom.peakA) === Math.sign(mom.peakB) && mom.peakA !== 0;
+
+            if (sameSide) {
+                if (struct.cH > struct.pH && mom.peakB < mom.peakA) isDiv = true; 
+                if (struct.cL < struct.pL && mom.peakB > mom.peakA) isDiv = true; 
+                
+                if (struct.cL > struct.pL && mom.peakB < mom.peakA && struct.trend === "BULL") isHiddenDiv = true; 
+                if (struct.cH < struct.pH && mom.peakB > mom.peakA && struct.trend === "BEAR") isHiddenDiv = true;
+            }
 
             s_Price = struct.sweep ? 25 : (struct.breakConfirmed ? 20 : 0);
             
@@ -608,7 +628,14 @@
     }
 
     function resetSystem() {
-        document.querySelectorAll('.cyber-input').forEach(i => i.value = '');
+        document.getElementById('prevHigh').value = '';
+        document.getElementById('currHigh').value = '';
+        document.getElementById('prevLow').value = '';
+        document.getElementById('currLow').value = '';
+        document.getElementById('currClose').value = '';
+        document.getElementById('prevAOArr').value = '';
+        document.getElementById('currAOArr').value = '';
+        
         document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
         document.getElementById('entryBox').classList.add('hidden');
         ['Price', 'AO', 'Div', 'Dist'].forEach(id => {
@@ -617,6 +644,21 @@
         });
         document.getElementById('actionCommand').innerText = "STANDBY";
         document.getElementById('actionSub').innerText = "System core matrix flushed.";
+        
+        document.getElementById('outPrice').innerText = "---";
+        document.getElementById('outAO').innerText = "---";
+        document.getElementById('outMom').innerText = "---";
+        document.getElementById('outStr').innerText = "---";
+        document.getElementById('momentumStateOut').innerText = "NEUTRAL";
+        
+        const adaptEl = document.getElementById('adaptiveResetText');
+        adaptEl.innerText = "STANDARD THRESHOLD (70)";
+        adaptEl.className = "text-[10px] text-amber-500 transition-state block font-digital";
+        
+        document.getElementById('riskCashAllocation').innerText = "$0.00";
+        document.getElementById('riskForexLots').innerText = "0.00 Lots";
+        document.getElementById('riskGoldLots').innerText = "0.00 Lots";
+
         applyTheme('WAIT');
     }
 
@@ -630,6 +672,9 @@
         const arrA = MomentumEngine.parseSeries(document.getElementById('prevAOArr').value);
         const arrB = MomentumEngine.parseSeries(document.getElementById('currAOArr').value);
 
+        const rBalance = parseFloat(document.getElementById('riskBalance').value) || 10000;
+        const rPercent = parseFloat(document.getElementById('riskPercent').value) || 1.0;
+
         if(isNaN(pH) || isNaN(cH) || isNaN(cClose) || arrA.length === 0 || arrB.length === 0) {
             alert("MRE.FATAL: Terminal data buffer corrupted."); return;
         }
@@ -641,7 +686,6 @@
         
         const dec = DecisionEngine.evaluate(struct, mom);
 
-        // --- State Momentum Engine: Dynamic Threshold Logic ---
         let baseThreshold = 70;
         let adaptiveText = "STANDARD THRESHOLD (70)";
         let adaptColor = "text-amber-500";
@@ -654,14 +698,11 @@
             baseThreshold = 65;
             adaptiveText = "SOFT TRANSITION (65) - HIGH MOMENTUM";
             adaptColor = "text-emerald-400";
-        } else if (mom.state.includes("CONTINUATION")) {
-            baseThreshold = 70;
         }
         
         const adaptEl = document.getElementById('adaptiveResetText');
         adaptEl.innerText = adaptiveText;
         adaptEl.className = `text-[10px] transition-state block font-digital ${adaptColor}`;
-        // -----------------------------------------------------
 
         let fixEntry = "0.0000", sl = "0.0000", tp1 = "0.0000";
         if (struct.trend === "BULL") {
@@ -701,6 +742,21 @@
             document.getElementById('fixedEntryLevel').innerText = fixEntry;
             document.getElementById('slLevel').innerText = sl;
             document.getElementById('tpLevel').innerText = tp1;
+
+            // Execution of Risk Calculation Core Engine
+            let cashRisk = rBalance * (rPercent / 100);
+            let slDistance = Math.abs(parseFloat(fixEntry) - parseFloat(sl));
+            
+            if (slDistance > 0) {
+                // Forex Standard (4 Decimal Assets like EURUSD / 1 pip = 0.0001)
+                let forexLots = cashRisk / (slDistance * 100000);
+                // Gold Standard (1 Point move = $100 per Standard Lot)
+                let goldLots = cashRisk / (slDistance * 100);
+
+                document.getElementById('riskCashAllocation').innerText = "$" + cashRisk.toFixed(2);
+                document.getElementById('riskForexLots').innerText = forexLots.toFixed(2) + " Lots";
+                document.getElementById('riskGoldLots').innerText = goldLots.toFixed(2) + " Lots";
+            }
         } else {
             eBox.classList.add('hidden');
         }
@@ -713,8 +769,9 @@
         updateB('Div', dec.scores[2], 25); updateB('Dist', dec.scores[3], 25);
         document.getElementById('finalScoreTotal').innerText = dec.total;
 
-        const d = new Date();
-        const timestamp = d.toISOString().split('T')[0] + ' ' + d.toTimeString().split(' ')[0];
+        const pad = (n) => n.toString().padStart(2, '0');
+        const d_local = new Date();
+        const timestamp = `${d_local.getFullYear()}-${pad(d_local.getMonth()+1)}-${pad(d_local.getDate())} ${pad(d_local.getHours())}:${pad(d_local.getMinutes())}:${pad(d_local.getSeconds())}`;
         
         saveSignalToHistory({
             timestamp: timestamp,
